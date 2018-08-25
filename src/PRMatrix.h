@@ -28,6 +28,8 @@ class PRMatrix {
             }
 
             friend std::ostream& operator<<(std::ostream &os, const PRMatrixRow<R> &row) { 
+
+                // TO DO: imprimir solo los valores y poner 0's en las cols que no tengan valor
                 for(auto it = row.begin(); it != row.end(); it++) {
                     os << "(" << it->val << "," << it->col << ") "; 
                 }
