@@ -10,7 +10,7 @@ void imprimirMatriz(vector<vector<int>> matriz){
         cout << endl;
     }
 }
-int elimGaussiana(vector<vector<int> > matriz){ //ojo! es una matriz normal
+int elimGaussiana(vector<vector<int>> &matriz){ //ojo! es una matriz normal
     for (int i = 1; i < matriz.size(); i++){
         int pivote = matriz[i-1][i-1];
         for (int j = i; j < matriz.size(); j++){
@@ -23,6 +23,20 @@ int elimGaussiana(vector<vector<int> > matriz){ //ojo! es una matriz normal
         }
     }
     imprimirMatriz(matriz);
+}
+vector<float> resolverMatrizTriangular(PRMatrix<int> &matriz, vector<int> b){
+
+    vector<float> sol(matriz.getFilas());
+    int factorIndep = 0;
+    for (int i = matriz.getFilas()-1; i >= 0; i--){
+        sol[i] = b[i];
+        for (int j = matriz.getColumnas()-1; j > i; j--){
+            cout << matriz[i][j] << " fila: " << i << ", columna: " << j << endl;
+            sol[i] -= matriz[i][j] * sol[j];
+        }
+        sol[i] = sol[i]/matriz[i][i];
+    }
+    return sol;
 }
 int main() {
     // int n;
@@ -43,9 +57,10 @@ int main() {
     // EJEMPLO PRMATRIX
     PRMatrix<int> matrix (3, 3);
     matrix[0] = {{1,0},{2,1},{3,2}}; // cada elem es una tupla (val, col)
-    matrix[1] = {{4,0},{5,1}};
-    matrix[2] = {{7,0},{8,1},{9,2}};
-
+    matrix[1] = {{5,1}};
+    matrix[2] = {{9,2}};
+    vector<int> b(3, 1);
+    vector<float> sol = resolverMatrizTriangular(matrix, b);
     std::cout << matrix << std::endl;
     std::cout << matrix[1][1] << std::endl;
 
