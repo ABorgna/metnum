@@ -49,20 +49,20 @@ def generar_grafos(output_dir="gen", logs_activados=True):
 
 def escribir_resultados_en_archivo(archivo, n, nombre, p, ranks):
     comma_sep_ranks = ",".join([str(ranks[i]) for i in range(0, n)])
-    archivo.write("{},{},{}\n".format(nombre,p,comma_sep_ranks))
-    print("{},{},{}".format(nombre,p,comma_sep_ranks))
+    archivo.write("{},{},{},{}\n".format(nombre,n,p,comma_sep_ranks))
+    print("{},{},{},{}".format(nombre,n,p,comma_sep_ranks))
     return 1    
     
 
-def ejecutar_y_escribir_resultado_variando_p(cant_p, input_file, output_dir="resultados/"):
+def ejecutar_y_escribir_resultado_variando_p(cant_p, input_dir, input_file, output_dir="resultados/"):
     # Creo archivo resultado
     n = obtener_cant_nodos_de_nombre_archivo(input_file)
     resultado = open(output_dir + input_file + "-var-p-data", "w")
-    resultado.write("nombre,p," + ",".join([str(i) for i in range(0, n)]) + "\n") # header
+    resultado.write("nombre,n,p," + ",".join([str(i) for i in range(0, n)]) + "\n") # header
 
     # Para cada grafo generado, vamos variando p y escribiendo los resultados
-    for p in list(numpy.linspace(0, 1, cant_p))[1:]:
-        output = ejecutar_con_input(input_file, p)
+    for p in list(numpy.linspace(0, 1, cant_p))[1:-1]:
+        output = ejecutar_con_input(input_dir + input_file, p)
         p, ranks = parsear_output(output)
         escribir_resultados_en_archivo(resultado, n, input_file, p, ranks)
 
@@ -82,7 +82,7 @@ generar_grafos()
 input_files = os.listdir(input_dir)
 for input in input_files:
     print("Ejecutando ahora " + input)
-    ejecutar_y_escribir_resultado_variando_p(10, input, output_dir)
+    ejecutar_y_escribir_resultado_variando_p(20, input_dir, input, output_dir)
     print("")
 
 

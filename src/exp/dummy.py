@@ -1,29 +1,10 @@
+import sys
 
-print("0.21212")
-print("1")
-print("2")
-print("3")
-print("4")
-print("5")
-print("6")
-print("7")
-print("8")
-print("9")
-print("1")
-print("2")
-print("3")
-print("4")
-print("5")
-print("6")
-print("7")
-print("8")
-print("9")
-print("1")
-print("2")
-print("3")
-print("4")
-print("5")
-print("6")
-print("7")
-print("8")
-print("9")
+archivo_nombre = (sys.argv)[1]
+p = (sys.argv)[2]
+
+archivo = open(archivo_nombre, "r")
+n = int(archivo.readline())
+print(str(p))
+for i in range(0, n):
+    print(i)
