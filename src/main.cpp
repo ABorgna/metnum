@@ -1,68 +1,86 @@
-#include "PRMatrix.h"
+#include "Matrix.h"
+#include "Parser.h"
 #include <iostream>
 #include <vector>
 using namespace std;
-void imprimirMatriz(vector<vector<int>> matriz){
-    for (int i = 0; i < matriz.size(); i++){
-        for (int j = 0; j < matriz.size(); j++){
-            cout << matriz[i][j] << " ";
-        }
-        cout << endl;
-    }
-}
-int elimGaussiana(vector<vector<int>> &matriz){ //ojo! es una matriz normal
-    for (int i = 1; i < matriz.size(); i++){
-        int pivote = matriz[i-1][i-1];
-        for (int j = i; j < matriz.size(); j++){
-            int num = matriz[j][i-1];
-            vector<int> filaNuevaj = matriz[j];
-            int factorDivision = num/pivote;
-            for (int k = 0; k < filaNuevaj.size(); k++)
-                filaNuevaj[k] -= factorDivision * matriz[i-1][k];
-            matriz[j] = filaNuevaj;
-        }
-    }
-    imprimirMatriz(matriz);
-}
-vector<float> resolverMatrizTriangular(PRMatrix<int> &matriz, vector<int> b){
 
-    vector<float> sol(matriz.getFilas());
-    int factorIndep = 0;
-    for (int i = matriz.getFilas()-1; i >= 0; i--){
+#define debug(v) std::cerr << #v << ": " << v << std::endl;
+
+template<typename T>
+void elimGaussiana(Matrix<T>& matriz, vector<T>& b){
+    for (int i = 1; i < matriz.num_filas(); i++){
+        T pivote = matriz[i-1][i-1];
+        for (int j = i; j < matriz.num_filas(); j++){
+            T num = matriz[j][i-1];
+            double factorDivision = num/pivote;
+            for (int k = 0; k < matriz.num_columnas(); k++) {
+                matriz.insertar(j, k, matriz[j][k] - factorDivision * matriz[i-1][k]);
+            }
+            debug(b[j]);
+            debug(b[i-1]);
+            b[j] -= factorDivision * b[i-1];
+        }
+    }
+}
+
+template<typename T>
+vector<T> resolverMatrizTriangular(Matrix<T> &matriz, vector<T>& b){
+
+    vector<T> sol(matriz.num_filas());
+    for (int i = matriz.num_filas()-1; i >= 0; i--){
         sol[i] = b[i];
-        for (int j = matriz.getColumnas()-1; j > i; j--){
-            cout << matriz[i][j] << " fila: " << i << ", columna: " << j << endl;
+        for (int j = matriz.num_columnas()-1; j > i; j--){
             sol[i] -= matriz[i][j] * sol[j];
         }
         sol[i] = sol[i]/matriz[i][i];
     }
     return sol;
 }
+
 int main() {
-    // int n;
-    // std::cin >> n;
-    // vector<vector<int> > matriz(n);
-    // for (int i = 0; i < n; i++){
-    //     for (int j = 0; j < n; j++){
-    //         int num;
-    //         cin >> num;
-    //        // if (num != 0){
-    //             matriz[i].push_back(num);
-    //        // }
-    //     }
-    // }
-    // elimGaussiana(matriz);
+    Matrix<double> W = parse();
+    int n = W.num_filas();
+
+    // Construyo la matriz D
+    Matrix<double> D(n, n);
+
+    for (int j = 0; j < n; ++j){
+        double c = 0;
+        for (int i = 0; i < n; ++i){
+            if (W[i][j] != 0){
+                c += 1.0;
+            }
+        }
+        if (c != 0){
+            D.insertar(j, j, 1.0/c);
+        }
+    }
+
+    std::cout << W          << std::endl;
+    std::cout << D          << std::endl;
+    std::cout << W+D        << std::endl;
+    std::cout << W-D        << std::endl;
+    std::cout << W*D        << std::endl;
+    std::cout << 0.5*W*D    << std::endl;
+
+    vector<double> b (n, 1);
+    Matrix<double> esa = identidad<double>(n) - 0.5*W*D;
+    std::cout << esa << std::endl;
+    elimGaussiana(esa, b);
+    std::cout << esa << std::endl;
+    for (double x : b){
+        cout << x << ' ';
+    }
+    cout << endl;
+
+    auto v = resolverMatrizTriangular(esa, b);
+    for (double x : v){
+        cout << x << ' ';
+    }
+    cout << endl;
+
+
     
-    std::cout << "----------------" << std::endl;
-    // EJEMPLO PRMATRIX
-    PRMatrix<int> matrix (3, 3);
-    matrix[0] = {{1,0},{2,1},{3,2}}; // cada elem es una tupla (val, col)
-    matrix[1] = {{5,1}};
-    matrix[2] = {{9,2}};
-    vector<int> b(3, 1);
-    vector<float> sol = resolverMatrizTriangular(matrix, b);
-    std::cout << matrix << std::endl;
-    std::cout << matrix[1][1] << std::endl;
 
     return 0;
 }
