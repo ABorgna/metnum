@@ -6,25 +6,40 @@ using namespace std;
 
 #define debug(v) std::cerr << #v << ": " << v << std::endl;
 
+// Dadas dos filas P y F y un factor k, reasigna
+// F = F - P * k
+template<typename T>
+void restarPivote(const typename Matrix<T>::Fila& pivote, double factor,
+                  typename Matrix<T>::Fila& fila) {
+    // Actualizar solo las columnas no nulas
+    // Como la matriz es rala esto debería ser mucho menor a n
+    for(auto p : pivote) {
+        int columna = p.first;
+        T x = p.second;
+        T f = fila[columna];
+        fila.insertar(columna, f - x * factor);
+    }
+}
+
 template<typename T>
 void elimGaussiana(Matrix<T>& matriz, vector<T>& b){
-    for (int i = 1; i < matriz.num_filas(); i++){
-        T pivote = matriz[i-1][i-1];
-        for (int j = i; j < matriz.num_filas(); j++){
-            T num = matriz[j][i-1];
-            double factorDivision = num/pivote;
-            for (int k = 0; k < matriz.num_columnas(); k++) {
-                matriz.insertar(j, k, matriz[j][k] - factorDivision * matriz[i-1][k]);
-            }
+    for (int i = 0; i < matriz.num_filas()-1; i++) {
+        const auto& filaPivote = matriz[i];
+        T pivote = filaPivote[i];
+
+        for (int j = i+1; j < matriz.num_filas(); j++) {
+            T num = matriz[j][i];
+            double factorDivision = num / pivote;
+            restarPivote<T>(filaPivote, factorDivision, matriz[j]);
             debug(b[j]);
-            debug(b[i-1]);
-            b[j] -= factorDivision * b[i-1];
+            debug(b[i]);
+            b[j] -= factorDivision * b[i];
         }
     }
 }
 
 template<typename T>
-vector<T> resolverMatrizTriangular(Matrix<T> &matriz, vector<T>& b){
+vector<T> resolverMatrizTriangular(const Matrix<T> &matriz, const vector<T>& b){
 
     vector<T> sol(matriz.num_filas());
     for (int i = matriz.num_filas()-1; i >= 0; i--){

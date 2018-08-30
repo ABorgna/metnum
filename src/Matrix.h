@@ -38,6 +38,26 @@ public:
 				elems.erase(col);
 			}
 		}
+
+    // Iterators
+    typedef typename std::map<int, T>::iterator iterator;
+    typedef typename std::map<int, T>::const_iterator const_iterator;
+
+    iterator begin() noexcept {
+      return elems.begin();
+    }
+
+    const_iterator begin() const noexcept {
+      return elems.begin();
+    }
+
+    iterator end() noexcept {
+      return elems.end();
+    }
+
+    const_iterator end() const noexcept {
+      return elems.end();
+    }
 	};
 private:
 	int num_fil, num_col;
