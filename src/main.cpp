@@ -29,11 +29,14 @@ void elimGaussiana(Matrix<T>& matriz, vector<T>& b){
 
         for (int j = i+1; j < matriz.num_filas(); j++) {
             T num = matriz[j][i];
-            double factorDivision = num / pivote;
-            restarPivote<T>(filaPivote, factorDivision, matriz[j]);
-            debug(b[j]);
-            debug(b[i]);
-            b[j] -= factorDivision * b[i];
+            if(num != 0) {
+                double factorDivision = num / pivote;
+                restarPivote<T>(filaPivote, factorDivision, matriz[j]);
+                debug(b[j]);
+                debug(b[i]);
+                b[j] -= factorDivision * b[i];
+                count++;
+            }
         }
     }
 }
