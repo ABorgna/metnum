@@ -103,11 +103,16 @@ public:
 		Matrix<T> res(num_fil, otro.num_columnas());
 
 		for (int i = 0; i < num_fil; ++i){
+      const auto& fila = (*this)[i];
+
 			for (int j = 0; j < otro.num_columnas(); ++j){
 				T val = 0;
-				for (int k = 0; k < num_col; ++k){
-					val = val + ((*this)[i][k] * otro[k][j]);
-				}
+
+        for(auto p : fila) {
+          int k = p.first;
+          T x = p.second;
+					val += x * otro[k][j];
+        }
 				if (val != 0){
 					res.insertar(i, j, val);
 				}
