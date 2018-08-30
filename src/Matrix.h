@@ -1,10 +1,12 @@
 #ifndef MATRIX_H
 #define MATRIX_H
 
+#include <algorithm>
+#include <assert.h>
+#include <iostream>
+#include <limits>
 #include <map>
 #include <vector>
-#include <iostream>
-#include <assert.h>
 
 template<typename T>
 class Matrix{
@@ -18,30 +20,60 @@ class Matrix{
  */
 public:
 	class Fila {
-		friend class Matrix<T>;
-		std::map<int, T> elems;
+    typedef std::vector<std::pair<int, T>> Container;
+		Container elems;
 
 	public:
-		T operator[](int j) const{
-			auto it = elems.find(j);
+    // Iterators
+    typedef typename Container::iterator iterator;
+    typedef typename Container::const_iterator const_iterator;
+
+		const_iterator find(int j) const {
+      std::pair<int, T> target = {j, std::numeric_limits<T>::lowest()};
+			auto it = lower_bound(elems.begin(), elems.end(), target);
+			if (it == elems.end() || it->first > j){
+				return elems.end();
+			} else {
+				return it;
+			}
+		}
+
+		T operator[](int j) const {
+			auto it = find(j);
 			if (it == elems.end()){
 				return 0; // T tiene que ser casteable desde 0
 			} else {
-				return it->second; 
+				return it->second;
 			}
 		}
 
+    // Inserción de elementos en las columnas.
+    //
+    // Insertar en una columna posterior a todas las actuales es O(1)
+    // Insertar en una columna arbitraria es O(n)
 		void insertar(int col, T valor){
-			if (valor != 0){
-				elems[col] = valor;
-			} else {
-				elems.erase(col);
-			}
-		}
+      //const T EPSILON = 0;
+      if(elems.empty() || col > elems.back().first) {
+				elems.push_back({col, valor});
+			} else if (valor == 0){
+        // Borrar una columna si está presente
+        auto it = find(col);
+        if(it != elems.end()) elems.erase(it);
+      } else {
+        // Agregar o editar una columna
+        // Buscar el lugar de inserción
+        std::pair<int, T> target = {col, std::numeric_limits<T>::lowest()};
+        auto it = lower_bound(elems.begin(), elems.end(), target);
 
-    // Iterators
-    typedef typename std::map<int, T>::iterator iterator;
-    typedef typename std::map<int, T>::const_iterator const_iterator;
+        if(it != elems.end() && it->first == col) {
+          // Editarlo si ya está presente
+          it->second = valor;
+        } else {
+          // Insertarlo si no está
+          elems.insert(it, {col, valor});
+        }
+      }
+		}
 
     iterator begin() noexcept {
       return elems.begin();
@@ -89,7 +121,7 @@ public:
 	Matrix<T> operator*(T escalar) const {
 		Matrix<T> res = *this;
 		for (auto& fila : res.filas){
-			for (auto& elem : fila.elems){
+			for (auto& elem : fila){
 				elem.second *= escalar;
 			}
 		}
@@ -113,9 +145,7 @@ public:
           T x = p.second;
 					val += x * otro[k][j];
         }
-				if (val != 0){
-					res.insertar(i, j, val);
-				}
+				res.insertar(i, j, val);
 			}
 		}
 
@@ -130,9 +160,7 @@ public:
 		for (int i = 0; i < num_fil; ++i){
 			for (int j = 0; j < num_col; ++j){
 				T x = (*this)[i][j] + otro[i][j];
-				if (x != 0){
-					res.insertar(i, j, x);
-				}
+				res.insertar(i, j, x);
 			}
 		}
 
@@ -140,7 +168,9 @@ public:
 	}
 
 	Matrix<T> operator-(const Matrix<T>& otro) const {
-		return (*this)+(otro * -1.0);
+    auto negOtro = otro * -1.0;
+    auto res = *this + negOtro;
+		return res;
 	}
 
 	
