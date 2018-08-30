@@ -1,2 +1,28 @@
- all: main.cpp Matrix.h Parser.cpp
-	g++ --std=c++11 main.cpp Parser.cpp
+CC=gcc
+CXX=g++
+RM=rm -f
+CPPFLAGS= -Wall -Wextra -O2
+LDFLAGS=
+LDLIBS=
+
+SRCS=main.cpp Parser.cpp
+OBJS=$(subst .cpp,.o,$(SRCS))
+
+all: main
+
+main: $(OBJS)
+	$(CXX) $(LDFLAGS) -o main $(OBJS) $(LDLIBS)
+
+depend: .depend
+
+.depend: $(SRCS)
+	$(RM) ./.depend
+	$(CXX) $(CPPFLAGS) -MM $^>>./.depend;
+
+clean:
+	$(RM) $(OBJS)
+
+distclean: clean
+	$(RM) *~ .depend
+
+include .depend

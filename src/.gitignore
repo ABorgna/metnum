@@ -34,3 +34,7 @@ __pycache__
 *.exe
 *.out
 *.app
+main
+
+# Makefile misc
+.depend
