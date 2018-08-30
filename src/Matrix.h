@@ -17,22 +17,21 @@ class Matrix{
  * Acceder a una fila cuesta O(1), y a un elemento de la fila i O(log(#elementosDistintosDeCero(i)))
  */
 public:
-	template<typename R>
 	class Fila {
-		friend class Matrix<R>;
-		std::map<int, R> elems;
+		friend class Matrix<T>;
+		std::map<int, T> elems;
 
 	public:
-		R operator[](int j) const{
+		T operator[](int j) const{
 			auto it = elems.find(j);
 			if (it == elems.end()){
-				return 0; // R tiene que ser casteable desde 0
+				return 0; // T tiene que ser casteable desde 0
 			} else {
 				return it->second; 
 			}
 		}
 
-		void insertar(int col, R valor){
+		void insertar(int col, T valor){
 			if (valor != 0){
 				elems[col] = valor;
 			} else {
@@ -42,7 +41,7 @@ public:
 	};
 private:
 	int num_fil, num_col;
-	std::vector<Fila<T>> filas;
+	std::vector<Fila> filas;
 
 public:
 	Matrix(int filas, int columnas) : num_fil(filas), num_col(columnas), filas(filas) {};
@@ -55,11 +54,11 @@ public:
 		return num_col;
 	}
 
-	Fila<T>& operator[](int i){
+	Fila& operator[](int i){
 		return filas[i];
 	}
 
-	const Fila<T>& operator[](int i) const {
+	const Fila& operator[](int i) const {
 		return filas[i];
 	}
 
