@@ -35,7 +35,6 @@ void elimGaussiana(Matrix<T>& matriz, vector<T>& b){
                 debug(b[j]);
                 debug(b[i]);
                 b[j] -= factorDivision * b[i];
-                count++;
             }
         }
     }
