@@ -1,18 +1,24 @@
 #include "Parser.h"
-#include <iostream>
+#include <fstream>
 
-Matrix<double> parse(){
+Matrix<double> parse(char* s){
 	int n, m;
-	std::cin >> n >> m;
+	
+	std::fstream fs;
+  	fs.open (s, std::fstream::in);
+
+
+	fs >> n >> m;
 
 	Matrix<double> res(n, n);
 
 	for (int k = 0; k < m; ++k){
 		int i, j;
-		std::cin >> i >> j;
+		fs >> i >> j;
 		i--; j--;
 		res.insertar(j, i, 1.0);
 	}
 
+    fs.close();
 	return res;
 }

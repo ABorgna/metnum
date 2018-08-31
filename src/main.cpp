@@ -6,20 +6,46 @@ using namespace std;
 
 #define debug(v) std::cerr << #v << ": " << v << std::endl;
 
-// Dadas dos filas P y F y un factor k, reasigna
+// Dadas dos filas F y P y un factor k, reasigna
 // F = F - P * k
-// O(pivote.size()*log(fila.size()))
 template<typename T>
-void restarPivote(const typename Matrix<T>::Fila& pivote, double factor,
-                  typename Matrix<T>::Fila& fila) {
+typename Matrix<T>::Fila restarPivote(
+        const typename Matrix<T>::Fila& fila,
+        const typename Matrix<T>::Fila& pivote,
+        double factor) {
     // Actualizar solo las columnas no nulas
     // Como la matriz es rala esto debería ser mucho menor a n
-    for(auto p : pivote) {
-        int columna = p.first;
-        T x = p.second;
-        T f = fila[columna];
-        fila.insertar(columna, f - x * factor);
+    typename Matrix<T>::Fila res = {};
+
+    auto itFila = fila.begin();
+    auto itPivot = pivote.begin();
+    for(; itPivot != pivote.end(); itPivot++) {
+        // Adelantar itFila copiando directamente los valores
+        while(itFila != fila.end() && itFila->first < itPivot->first) {
+            res.insertar(itFila->first, itFila->second);
+            itFila++;
+        }
+        if(itFila == fila.end() || itFila->first > itPivot->first) {
+            // Solo el pivot es no nulo en esta columna
+            T x = itPivot->second;
+            res.insertar(itPivot->first, -x * factor);
+        } else {
+            // La columna tiene elementos no nulos
+            // tanto en la fila actual como en la pivot
+            T x = itPivot->second;
+            T f = itFila->second;
+            // Forzar un 0 en la columna que sabemos quedará nula,
+            // para evitar errores de redondeo
+            if(itPivot != pivote.begin())
+                res.insertar(itFila->first, f - x * factor);
+            itFila++;
+        }
     }
+    // Copiar los elementos restantes de la fila
+    for(; itFila != fila.end(); itFila++) {
+        res.insertar(itFila->first, itFila->second);
+    }
+    return res;
 }
 
 template<typename T>
@@ -30,10 +56,12 @@ void elimGaussiana(Matrix<T>& matriz, vector<T>& b){
 
         for (int j = i+1; j < matriz.num_filas(); j++) {
             T num = matriz[j][i];
-            if(matriz[j].esta(i) /*num != 0*/) {
+            if(num != 0) {
                 double factorDivision = num / pivote;
-                restarPivote<T>(filaPivote, factorDivision, matriz[j]);
-                matriz[j].limpiar(i);
+                matriz[j] =
+                    restarPivote<T>(matriz[j], matriz[i], factorDivision);
+                debug(b[j]);
+                debug(b[i]);
                 b[j] -= factorDivision * b[i];
             }
         }
