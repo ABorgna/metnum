@@ -8,6 +8,7 @@ using namespace std;
 
 // Dadas dos filas P y F y un factor k, reasigna
 // F = F - P * k
+// O(pivote.size()*log(fila.size()))
 template<typename T>
 void restarPivote(const typename Matrix<T>::Fila& pivote, double factor,
                   typename Matrix<T>::Fila& fila) {
@@ -29,13 +30,11 @@ void elimGaussiana(Matrix<T>& matriz, vector<T>& b){
 
         for (int j = i+1; j < matriz.num_filas(); j++) {
             T num = matriz[j][i];
-            if(num != 0) {
+            if(matriz[j].esta(i) /*num != 0*/) {
                 double factorDivision = num / pivote;
                 restarPivote<T>(filaPivote, factorDivision, matriz[j]);
-                debug(b[j]);
-                debug(b[i]);
+                matriz[j].limpiar(i);
                 b[j] -= factorDivision * b[i];
-                count++;
             }
         }
     }
@@ -55,8 +54,25 @@ vector<T> resolverMatrizTriangular(const Matrix<T> &matriz, const vector<T>& b){
     return sol;
 }
 
-int main() {
-    Matrix<double> W = parse();
+template<typename T>
+void normalizar(vector<T>& v){
+  T sum = 0;
+  for (auto x : v){
+    sum += x;
+  }
+
+  for (auto& x : v){
+    x /= sum;
+  }
+}
+
+int main(int argc, char *argv[]){
+    if (argc != 3){
+      std::cout << "El uso es ./main archivo p" << std::endl;
+      return 0;
+    }
+    Matrix<double> W = parse(argv[1]);
+
     int n = W.num_filas();
 
     // Construyo la matriz D
@@ -65,40 +81,27 @@ int main() {
     for (int j = 0; j < n; ++j){
         double c = 0;
         for (int i = 0; i < n; ++i){
-            if (W[i][j] != 0){
-                c += 1.0;
-            }
+            c += W[i][j];
         }
-        if (c != 0){
+        if (c > 0.5){
             D.insertar(j, j, 1.0/c);
         }
     }
 
-    std::cout << W          << std::endl;
-    std::cout << D          << std::endl;
-    std::cout << W+D        << std::endl;
-    std::cout << W-D        << std::endl;
-    std::cout << W*D        << std::endl;
-    std::cout << 0.5*W*D    << std::endl;
-
+    double p = stod(argv[2]);
+    debug(p);
     vector<double> b (n, 1);
-    Matrix<double> esa = identidad<double>(n) - 0.5*W*D;
-    std::cout << esa << std::endl;
+    Matrix<double> esa = identidad<double>(n) - p*W*D;
     elimGaussiana(esa, b);
-    std::cout << esa << std::endl;
-    for (double x : b){
-        cout << x << ' ';
-    }
-    cout << endl;
-
+    cerr << "gauss eliminado" << endl;
     auto v = resolverMatrizTriangular(esa, b);
-    for (double x : v){
-        cout << x << ' ';
+    cerr << "resuelto" << endl;
+    normalizar(v);
+
+    std::cout << p << std::endl;
+    for (auto x : v){
+      std::cout << x << std::endl;
     }
-    cout << endl;
-
-
-    
 
     return 0;
 }
