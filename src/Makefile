@@ -13,6 +13,8 @@ all: tp1
 tp1: $(OBJS)
 	$(CXX) $(LDFLAGS) -o tp1 $(OBJS) $(LDLIBS)
 
+tests: tp1 tests_catedra/tester.py
+	cd tests_catedra; python3 tester.py
 depend: .depend
 
 .depend: $(SRCS)
