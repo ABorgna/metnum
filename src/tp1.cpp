@@ -60,8 +60,6 @@ void elimGaussiana(Matrix<T>& matriz, vector<T>& b){
                 double factorDivision = num / pivote;
                 matriz[j] =
                     restarPivote<T>(matriz[j], matriz[i], factorDivision);
-                debug(b[j]);
-                debug(b[i]);
                 b[j] -= factorDivision * b[i];
             }
         }

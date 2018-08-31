@@ -1,17 +1,17 @@
 CC=gcc
 CXX=g++
 RM=rm -f
-CPPFLAGS= -Wall -Wextra -O3 -std=c++11
+CPPFLAGS= -Wall -Wextra -O2 -std=c++11
 LDFLAGS=
 LDLIBS=
 
-SRCS=main.cpp Parser.cpp
+SRCS=tp1.cpp Parser.cpp
 OBJS=$(subst .cpp,.o,$(SRCS))
 
-all: main
+all: tp1
 
-main: $(OBJS)
-	$(CXX) $(LDFLAGS) -o main $(OBJS) $(LDLIBS)
+tp1: $(OBJS)
+	$(CXX) $(LDFLAGS) -o tp1 $(OBJS) $(LDLIBS)
 
 depend: .depend
 
