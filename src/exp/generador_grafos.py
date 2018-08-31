@@ -1,3 +1,5 @@
+import numpy as np
+
 def generar_grafo_trivial(n):
     """Genera grafo de n vertices aislados en forma de matriz de adyacencias"""
     return [[0]*n for i in range(0, n)]
@@ -95,3 +97,16 @@ def generar_grafo_estrellas_unidas_hacia_afuera(cant_estrellas, cant_nodos_por_e
         m[n-1][i] = 1
     
     return m   
+
+
+def generar_grafo_random(cant_nodos, p_densidad):
+    """ Genera un grafo random de 'cant_nodos' nodos con densidad de aristas 'p_densidad' (que es una probabilidad)"""
+    max_m = int(cant_nodos*(cant_nodos-1))
+    m = int(max_m*p_densidad)
+    np_matrix = np.array([0] * (max_m - m) + [1] * m)
+    np.random.shuffle(np_matrix)
+    np_matrix = np.split(np_matrix, cant_nodos)
+    for i in range(0, cant_nodos):
+        np_matrix[i] = np.insert(np_matrix[i],i,0)
+
+    return np_matrix
