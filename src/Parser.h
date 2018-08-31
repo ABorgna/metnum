@@ -3,7 +3,7 @@
 
 #include "Matrix.h"
 
-Matrix<double> parse();
+Matrix<double> parse(char* s);
 
 
 

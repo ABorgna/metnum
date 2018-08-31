@@ -52,10 +52,12 @@ public:
     // Insertar en una columna posterior a todas las actuales es O(1)
     // Insertar en una columna arbitraria es O(n)
 		void insertar(int col, T valor){
-      //const T EPSILON = 0;
+      const T EPSILON = 0;
+      const bool isZero = -EPSILON <= valor && valor <= EPSILON;
+
       if(elems.empty() || col > elems.back().first) {
-				elems.push_back({col, valor});
-			} else if (valor == 0){
+        if(!isZero) elems.push_back({col, valor});
+			} else if (isZero){
         // Borrar una columna si está presente
         auto it = find(col);
         if(it != elems.end()) elems.erase(it);
