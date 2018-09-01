@@ -55,7 +55,7 @@
 #         self.cant_densidades = cant_densidades
 
 # # Parametros
-# t_files = TestFiles("gen/", "resultados/", "random-var-m-data")
+# t_files = TestFiles("gen/", "resultados/", "random-var-m-data.csv")
 # t_args = TestArgs(0.5, 20, 5, 10)
 
 # # Creo carpeta output si no existe

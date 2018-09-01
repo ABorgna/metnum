@@ -45,24 +45,19 @@ def generar_grafos_estrella(dir, cant_nodos):
     guardar_matriz_en_archivo(union_estrellas_out, dir + "union-estrellas-out", False)
 
 def escribir_resultados_en_archivo_simple(archivo, n, nombre, p, ranks):
-    comma_sep_ranks = ",".join([str(ranks[i]) for i in range(0, n)])
-    archivo.write("{},{},{},{}\n".format(nombre,n,p,comma_sep_ranks))
-    print("{},{},{},{}".format(nombre,n,p,comma_sep_ranks))
-    return 1    
+    for i in range(0, n):
+        archivo.write("{},{},{},{},{}\n".format(nombre,n,p,i,ranks[i]))
+        print("{},{},{},{},{}".format(nombre,n,p,i,ranks[i]))
 
 def escribir_resultados_en_archivo_estrellas(archivo, n, nombre, p, ranks):
-    cant_estrellas = n[0]
-    cant_nodos_por_estrella = n[1]
-    cant_nodos_totales = cant_estrellas * cant_nodos_por_estrella + 1
-    comma_sep_ranks = ",".join([str(ranks[i]) for i in range(0, cant_nodos_totales)])
-    archivo.write("{},{},{},{},{}\n".format(nombre,cant_estrellas,cant_nodos_por_estrella,p,comma_sep_ranks))
-    print("{},{},{},{},{}".format(nombre,cant_estrellas,cant_nodos_por_estrella,p,comma_sep_ranks))
-    return 1    
-    
+    cant_nodos_totales = n[0] * n[1] + 1
+    for i in range(0,cant_nodos_totales):
+        archivo.write("{},{},{},{},{},{}\n".format(nombre,n[0],n[1],p, i, ranks[i]))
+        print("{},{},{},{},{},{}".format(nombre,n[0],n[1],p, i, ranks[i]))
 
 def ejecutar_y_escribir_resultado_variando_p(cant_nodos, cant_p, input_name, t_files, header, escribir_resultados_en_archivo):
     # Creo archivo resultado
-    resultado = open(t_files.output_dir + input_name + "-var-p-data", "w")
+    resultado = open(t_files.output_dir + input_name + "-var-p-data.csv", "w")
     resultado.write(header)
 
     # Para cada grafo generado, vamos variando p y escribiendo los resultados
@@ -94,7 +89,7 @@ generar_grafos_simples(t_files.input_dir, cant_nodos)
 input_files = os.listdir(t_files.input_dir)
 for input_name in input_files:
     print("Ejecutando ahora " + input_name)
-    header = "nombre,n,p," + ",".join([str(i) for i in range(0, cant_nodos[input_name])]) + "\n"
+    header = "nombre,n,p,nodo,val_nodo\n"
     ejecutar_y_escribir_resultado_variando_p(cant_nodos[input_name], cant_p, input_name, t_files, header, escribir_resultados_en_archivo_simple)
     print("")
 
@@ -105,8 +100,7 @@ generar_grafos_estrella(t_files.input_dir, cant_nodos)
 input_files = os.listdir(t_files.input_dir)
 for input_name in input_files:
     print("Ejecutando ahora " + input_name)
-    cant_nodos_totales = (cant_nodos[input_name][0])*(cant_nodos[input_name][1])+1
-    header = "nombre,cant_estrellas,cant_nodos_por_estrella,p," + ",".join([str(i) for i in range(0, cant_nodos_totales)]) + "\n"
+    header = "nombre,cant_estrellas,cant_nodos_por_estrella,p,nodo,val_nodo\n"
     ejecutar_y_escribir_resultado_variando_p(cant_nodos[input_name], cant_p, input_name, t_files, header, escribir_resultados_en_archivo_estrellas)
     print("")
 

@@ -23,10 +23,9 @@ def generar_grafos(cant_nodos, cant_densidades, cant_intentos, output_dir="gen")
 
     print("Listo! Generacion de grafos OK")     
 
-def escribir_resultados_en_archivo(input_name, p_densidad, nro_intento, tiempo_ns, ranks, t_args, t_file):
-    comma_sep_ranks = ",".join([str(ranks[i]) for i in range(0, t_args.cant_nodos)])
-    resultado.write("{},{},{},{},{},{},{},{},{}\n".format(input_name, t_args.cant_nodos, t_args.p, p_densidad, t_args.cant_densidades, nro_intento, t_args.cant_intentos, tiempo_ns, comma_sep_ranks))
-    print("{},{},{},{},{},{},{},{},{}".format(input_name, t_args.cant_nodos, t_args.p, p_densidad, t_args.cant_densidades, nro_intento, t_args.cant_intentos, tiempo_ns, comma_sep_ranks))
+def escribir_resultados_en_archivo(input_name, p_densidad, nro_intento, tiempo_ns, t_args, t_file):
+    resultado.write("{},{},{},{},{},{},{},{}\n".format(input_name, t_args.cant_nodos, t_args.p, p_densidad, t_args.cant_densidades, nro_intento, t_args.cant_intentos, tiempo_ns))
+    print("{},{},{},{},{},{},{},{}".format(input_name, t_args.cant_nodos, t_args.p, p_densidad, t_args.cant_densidades, nro_intento, t_args.cant_intentos, tiempo_ns))
 
 def parsear_nombre(input_name):
     tokens = input_name.split("-")
@@ -36,12 +35,11 @@ def ejecutar_y_escribir_resultado_variando_p(input_name, t_args, t_file):
     p_densidad, nro_intento = parsear_nombre(input_name)
 
     tiempo_inicial = time.time_ns()
-    output = ejecutar_con_input(t_file.input_dir + input_name, t_args.p)
+    ejecutar_con_input(t_file.input_dir + input_name, t_args.p)
     tiempo_final = time.time_ns()
-    p, ranks = parsear_output(output)
 
     tiempo_ns = tiempo_final - tiempo_inicial
-    escribir_resultados_en_archivo(input_name, p_densidad, nro_intento, tiempo_ns, ranks, t_args, t_file)
+    escribir_resultados_en_archivo(input_name, p_densidad, nro_intento, tiempo_ns, t_args, t_file)
 
 class TestFiles: 
     def __init__(self, input_dir, output_dir, output_file):
@@ -57,8 +55,8 @@ class TestArgs:
         self.cant_densidades = cant_densidades
 
 # Parametros
-t_files = TestFiles("gen/", "resultados/", "random-var-m-data")
-t_args = TestArgs(0.5, 20, 5, 10)
+t_files = TestFiles("gen/", "resultados/", "random-var-m-data.csv")
+t_args = TestArgs(0.7, 100, 20, 20)
 
 # Creo carpeta output si no existe
 if not os.path.exists(t_files.output_dir):
@@ -70,7 +68,7 @@ generar_grafos(t_args.cant_nodos, t_args.cant_densidades, t_args.cant_intentos)
 # Creo archivo resultado
 resultado = open(t_files.output_dir + t_files.output_file, "w")
 comma_sep_nodos = ",".join([str(i) for i in range(0,  t_args.cant_nodos)])
-resultado.write("nombre,n,p,p_densidad,cant_densidades,nro_intento,cant_intentos,tiempo_ns,{}\n".format(comma_sep_nodos)) # header
+resultado.write("nombre,n,p,p_densidad,cant_densidades,nro_intento,cant_intentos,tiempo_ns\n") # header
 
 # Ejecuto todos inputs generados
 input_files = os.listdir(t_files.input_dir)
