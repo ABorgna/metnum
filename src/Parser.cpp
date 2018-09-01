@@ -9,7 +9,6 @@ Matrix<double> parse(char* s){
 
 
 	fs >> n >> m;
-
 	Matrix<double> res(n, n);
 
 	for (int k = 0; k < m; ++k){

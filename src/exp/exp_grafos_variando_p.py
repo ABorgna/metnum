@@ -3,10 +3,8 @@ from grafos_utils import *
 from exp_base import *
 
 
-def generar_grafos(output_dir="gen", logs_activados=True):
-    if logs_activados:
-        print("Generando grafos en directorio: '{}/'".format(output_dir))
-
+def generar_grafos(dir):
+    print("Generando grafos en directorio: '{}'".format(dir))
     grafos = []
 
     # Grafo trivial
@@ -32,20 +30,16 @@ def generar_grafos(output_dir="gen", logs_activados=True):
     grafos.append(("union-{}-estrellas-{}-out-{}-nodos".format(cant_estrellas_out, cant_nodos_por_estrellas_out, cant_estrellas_out*cant_nodos_por_estrellas_out+1) , ue_out))
 
     # Limpio directorio o lo creo si no existe
-    if os.path.exists(output_dir):
-        shutil.rmtree(output_dir)
-    os.mkdir(output_dir)
+    if os.path.exists(dir):
+        shutil.rmtree(dir)
+    os.mkdir(dir)
 
     # Genero grafos
     for grafo in grafos:
-        if logs_activados:
-            print("Generando ahora '{}':".format(grafo[0]))
-            imprimir_matriz(grafo[1])
-            print("")
-        guardar_matriz_en_archivo(grafo[1], "{}/{}".format(output_dir, grafo[0]), False)
+        print("Generando ahora '{}':".format(grafo[0]))
+        guardar_matriz_en_archivo(grafo[1], "{}/{}".format(dir, grafo[0]), False)
 
-    if logs_activados:
-        print("Listo! Generacion de grafos OK")     
+    print("Listo! Generacion de grafos OK")     
 
 def escribir_resultados_en_archivo(archivo, n, nombre, p, ranks):
     comma_sep_ranks = ",".join([str(ranks[i]) for i in range(0, n)])
@@ -54,35 +48,42 @@ def escribir_resultados_en_archivo(archivo, n, nombre, p, ranks):
     return 1    
     
 
-def ejecutar_y_escribir_resultado_variando_p(cant_p, input_dir, input_file, output_dir="resultados/"):
+def ejecutar_y_escribir_resultado_variando_p(cant_nodos, cant_p, input_name, t_files):
     # Creo archivo resultado
-    n = obtener_cant_nodos_de_nombre_archivo(input_file)
-    resultado = open(output_dir + input_file + "-var-p-data", "w")
+    n = obtener_cant_nodos_de_nombre_archivo(input_name)
+    resultado = open(t_files.output_dir + input_name + "-var-p-data", "w")
     resultado.write("nombre,n,p," + ",".join([str(i) for i in range(0, n)]) + "\n") # header
 
     # Para cada grafo generado, vamos variando p y escribiendo los resultados
     for p in list(numpy.linspace(0, 1, cant_p))[1:-1]:
-        output = ejecutar_con_input(input_dir + input_file, p)
+        output = ejecutar_con_input(t_files.input_dir + input_name, p)
         p, ranks = parsear_output(output)
-        escribir_resultados_en_archivo(resultado, n, input_file, p, ranks)
+        escribir_resultados_en_archivo(resultado, n, input_name, p, ranks)
 
     resultado.close()
 
+class TestFiles: 
+    def __init__(self, input_dir, output_dir):
+        self.input_dir = input_dir
+        self.output_dir = output_dir
 
-
-output_dir = "resultados/"
-input_dir = "gen/"
+# Parametros
+t_files = TestFiles("gen/", "resultados/")
+cant_nodos = 20
+cant_p = 10
 
 # Creo carpeta output si no existe
-if not os.path.exists(output_dir):
-    os.mkdir(output_dir)
+if not os.path.exists(t_files.output_dir):
+    os.mkdir(t_files.output_dir)
+ 
+# Genero grafos
+generar_grafos(t_files.input_dir)
 
-generar_grafos()
-
-input_files = os.listdir(input_dir)
-for input in input_files:
-    print("Ejecutando ahora " + input)
-    ejecutar_y_escribir_resultado_variando_p(20, input_dir, input, output_dir)
+# Ejecuto inputs generados
+input_files = os.listdir(t_files.input_dir)
+for input_name in input_files:
+    print("Ejecutando ahora " + input_name)
+    ejecutar_y_escribir_resultado_variando_p(cant_nodos, cant_p, input_name, t_files)
     print("")
 
 

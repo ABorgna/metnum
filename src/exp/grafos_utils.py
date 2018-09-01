@@ -29,8 +29,8 @@ def guardar_matriz_en_archivo(matriz, nombre_archivo, imprimir_escritura=False):
     for i in range(0, n):
         for j in range (0, n):
             if matriz[i][j] == 1:
-                archivo.write("{} {}\n".format(i,j))
+                archivo.write("{} {}\n".format(i+1,j+1))
                 if imprimir_escritura:
-                    print("{} {}".format(i,j))
+                    print("{} {}".format(i+1,j+1))
                 
     archivo.close()

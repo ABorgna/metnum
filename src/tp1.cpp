@@ -98,7 +98,6 @@ int main(int argc, char *argv[]){
       return 0;
     }
     Matrix<double> W = parse(argv[1]);
-
     int n = W.num_filas();
 
     // Construyo la matriz D
@@ -115,13 +114,13 @@ int main(int argc, char *argv[]){
     }
 
     double p = stod(argv[2]);
-    debug(p);
+    // debug(p);
     vector<double> b (n, 1);
     Matrix<double> esa = identidad<double>(n) - p*W*D;
     elimGaussiana(esa, b);
-    cerr << "gauss eliminado" << endl;
+    // cerr << "gauss eliminado" << endl;
     auto v = resolverMatrizTriangular(esa, b);
-    cerr << "resuelto" << endl;
+    // cerr << "resuelto" << endl;
     normalizar(v);
 
     std::cout << p << std::endl;

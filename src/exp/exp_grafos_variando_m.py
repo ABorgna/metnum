@@ -4,10 +4,9 @@ from exp_base import *
 import time
 
 
-def generar_grafos(cant_nodos, cant_densidades, cant_intentos, output_dir="gen", logs_activados=True):
-    if logs_activados:
-        print("Generando grafos en directorio: '{}/'".format(output_dir))
-        print("--> params: n={}, #densidades={}, #intentos={}".format(cant_nodos, cant_densidades, cant_intentos))
+def generar_grafos(cant_nodos, cant_densidades, cant_intentos, output_dir="gen"):
+    print("Generando grafos en directorio: '{}/'".format(output_dir))
+    print("--> params: n={}, #densidades={}, #intentos={}".format(cant_nodos, cant_densidades, cant_intentos))
     
     # Limpio directorio o lo creo si no existe
     if os.path.exists(output_dir):
@@ -15,16 +14,14 @@ def generar_grafos(cant_nodos, cant_densidades, cant_intentos, output_dir="gen",
     os.mkdir(output_dir)
     
     for p_densidad in list(numpy.linspace(0, 1, cant_densidades)):
-        if logs_activados:
-            print("Generando ahora random-{}-pdens (x{})".format(p_densidad, cant_intentos))
+        print("Generando ahora random-{}-pdens (x{})".format(p_densidad, cant_intentos))
 
         for nro_prueba in range(0, cant_intentos):
             g = generar_grafo_random(cant_nodos, p_densidad)
             nombre = "random-{}-pdens-{}".format(p_densidad, nro_prueba)
             guardar_matriz_en_archivo(g, "{}/{}".format(output_dir, nombre), False)
 
-    if logs_activados:
-        print("Listo! Generacion de grafos OK")     
+    print("Listo! Generacion de grafos OK")     
 
 def escribir_resultados_en_archivo(input_name, p_densidad, nro_intento, tiempo_ns, t_args, t_file):
     resultado.write("{},{},{},{},{},{},{},{}\n".format(input_name, t_args.cant_nodos, t_args.p, p_densidad, t_args.cant_densidades, nro_intento, t_args.cant_intentos, tiempo_ns))
@@ -57,6 +54,7 @@ class TestArgs:
         self.cant_intentos = cant_intentos
         self.cant_densidades = cant_densidades
 
+# Parametros
 t_files = TestFiles("gen/", "resultados/", "random-var-m-data")
 t_args = TestArgs(0.5, 20, 5, 10)
 
