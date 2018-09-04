@@ -17,7 +17,7 @@ def generar_grafos(cant_nodos, cant_densidades, cant_intentos, output_dir="gen")
         print("Generando ahora random-{}-pdens (x{})".format(p_densidad, cant_intentos))
 
         for nro_prueba in range(0, cant_intentos):
-            g = generar_grafo_random(cant_nodos, p_densidad)
+            g = generar_grafo_random_de_densidad(cant_nodos, p_densidad)
             nombre = "random-{}-pdens-{}".format(p_densidad, nro_prueba)
             guardar_matriz_en_archivo(g, "{}/{}".format(output_dir, nombre), False)
 

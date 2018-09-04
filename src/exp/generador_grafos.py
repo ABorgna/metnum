@@ -99,11 +99,16 @@ def generar_grafo_estrellas_unidas_hacia_afuera(cant_estrellas, cant_nodos_por_e
     return m   
 
 
-def generar_grafo_random(cant_nodos, p_densidad):
+def generar_grafo_random_de_densidad(cant_nodos, p_densidad):
     """ Genera un grafo random de 'cant_nodos' nodos con densidad de aristas 'p_densidad' (que es una probabilidad)"""
     max_m = int(cant_nodos*(cant_nodos-1))
     m = int(max_m*p_densidad)
-    np_matrix = np.array([0] * (max_m - m) + [1] * m)
+    return generar_grafo_random_m_fijo(cant_nodos, m)
+
+def generar_grafo_random_m_fijo(cant_nodos, cant_aristas):
+    """ Genera un grafo random de 'cant_nodos' nodos con 'cant_aristas' aristas """
+    max_m = int(cant_nodos*(cant_nodos-1))
+    np_matrix = np.array([0] * (max_m - cant_aristas) + [1] * cant_aristas)
     np.random.shuffle(np_matrix)
     np_matrix = np.split(np_matrix, cant_nodos)
     for i in range(0, cant_nodos):
