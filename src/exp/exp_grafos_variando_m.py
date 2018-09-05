@@ -56,7 +56,7 @@ class TestArgs:
 
 # Parametros
 t_files = TestFiles("gen/", "resultados/", "random-var-m-data.csv")
-t_args = TestArgs(0.7, 100, 20, 20)
+t_args = TestArgs(0.5, 200, 5, 1000)
 
 # Creo carpeta output si no existe
 if not os.path.exists(t_files.output_dir):

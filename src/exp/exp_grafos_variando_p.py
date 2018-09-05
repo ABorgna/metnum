@@ -75,7 +75,7 @@ class TestFiles:
 
 # Parametros
 t_files = TestFiles("gen/", "resultados/")
-cant_nodos = {"trivial":5, "completo":5, "union-estrellas-in":(5,3), "union-estrellas-out":(5,3)}
+cant_nodos = {"trivial":10, "completo":10, "union-estrellas-in":(5,3), "union-estrellas-out":(5,3)}
 cant_p = 10
 
 # Creo carpeta output si no existe
