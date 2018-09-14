@@ -52,7 +52,7 @@ public:
     // Insertar en una columna posterior a todas las actuales es O(1)
     // Insertar en una columna arbitraria es O(n)
 		void insertar(int col, T valor){
-      const T EPSILON = 0;
+      const T EPSILON = 1e-4;
       const bool isZero = -EPSILON <= valor && valor <= EPSILON;
 
       if(elems.empty() || col > elems.back().first) {
