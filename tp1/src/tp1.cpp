@@ -5,14 +5,14 @@
 #include "Parser.h"
 using namespace std;
 
-#define debug(v) std::cerr << #v << ": " << v << std::endl;
+bool verbose = false;
 
 // Dadas dos filas F y P y un factor k, reasigna
 // F = F - P * k
 template <typename T>
 typename Matrix<T>::Fila restarPivote(const typename Matrix<T>::Fila& fila,
                                       const typename Matrix<T>::Fila& pivote,
-                                      double factor) {
+                                      T factor) {
     // Actualizar solo las columnas no nulas
     // Como la matriz es rala esto debería ser mucho menor a n
     typename Matrix<T>::Fila res = {};
@@ -57,7 +57,7 @@ void elimGaussiana(Matrix<T>& matriz, vector<T>& b) {
         for (int j = i + 1; j < matriz.num_filas(); j++) {
             T num = matriz[j][i];
             if (num != 0) {
-                double factorDivision = num / pivote;
+                T factorDivision = num / pivote;
                 matriz[j] =
                     restarPivote<T>(matriz[j], matriz[i], factorDivision);
                 b[j] -= factorDivision * b[i];
@@ -92,20 +92,46 @@ void normalizar(vector<T>& v) {
     }
 }
 
+template <typename T>
+vector<T> solve(char* inFile, T p) {
+    Matrix<T> W = parse<T>(inFile);
+    int n = W.num_filas();
+
+    // Construyo la matriz D
+    Matrix<T> D(n, n);
+
+    for (int j = 0; j < n; ++j) {
+        T c = 0;
+        for (int i = 0; i < n; ++i) {
+            c += W[i][j];
+        }
+        if (c > 0.5) {
+            D.insertar(j, j, 1.0 / c);
+        }
+    }
+
+    vector<T> b(n, 1);
+    Matrix<T> esa = identidad<T>(n) - p * W * D;
+    elimGaussiana(esa, b);
+
+    vector<T> v = resolverMatrizTriangular(esa, b);
+    normalizar(v);
+
+    return v;
+}
+
 void printHelp(const char* cmd) {
-    cerr
-        << "Usage: " << cmd << " [OPTIONS] archivo p." << endl
-        << endl
-        << "  Options:" << endl
-        << "    -h  Show this help message" << endl
-        << "    -v  Print the intermediary values" << endl
-        << "    -f  Use floats internally, instead of doubles" << endl
-        << "    -e  Use an arbitrary precision library," <<
-                    " and get an exact result" << endl;
+    cerr << "Usage: " << cmd << " [OPTIONS] archivo p." << endl
+         << endl
+         << "  Options:" << endl
+         << "    -h  Show this help message" << endl
+         << "    -v  Print the intermediary values" << endl
+         << "    -f  Use floats internally, instead of doubles" << endl
+         << "    -e  Use an arbitrary precision library,"
+         << " and get an exact result" << endl;
 }
 
 int main(int argc, char* argv[]) {
-    bool verbose = false;
     bool useFloats = false;
     bool useExactLibrary = false;
 
@@ -126,7 +152,8 @@ int main(int argc, char* argv[]) {
                 break;
             case '?':
                 if (isprint(optopt))
-                    cerr << "Unknown option `-" << optopt << "'." << endl << endl;
+                    cerr << "Unknown option `-" << optopt << "'." << endl
+                         << endl;
                 printHelp(argv[0]);
                 return -2;
             default:
@@ -134,43 +161,28 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    if(argc - optind != 2) {
+    if (argc - optind != 2) {
         printHelp(argv[0]);
         return -2;
     }
     char* inFile = argv[optind];
-    double p = stod(argv[optind+1]);
+    double p = stod(argv[optind + 1]);
 
     // Solve
+    if (!useFloats) {
+        vector<double> v = solve<double>(inFile, p);
 
-    Matrix<double> W = parse(inFile);
-    int n = W.num_filas();
-
-    // Construyo la matriz D
-    Matrix<double> D(n, n);
-
-    for (int j = 0; j < n; ++j) {
-        double c = 0;
-        for (int i = 0; i < n; ++i) {
-            c += W[i][j];
+        std::cout << p << std::endl;
+        for (auto x : v) {
+            std::cout << x << std::endl;
         }
-        if (c > 0.5) {
-            D.insertar(j, j, 1.0 / c);
+    } else {
+        vector<float> v = solve<float>(inFile, (float)p);
+
+        std::cout << p << std::endl;
+        for (auto x : v) {
+            std::cout << x << std::endl;
         }
-    }
-
-    // debug(p);
-    vector<double> b(n, 1);
-    Matrix<double> esa = identidad<double>(n) - p * W * D;
-    elimGaussiana(esa, b);
-    // cerr << "gauss eliminado" << endl;
-    auto v = resolverMatrizTriangular(esa, b);
-    // cerr << "resuelto" << endl;
-    normalizar(v);
-
-    std::cout << p << std::endl;
-    for (auto x : v) {
-        std::cout << x << std::endl;
     }
 
     return 0;

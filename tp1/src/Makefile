@@ -5,7 +5,7 @@ CPPFLAGS= -Wall -Wextra -O2 -std=c++11
 LDFLAGS=
 LDLIBS=
 
-SRCS=tp1.cpp Parser.cpp
+SRCS=tp1.cpp
 OBJS=$(subst .cpp,.o,$(SRCS))
 
 all: tp1
