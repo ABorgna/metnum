@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Matrix.h"
 #include <fstream>
+#include "Matrix.h"
 
 template <typename T>
 Matrix<T> parse(char* s) {
