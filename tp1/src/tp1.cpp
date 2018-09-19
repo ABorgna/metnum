@@ -1,5 +1,7 @@
 #include <unistd.h>
+#include <cstring>
 #include <iostream>
+#include <string>
 #include <vector>
 #include "Matrix.h"
 #include "Parser.h"
@@ -120,23 +122,49 @@ vector<T> solve(char* inFile, T p) {
     return v;
 }
 
+template <typename T>
+void saveResult(double p, vector<T> v, string outFile) {
+    std::streambuf* buf;
+    std::ofstream of;
+
+    // Use stdout if we pass "-" as the filename
+    if (outFile != "-") {
+        of.open(outFile);
+        buf = of.rdbuf();
+    } else {
+        buf = std::cout.rdbuf();
+    }
+    std::ostream out(buf);
+
+    // Write the results
+    out << p << std::endl;
+    for (auto x : v) {
+        out << x << std::endl;
+    }
+}
+
 void printHelp(const char* cmd) {
     cerr << "Usage: " << cmd << " [OPTIONS] archivo p." << endl
          << endl
          << "  Options:" << endl
-         << "    -h  Show this help message" << endl
-         << "    -v  Print the intermediary values" << endl
-         << "    -f  Use floats internally, instead of doubles" << endl
-         << "    -e  Use an arbitrary precision library,"
-         << " and get an exact result" << endl;
+         << "    -h        Show this help message" << endl
+         << "    -v        Print the intermediary values" << endl
+         << "    -f        Use floats internally, instead of doubles" << endl
+         << "    -e        Use an arbitrary precision library, and get an "
+            "exact result"
+         << endl
+         << "    -o file   Output file (default: archive.out). Use '-' for "
+            "stdout."
+         << endl;
 }
 
 int main(int argc, char* argv[]) {
     bool useFloats = false;
     bool useExactLibrary = false;
+    char* outFile = nullptr;
 
     char flag;
-    while ((flag = getopt(argc, argv, "hvfe")) != -1) {
+    while ((flag = getopt(argc, argv, "hvfeo:")) != -1) {
         switch (flag) {
             case 'h':
                 printHelp(argv[0]);
@@ -150,10 +178,18 @@ int main(int argc, char* argv[]) {
             case 'e':
                 useExactLibrary = true;
                 break;
+            case 'o':
+                outFile = optarg;
+                break;
             case '?':
-                if (isprint(optopt))
-                    cerr << "Unknown option `-" << optopt << "'." << endl
-                         << endl;
+                if (optopt == 'o') {
+                    cerr << "Option -o needs an argument." << endl;
+                } else if (isprint(optopt)) {
+                    cerr << "Unknown option `-" << optopt << "'." << endl;
+                } else {
+                    cerr << "Unknown option." << endl;
+                }
+                cerr << endl;
                 printHelp(argv[0]);
                 return -2;
             default:
@@ -168,22 +204,24 @@ int main(int argc, char* argv[]) {
     char* inFile = argv[optind];
     double p = stod(argv[optind + 1]);
 
+    bool defaultOutfile = outFile == nullptr;
+    if (defaultOutfile) {
+        outFile = (char*)malloc(strlen(inFile) + 5);
+        strcpy(outFile, inFile);
+        strcat(outFile, ".out");
+    }
+
     // Solve
     if (!useFloats) {
         vector<double> v = solve<double>(inFile, p);
-
-        std::cout << p << std::endl;
-        for (auto x : v) {
-            std::cout << x << std::endl;
-        }
+        saveResult<double>(p, v, outFile);
     } else {
         vector<float> v = solve<float>(inFile, (float)p);
-
-        std::cout << p << std::endl;
-        for (auto x : v) {
-            std::cout << x << std::endl;
-        }
+        saveResult<float>(p, v, outFile);
     }
+
+    if (defaultOutfile)
+        free(outFile);
 
     return 0;
 }

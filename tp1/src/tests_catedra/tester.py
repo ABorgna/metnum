@@ -9,7 +9,7 @@ def test(catedra_in, p):
     print("Testeando {} con p: {}".format(catedra_in, p))
     start = time.time()
     res = subprocess.check_output(
-        "../tp1 {} {}; exit 0".format(catedra_in, p), shell=True).decode()
+        "../tp1 -o - {} {}; exit 0".format(catedra_in, p), shell=True).decode()
     end = time.time()
     print("El tiempo de ejecucion fue {}s".format(end - start))
 
