@@ -144,14 +144,14 @@ void saveResult(double p, vector<T> v, string outFile) {
 }
 
 void printHelp(const char* cmd) {
-    cerr << "Usage: " << cmd << " [OPTIONS] archivo p." << endl
+    cerr << "Usage: " << cmd << " [OPTIONS] archivo p" << endl
          << endl
          << "  Options:" << endl
-         << "    -h        Show this help message" << endl
-         << "    -v        Print the intermediary values" << endl
-         << "    -f        Use floats internally, instead of doubles" << endl
+         << "    -h        Show this help message." << endl
+         << "    -v        Print the intermediary values." << endl
+         << "    -f        Use floats internally, instead of doubles." << endl
          << "    -e        Use an arbitrary precision library, and get an "
-            "exact result"
+            "exact result."
          << endl
          << "    -o file   Output file (default: archive.out). Use '-' for "
             "stdout."
@@ -185,7 +185,7 @@ int main(int argc, char* argv[]) {
                 if (optopt == 'o') {
                     cerr << "Option -o needs an argument." << endl;
                 } else if (isprint(optopt)) {
-                    cerr << "Unknown option `-" << optopt << "'." << endl;
+                    cerr << "Unknown option `-" << (char)optopt << "'." << endl;
                 } else {
                     cerr << "Unknown option." << endl;
                 }
