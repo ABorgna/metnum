@@ -4,11 +4,27 @@ def generar_grafo_trivial(n):
     """Genera grafo de n vertices aislados en forma de matriz de adyacencias"""
     return [[0]*n for i in range(0, n)]
 
+def extender_grafo(matriz, n):
+    """Extiende el grafo matriz para que tenga n nodos"""
+    ng = len(matriz)
+    n = max(n, ng)
+    
+    
+    for i in range(ng, n):
+        matriz.append([])
+        for j in range(0, n):
+            matriz[i].append(0)
+    for i in range(0, ng):
+        for j in range(ng, n):
+            matriz[i].append(0)
+    return matriz
+
 
 def agregar_grafo_completo(matriz, n=-1, inicio_index=0):
     """Agrega a la matriz un grafo completo cuyos nodos son [inicio_index, inicio_index+1,..., inicio_index+n-1]"""
     if n == -1:
         n = len(matriz)
+    matriz = extender_grafo(matriz, n + inicio_index)
     
     for i in range(0, n):
         for j in range(0, n):
@@ -16,15 +32,19 @@ def agregar_grafo_completo(matriz, n=-1, inicio_index=0):
             matriz[inicio_index + i][inicio_index + j] = 1
     return matriz
 
-def agregar_grafo_estrella_hacia_adentro(matriz, n=-1, inicio_index=0):
+def agregar_grafo_estrella_hacia_adentro(matriz, n=-1, inicio_index=0, objetivo=None):
     """Agrega a la matriz un grafo estrella dirigido cuyos nodos son [inicio_index, inicio_index+1,..., inicio_index+n-1],
-    todos apuntando al nodo 'inicio_index'
+    todos apuntando al nodo objetivo o 'inicio_index' si es None
     """
     if n == -1:
         n = len(matriz)
+    matriz = extender_grafo(matriz, n + inicio_index)
+    
+    if objetivo is None:
+        objetivo = inicio_index
 
-    for i in range(1, n):
-        matriz[inicio_index + i][inicio_index] = 1
+    for i in range(1 if objetivo == inicio_index else 0, n):
+        matriz[inicio_index + i][objetivo] = 1
     
     return matriz
         
@@ -112,6 +132,6 @@ def generar_grafo_random_m_fijo(cant_nodos, cant_aristas):
     np.random.shuffle(np_matrix)
     np_matrix = np.split(np_matrix, cant_nodos)
     for i in range(0, cant_nodos):
-        np_matrix[i] = np.insert(np_matrix[i],i,0)
+        np_matrix[i] = (np.insert(np_matrix[i],i,0)).tolist()
 
     return np_matrix

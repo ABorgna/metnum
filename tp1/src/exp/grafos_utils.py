@@ -1,3 +1,7 @@
+import networkx as nx
+import matplotlib.pyplot as plt
+
+
 def imprimir_matriz(matriz):
     n = len(matriz)
     for i in range(0, n):
@@ -5,6 +9,13 @@ def imprimir_matriz(matriz):
         for j in range(0, n):
             fila = fila + str(matriz[i][j]) + ' '
         print(fila)
+
+def imprimir(g):
+    """Imprime el grafo utilizando NetworkX"""
+    plt.clf()
+    fig = plt.figure(figsize=(20,20))
+    nx.draw_kamada_kawai(a_network(g), with_labels=True)
+    fig.show()
         
 def guardar_matriz_en_archivo(matriz, nombre_archivo, imprimir_escritura=False):
     archivo = open(nombre_archivo, 'w')
@@ -34,3 +45,13 @@ def guardar_matriz_en_archivo(matriz, nombre_archivo, imprimir_escritura=False):
                     print("{} {}".format(i+1,j+1))
                 
     archivo.close()
+    
+def a_network(matriz):
+    g = nx.DiGraph()
+    g.add_nodes_from(range(len(matriz)))
+    for i in range(len(matriz)):
+        for j in range(len(matriz)):
+            if matriz[i][j]:
+                g.add_edge(i, j)
+    return g
+    
