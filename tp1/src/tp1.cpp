@@ -2,6 +2,7 @@
 #include <cstring>
 #include <iostream>
 #include <string>
+#include <math.h>
 #include <vector>
 #include "Matrix.h"
 #include "Parser.h"
@@ -148,8 +149,10 @@ void printHelp(const char* cmd) {
          << endl
          << "  Options:" << endl
          << "    -h        Show this help message." << endl
-         << "    -v        Print the intermediary values." << endl
-         << "    -f        Use floats internally, instead of doubles." << endl
+		 << "    -v        Print the intermediary values." << endl
+		 << "    -f        Use floats internally, instead of doubles." << endl
+		 << "    -a       Prints the error of computing Ax = x." << endl
+		 << "    -b        Prints the error of computing Bx = e." << endl
          << "    -e        Use an arbitrary precision library, and get an "
             "exact result."
          << endl
@@ -158,19 +161,35 @@ void printHelp(const char* cmd) {
          << endl;
 }
 
+Matrix<double> construirMatrizConVector(vector<double> v, int n){ // devuelve el vector n veces
+	Matrix<double> res(n, v.size());
+	for (int i = 0; i < n; ++i){
+		for(int j = 0; j < v.size(); ++j)
+			res.insertar(i, j, v[j]);
+	}
+	return res;
+}
+
 int main(int argc, char* argv[]) {
     bool useFloats = false;
     bool useExactLibrary = false;
     char* outFile = nullptr;
-
+    bool errorBx = false;
+    bool errorAx = false;
     char flag;
-    while ((flag = getopt(argc, argv, "hvfeo:")) != -1) {
+    while ((flag = getopt(argc, argv, "hvjafeo:")) != -1) {
         switch (flag) {
             case 'h':
                 printHelp(argv[0]);
                 return -2;
             case 'v':
                 verbose = true;
+                break;
+            case 'j':
+                errorBx = true;
+                break;
+            case 'a':
+                errorAx = true;
                 break;
             case 'f':
                 useFloats = true;
@@ -203,6 +222,74 @@ int main(int argc, char* argv[]) {
     }
     char* inFile = argv[optind];
     double p = stod(argv[optind + 1]);
+	if (errorAx){
+		Matrix<double> W = parse<double>(inFile);
+		int n = W.num_filas();
+
+		// Construyo la matriz D
+		Matrix<double> D(n, n);
+		vector<double> Z(n, 0);
+		for (int j = 0; j < n; ++j) {
+			double c = 0;
+			for (int i = 0; i < n; ++i) {
+				c += W[i][j];
+			}
+			if (c > 0.5) {
+				D.insertar(j, j, 1.0 / c);
+			}
+            if (c > 0.5) //no hace falta abs porq Wij son 1s
+                Z[j] = (1-p)/n;
+            else
+                Z[j] = 1/n;
+        }
+
+		vector<double> b(n, 1);
+		Matrix<double> eZ = construirMatrizConVector(Z, n);
+		Matrix<double> A = p*W*D + eZ;
+		Matrix<double> esa = identidad<double>(n) - p*W*D;
+		elimGaussiana(esa, b);
+		auto v = resolverMatrizTriangular(esa, b);
+		auto x = v;
+		auto Ax = A*v;
+		//calculo la distancia como la suma de las diferencias de las posiciones
+		double distAxAx = 0;
+		for (int i = 0; i < v.size(); i++){
+			distAxAx += fabs(Ax[i] - x[i]);
+		}
+		cout << distAxAx << endl;
+		return 0;
+	}
+
+	if (errorBx){
+		Matrix<double> W = parse<double>(inFile);
+		int n = W.num_filas();
+
+		// Construyo la matriz D
+		Matrix<double> D(n, n);
+
+		for (int j = 0; j < n; ++j) {
+			double c = 0;
+			for (int i = 0; i < n; ++i) {
+				c += W[i][j];
+			}
+			if (c > 0.5) {
+				D.insertar(j, j, 1.0 / c);
+			}
+		}
+		vector<double> b (n, 1);
+		Matrix<double> B = identidad<double>(n) - p*W*D;
+		Matrix<double> BOriginal = identidad<double>(n)-p*W*D;
+		elimGaussiana(B, b);
+		auto v = resolverMatrizTriangular(B, b);
+		v = BOriginal*v; //matriz x vector da vector
+		//calculo la distancia como la suma de las diferencias de las posiciones
+		double distVaE = 0;
+		for (auto x : v){
+			distVaE += x > 1 ? (x-1) : 1 - x;
+		}
+		cout << distVaE << endl;
+		return 0;
+	}
 
     bool defaultOutfile = outFile == nullptr;
     if (defaultOutfile) {

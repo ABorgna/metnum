@@ -35,7 +35,7 @@ def ejecutar_y_escribir_resultado_variando_p(input_name, t_args, t_file):
     cant_nodos, nro_intento = parsear_nombre(input_name)
 
     tiempo_inicial = time.time_ns()
-    ejecutar_con_input(t_file.input_dir + input_name, t_args.p)
+    ejecutar_con_args(['-o -', t_file.input_dir + input_name, t_args.p])
     tiempo_final = time.time_ns()
 
     tiempo_ns = tiempo_final - tiempo_inicial

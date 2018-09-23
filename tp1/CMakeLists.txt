@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.10)
-project(metnum_tp1)
+project(tp1)
 
 set(CMAKE_CXX_STANDARD 11)
 
 include_directories(src)
 
-add_executable(metnum_tp1
-        src/main.cpp
-        src/PRMatrix.cpp
-        src/PRMatrix.h)
+add_executable(tp1
+        src/Matrix.h
+        src/Parser.h
+        src/tp1.cpp)

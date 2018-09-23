@@ -7,7 +7,7 @@
 #include <limits>
 #include <map>
 #include <vector>
-
+using namespace std;
 template <typename T>
 class Matrix {
     /* Clase para representar matrices ralas
@@ -159,6 +159,18 @@ class Matrix {
 
         return res;
     }
+	vector<T> operator*(vector<T>& x) const{
+		assert(num_col == x.size());
+		vector<T> res(num_fil);
+		for (int i = 0; i < num_fil; i++) {
+			double val = 0;
+			for (int j = 0; j < num_col; j++) {
+				val += ((*this)[i][j])*x[j];
+			}
+			res[i] = val;
+		}
+		return res;
+	}
 
     Matrix<T> operator-(const Matrix<T>& otro) const {
         auto negOtro = otro * -1.0;
