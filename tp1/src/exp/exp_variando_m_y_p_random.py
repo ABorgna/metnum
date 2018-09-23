@@ -43,7 +43,7 @@ def ejecutar_y_escribir_resultado_variando_p(input_name, t_args, t_file):
 
     # Para cada grafo generado, vamos variando p y escribiendo los resultados
     for p in list(numpy.linspace(0, 1, t_args.p))[1:-1]:
-        val = ejecutar_con_input(["-a ", t_files.input_dir + input_name, p])
+        val = ejecutar_con_args(["-a ", t_files.input_dir + input_name, p])
         val = float(val)
         escribir_resultados_en_archivo(input_name, p_densidad, nro_intento, val, t_args, t_file, p)
 
