@@ -10,12 +10,15 @@ def imprimir_matriz(matriz):
             fila = fila + str(matriz[i][j]) + ' '
         print(fila)
 
-def imprimir(g):
+def imprimir(g, file = None):
     """Imprime el grafo utilizando NetworkX"""
     plt.clf()
     fig = plt.figure(figsize=(20,20))
     nx.draw_kamada_kawai(a_network(g), with_labels=True)
-    fig.show()
+    if file is None:
+        fig.show()
+    else:
+        fig.savefig(file)
         
 def guardar_matriz_en_archivo(matriz, nombre_archivo, imprimir_escritura=False):
     archivo = open(nombre_archivo, 'w')
