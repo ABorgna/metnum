@@ -13,7 +13,7 @@ def generar_grafos(cant_nodos, cant_densidades, cant_intentos, output_dir="gen")
         shutil.rmtree(output_dir)
     os.mkdir(output_dir)
     
-    for p_densidad in list(numpy.linspace(0.95, 1, cant_densidades)):
+    for p_densidad in list(numpy.linspace(0.05, 0.95, cant_densidades)):
         print("Generando ahora random-{}-pdens (x{})".format(p_densidad, cant_intentos))
 
         for nro_prueba in range(0, cant_intentos):
@@ -42,7 +42,7 @@ def ejecutar_y_escribir_resultado_variando_p(input_name, t_args, t_file):
     #escribir_resultados_en_archivo(input_name, p_densidad, nro_intento, val, t_args, t_file)
 
     # Para cada grafo generado, vamos variando p y escribiendo los resultados
-    for p in list(numpy.linspace(0, 1, t_args.p))[1:-1]:
+    for p in list(numpy.linspace(0, 0.95, t_args.p))[1:-1]:
         val = ejecutar_con_args(["-a ", t_files.input_dir + input_name, p])
         val = float(val)
         escribir_resultados_en_archivo(input_name, p_densidad, nro_intento, val, t_args, t_file, p)
@@ -61,7 +61,7 @@ class TestArgs:
         self.cant_densidades = cant_densidades
 
 # Parametros
-t_files = TestFiles("gen/", "resultados/", "random-var-m-p-data-mucha-densidad.csv")
+t_files = TestFiles("gen/", "resultados/", "random-var-m-p-data.csv")
 t_args = TestArgs(10, 200, 1, 20)
 
 # Creo carpeta output si no existe
