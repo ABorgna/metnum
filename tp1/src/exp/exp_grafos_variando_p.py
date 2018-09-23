@@ -62,7 +62,7 @@ def ejecutar_y_escribir_resultado_variando_p(cant_nodos, cant_p, input_name, t_f
 
     # Para cada grafo generado, vamos variando p y escribiendo los resultados
     for p in list(numpy.linspace(0, 1, cant_p))[1:-1]:
-        output = ejecutar_con_input(t_files.input_dir + input_name, p)
+        output = ejecutar_con_args(['-o -', t_files.input_dir + input_name, p])
         p, ranks = parsear_output(output)
         escribir_resultados_en_archivo(resultado, cant_nodos, input_name, p, ranks)
 
@@ -75,7 +75,7 @@ class TestFiles:
 
 # Parametros
 t_files = TestFiles("gen/", "resultados/")
-cant_nodos = {"trivial":10, "completo":10, "union-estrellas-in":(5,3), "union-estrellas-out":(5,3)}
+cant_nodos = {"trivial":10, "completo":10, "union-estrellas-in":(3,4), "union-estrellas-out":(3,4)}
 cant_p = 10
 
 # Creo carpeta output si no existe
