@@ -151,8 +151,8 @@ void printHelp(const char* cmd) {
          << "    -h        Show this help message." << endl
 		 << "    -v        Print the intermediary values." << endl
 		 << "    -f        Use floats internally, instead of doubles." << endl
-		 << "    -a       Prints the error of computing Ax = x." << endl
-		 << "    -b        Prints the error of computing Bx = e." << endl
+		 << "    -a        Prints the error of computing Ax = x." << endl
+		 << "    -j        Prints the error of computing Bx = e." << endl
          << "    -e        Use an arbitrary precision library, and get an "
             "exact result."
          << endl
