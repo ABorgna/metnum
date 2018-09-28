@@ -16,25 +16,29 @@ function [L,U] = LUFromBlocks(A)
     
     % Calculo todos los subbloques de L y U
     for i = 1:min(n,m)
-        L11 = ...;
-        U11 = ...;
-        U12 = ...;
-        L21 = ...;
-        LU22 = ...;
+        A12 = Alu(i, i+1:m);
+        A21 = Alu(i+1:n, i);
+        A22 = Alu(i+1:n,i+1:m);
+        
+        L11 = 1;
+        U11 = Alu(i,i);
+        U12 = A12;
+        L21 = A21 / U11;
+        LU22 = A22 - L21 * U12;
 
-        L(i,i) = ...;
-        U(i,i) = ...;
-        U(i,i+1:m) = ...;
-        L(i+1:n,i) = ...;
-        Alu(i+1:n,i+1:m) = ...;
+        L(i,i) = 1;
+        U(i,i) = U11;
+        U(i,i+1:m) = U12;
+        L(i+1:n,i) = L21;
+        Alu(i+1:n,i+1:m) = LU22;
     end
     % Seteo del ultimo elemento en la diagonal de L
     L(n,m) = 1;
     
     % Codigo para chequar que dio bien
     Alu = L*U;
-    for i = n
-        for j = m
+    for i = 1:n
+        for j = 1:m
             if abs(A(i,j)-Alu(i,j))>0.01
                 error('no iguales')
             end
