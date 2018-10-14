@@ -1,13 +1,13 @@
 CC=gcc
 CXX=g++
 RM=rm -f
-CPPFLAGS= -Wall -Wextra -O2 -std=c++11
+CPPFLAGS= -Wall -Wextra -O2 -std=c++14
 LDFLAGS=
 LDLIBS=
 INC=lib/eigen/Eigen
 INC_PARAMS=$(foreach d, $(INC), -I$d)
 
-SRCS=src/tp2.cpp
+SRCS=$(wildcard src/*.cpp)
 OBJS=$(subst .cpp,.o,$(SRCS))
 
 all: tp2

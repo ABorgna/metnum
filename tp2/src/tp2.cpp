@@ -1,34 +1,7 @@
 #include <getopt.h>
-#include <math.h>
-#include <unistd.h>
-#include <cstring>
 #include <iostream>
-#include <string>
-#include <vector>
+#include "files.h"
 using namespace std;
-
-/*
-template <typename T>
-void saveResult(double p, vector<T> v, string outFile) {
-    std::streambuf* buf;
-    std::ofstream of;
-
-    // Use stdout if we pass "-" as the filename
-    if (outFile != "-") {
-        of.open(outFile);
-        buf = of.rdbuf();
-    } else {
-        buf = std::cout.rdbuf();
-    }
-    std::ostream out(buf);
-
-    // Write the results
-    out << p << std::endl;
-    for (auto x : v) {
-        out << x << std::endl;
-    }
-}
-*/
 
 void printHelp(const char* cmd) {
     cerr << "Usage: " << cmd << " [OPTIONS]" << endl
@@ -141,10 +114,15 @@ int main(int argc, char* argv[]) {
         }
     }
     // Check if there are any leftover arguments
-    if (argc - optind != 1) {
+    if (argc - optind > 0) {
         printHelp(cmd);
         return -2;
     }
+
+    // Open the files
+    auto train = Input(trainFile);
+    auto test = Input(testFile);
+    auto out = Output(outFile);
 
     return 0;
 }
