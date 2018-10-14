@@ -36,6 +36,12 @@ class StreamWrapper {
         }
     }
 
+    void close() {
+        if (fileHandle.is_open())
+            fileHandle.close();
+        streamPtr = nullptr;
+    }
+
     bool is_open() {
         if (streamPtr == &fileHandle)
             return fileHandle.is_open();
@@ -43,10 +49,11 @@ class StreamWrapper {
             return streamPtr != nullptr;
     }
 
-    void close() {
-        if (fileHandle.is_open())
-            fileHandle.close();
-        streamPtr = nullptr;
+    bool fail() {
+        if (streamPtr == &fileHandle)
+            return fileHandle.fail();
+        else
+            return false;
     }
 };
 

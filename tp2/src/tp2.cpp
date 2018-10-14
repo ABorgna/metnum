@@ -1,26 +1,52 @@
 #include <getopt.h>
 #include <iostream>
+#include "debug.h"
+#include "entry/reader.h"
+#include "entry/vector_builder.h"
 #include "files.h"
 using namespace std;
+
+const char* const defaultTrainFile = "data/imdb_tokenized.csv";
+const char* const defaultTestFile = "data/imdb_tokenized.csv";
+const char* const defaultOutFile = "-";
+
+const char* const defaultVocabFile = "data/vocab.csv";
+const double defaultMinVocabFreq = 0.01;
+const double defaultMaxVocabFreq = 0.99;
 
 void printHelp(const char* cmd) {
     cerr << "Usage: " << cmd << " [OPTIONS]" << endl
          << endl
          << "  Options:" << endl
-         << "    -h             Show this help message." << endl
-         << "    -v, verbose    Print debug info to stderr." << endl
+         << "    -h, --help     Show this help message." << endl
+         << "    -v, --verbose  Print debug info to stderr." << endl
+         << "        --quiet    Do not print debug info." << endl
          << "    -m #           Method:" << endl
          << "                     0: KNN (default)." << endl
          << "                     1: PCA + KNN." << endl
          << "    -t <file>      File with the training set. Use '-' for stdin."
          << endl
-         << "                   (Default: 'train.csv')" << endl
+         << "                   (Default: '" << defaultTrainFile << "')" << endl
          << "    -q <file>      File with the testing set. Use '-' for stdin."
          << endl
-         << "                   (Default: 'test.csv')" << endl
+         << "                   (Default: '" << defaultTestFile << "')" << endl
+         << "    -p, --vocabulary <file>"
+         << "                   File with the vocabulary." << endl
+         << "                   (Default: '" << defaultVocabFile << "')" << endl
+         << "        --minVocabFreq <number>" << endl
+         << "                   Trim the tokens in the vocabulary with small "
+            "frequency."
+         << endl
+         << "                   (Default: " << defaultMinVocabFreq << ")"
+         << endl
+         << "        --maxVocabFreq <number>" << endl
+         << "                   Trim the tokens in the vocabulary with large "
+            "frequency."
+         << endl
+         << "                   (Default: " << defaultMaxVocabFreq << ")"
+         << endl
          << "    -o <file>      Output file with the test file result. Use '-' "
-            "for "
-            "stdout."
+            "for stdout."
          << endl
          << "                   (Default: stdout)" << endl
          << "    -c <file>      Cache the trained model in a file." << endl
@@ -39,23 +65,34 @@ enum Method {
 };
 
 int main(int argc, char* argv[]) {
-    const char* const defaultTrainFile = "train.csv";
-    const char* const defaultTestFile = "test.csv";
-    const char* const defaultOutFile = "-";
     const char* const cmd = argv[0];
 
+    // Print all the info by default (TODO: remove this later)
+    debugging_enabled = true;
+
     Method method = KNN;
-    const char* trainFile = defaultTrainFile;
-    const char* testFile = defaultTestFile;
-    const char* outFile = defaultOutFile;
-    const char* cacheFile = nullptr;
-    int debug = false;
+    const char* trainFilename = defaultTrainFile;
+    const char* testFilename = defaultTestFile;
+    const char* outFilename = defaultOutFile;
+    const char* cacheFilename = nullptr;
+
+    const char* vocabFilename = defaultVocabFile;
+    double minVocabFreq = defaultMinVocabFreq;
+    double maxVocabFreq = defaultMaxVocabFreq;
+
+    int debugFlag = (int)debugging_enabled;  // We need an int reference.
     int dontTest = false;
 
-    const char* const short_opts = "hvm:t:Qq:o:c:";
+    const char* const short_opts = "hvm:t:Qq:p:o:c:";
     const option long_opts[] = {/* These options set a flag. */
-                                {"verbose", no_argument, &debug, 1},
+                                {"verbose", no_argument, &debugFlag, 1},
+                                {"quiet", no_argument, &debugFlag, 0},
                                 {"no-test", no_argument, &dontTest, 1},
+                                /* These options receive a parameter. */
+                                {"help", required_argument, nullptr, 'h'},
+                                {"vocabulary", required_argument, nullptr, 'p'},
+                                {"minVocabFreq", required_argument, nullptr, 1},
+                                {"maxVocabFreq", required_argument, nullptr, 2},
                                 {0, 0, 0, 0}};
 
     while (true) {
@@ -70,11 +107,29 @@ int main(int argc, char* argv[]) {
                 if (long_opts[option_index].flag != 0)
                     break;
                 break;
+            case 1: {
+                // Min vocabulary frequency
+                double freq = stod(optarg);
+                if (freq < 0 || freq > 1) {
+                    cerr << "Invalid minimum frequency: " << freq << endl;
+                    return -3;
+                }
+                minVocabFreq = freq;
+            } break;
+            case 2: {
+                // Max vocabulary frequency
+                double freq = stod(optarg);
+                if (freq < 0 || freq > 1) {
+                    cerr << "Invalid maximum frequency: " << freq << endl;
+                    return -3;
+                }
+                maxVocabFreq = freq;
+            } break;
             case 'h':
                 printHelp(cmd);
                 return -2;
             case 'v':
-                debug = true;
+                debugFlag = true;
                 break;
             case 'm': {
                 Method m = (Method)stoi(optarg);
@@ -82,19 +137,22 @@ int main(int argc, char* argv[]) {
                     method = m;
             } break;
             case 't':
-                trainFile = optarg;
-                break;
-            case 'q':
-                testFile = optarg;
+                trainFilename = optarg;
                 break;
             case 'Q':
                 dontTest = 1;
                 break;
+            case 'q':
+                testFilename = optarg;
+                break;
+            case 'p':
+                vocabFilename = optarg;
+                break;
             case 'o':
-                outFile = optarg;
+                outFilename = optarg;
                 break;
             case 'c':
-                cacheFile = optarg;
+                cacheFilename = optarg;
                 break;
             case '?':
                 if (optopt == 't' || optopt == 'q' || optopt == 'o' ||
@@ -118,11 +176,44 @@ int main(int argc, char* argv[]) {
         printHelp(cmd);
         return -2;
     }
+    debugging_enabled = (bool)debugFlag;
 
-    // Open the files
-    auto train = Input(trainFile);
-    auto test = Input(testFile);
-    auto out = Output(outFile);
+    /*************** Read the entries ********************/
+    entry::FrecuencyVocabularyMap vocabulary;
+    entry::VectorizedEntriesMap trainEntries;
+    entry::VectorizedEntriesMap testEntries;
+
+    auto trainFile = Input(trainFilename);
+    auto testFile = Input(testFilename);
+    auto vocabFile = Input(vocabFilename);
+
+    vocabulary = entry::read_vocabulary(
+        vocabFile, entry::filterPassBand(minVocabFreq, maxVocabFreq));
+
+    entry::TokenizedEntriesMap trainTokenized;
+    entry::TokenizedEntriesMap testTokenized;
+    entry::read_entries(trainFile, testFile, trainTokenized, testTokenized);
+
+    trainEntries = entry::vectorizeMap(vocabulary, trainTokenized);
+    testEntries = entry::vectorizeMap(vocabulary, testTokenized);
+
+    vocabFile.close();
+    testFile.close();
+    trainFile.close();
+
+    DEBUG("Finished preprocessing the data.");
+    DEBUG("    Vocabulary size: " << vocabulary.size());
+    DEBUG("    Train entries count: " << trainEntries.size());
+    DEBUG("    Test entries count: " << testEntries.size());
+
+    /*************** Train the model ********************/
+    DEBUG("---------------- Training ----------------");
+
+    /*************** Test the model ********************/
+    DEBUG("---------------- Testing ----------------");
+    auto outFile = Output(outFilename);
+
+    outFile.close();
 
     return 0;
 }
