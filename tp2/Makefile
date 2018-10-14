@@ -4,6 +4,8 @@ RM=rm -f
 CPPFLAGS= -Wall -Wextra -O2 -std=c++11
 LDFLAGS=
 LDLIBS=
+INC=lib/eigen/Eigen
+INC_PARAMS=$(foreach d, $(INC), -I$d)
 
 SRCS=src/tp2.cpp
 OBJS=$(subst .cpp,.o,$(SRCS))
@@ -11,7 +13,7 @@ OBJS=$(subst .cpp,.o,$(SRCS))
 all: tp2
 
 tp2: $(OBJS)
-	$(CXX) $(LDFLAGS) -o tp2 $(OBJS) $(LDLIBS)
+	$(CXX) $(LDFLAGS) $(INC_PARAMS) -o tp2 $(OBJS) $(LDLIBS)
 
 tests: tp1 test/tester.py
 	cd test;

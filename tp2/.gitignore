@@ -35,6 +35,7 @@ __pycache__
 *.app
 main
 tp1
+tp2
 
 # Makefile misc
 .depend
