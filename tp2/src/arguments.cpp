@@ -8,16 +8,14 @@ using namespace std;
 void printHelp(const string& cmd, const Options& defaults) {
     cerr << "Usage: " << cmd << " [OPTIONS]" << endl
          << endl
-         << "  Options:" << endl
+         << "Options:" << endl
          << "    -h, --help     Show this help message." << endl
          << "    -v, --verbose  Print debug info to stderr." << endl
          << "        --quiet    Do not print debug info." << endl
-         << endl
-         << "MODEL" << endl
+         << "  MODEL" << endl
          << "    -m #           Method:" << endl
          << "                     0: kNN." << endl
          << "                     1: PCA + kNN (default)." << endl
-         << endl
          << "    -k #           K hyper-parameter for kNN (Default: "
          << defaults.k << ")" << endl
          << "    -a #           Alpha hyper-parameter for PCA (Default: "
@@ -26,7 +24,7 @@ void printHelp(const string& cmd, const Options& defaults) {
          << "    -Q, --no-test  Only run the training step. Save the model "
             "using -c."
          << endl
-         << "ENTRIES" << endl
+         << "  ENTRIES" << endl
          << "    -t <file>      File with the training set. Use '-' for stdin."
          << endl
          << "                   (Default: '" << defaults.trainFilename << "')"
@@ -40,7 +38,7 @@ void printHelp(const string& cmd, const Options& defaults) {
             "for stdout."
          << endl
          << "                   (Default: stdout)" << endl
-         << "VOCABULARY" << endl
+         << "  VOCABULARY" << endl
          << "    -p, --vocabulary <file>"
          << "                   File with the vocabulary." << endl
          << "                   (Default: '" << defaults.vocabFilename << "')"
