@@ -4,6 +4,7 @@
 //#include <Eigen/SparseCore>
 
 #include "../entry/types.h"
+#include "knn.h"
 
 class Model {
    public:
@@ -14,7 +15,7 @@ class Model {
 
 class ModelKNN : public Model {
    private:
-    entry::Entries trainEntries;
+    InvertedIndexKNN invKnn;
     int k;  // Number of neighbours to use with kNN
 
    public:

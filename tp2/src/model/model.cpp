@@ -1,16 +1,14 @@
 #include "model.h"
 
-#include "knn.h"
-
 Model::~Model(){};
 
 /********** KNN model ************/
 
 ModelKNN::ModelKNN(entry::Entries&& entries, int k)
-    : trainEntries(entries), k(k){};
+    : invKnn(move(entries)), k(k) {};
 
 bool ModelKNN::analize(const entry::Entry& test) const {
-    return dumbKnn(trainEntries, test, k);
+    return invKnn.knn(test, k);
 }
 
 /********** PCA+KNN model ************/
