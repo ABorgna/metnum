@@ -17,16 +17,20 @@ SRCS=$(shell find $(SRCDIR) -type f -name *.cpp)
 OBJS=$(subst .cpp,.o,$(SRCS))
 
 DATASET_COMPRESSED=$(DATADIR)/data.tar.xz
+DATASET=$(DATADIR)/imdb_tokenized.csv
 
-.PHONY: all tp2 depend tests clean distclean .depend dataset
+.PHONY: all tp2 depend tests clean distclean dataset
 
 all: tp2
 
 tp2: depend dataset $(OBJDIR)/tp2
 
-dataset: $(DATASET_COMPRESSED)
+dataset: $(DATASET)
+
+$(DATASET): $(DATASET_COMPRESSED)
 	@echo "Descomprimiendo el dataset"
 	tar xf $(DATASET_COMPRESSED) -C data/
+	@touch "$@"
 
 $(OBJDIR)/tp2: $(OBJS)
 	$(CXX) $(LDFLAGS) $(INC_PARAMS) -o tp2 $(OBJS) $(LDLIBS)
