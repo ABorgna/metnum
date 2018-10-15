@@ -8,6 +8,7 @@ LDLIBS=
 SRCDIR=src
 TESTDIR=test
 OBJDIR=build
+DATADIR=data
 
 INC=lib lib/eigen/Eigen
 INC_PARAMS=$(foreach d, $(INC), -I$d)
@@ -15,11 +16,17 @@ INC_PARAMS=$(foreach d, $(INC), -I$d)
 SRCS=$(shell find $(SRCDIR) -type f -name *.cpp)
 OBJS=$(subst .cpp,.o,$(SRCS))
 
-.PHONY: all tp2 depend tests clean distclean .depend
+DATASET_COMPRESSED=$(DATADIR)/imdb_data.tar.xz
+
+.PHONY: all tp2 depend tests clean distclean .depend dataset
 
 all: tp2
 
-tp2: depend $(OBJDIR)/tp2
+tp2: depend dataset $(OBJDIR)/tp2
+
+dataset: $(DATASET_COMPRESSED)
+	@echo "Descomprimiendo el dataset"
+	tar xf $(DATASET_COMPRESSED) -C data/
 
 $(OBJDIR)/tp2: $(OBJS)
 	$(CXX) $(LDFLAGS) $(INC_PARAMS) -o tp2 $(OBJS) $(LDLIBS)
