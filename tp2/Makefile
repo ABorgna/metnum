@@ -1,17 +1,18 @@
 CC=gcc
 CXX=g++
 RM=rm -f
-CPPFLAGS= -g -Wall -Wextra -O2 -std=c++14
-LDFLAGS=
-LDLIBS=
 
 SRCDIR=src
 TESTDIR=test
 OBJDIR=build
 DATADIR=data
 
-INC=lib lib/eigen/Eigen
-INC_PARAMS=$(foreach d, $(INC), -I$d)
+INC=lib/eigen
+INC_PARAMS=$(foreach d,$(INC),-I$d)
+
+CPPFLAGS=$(INC_PARAMS) -g -Wall -Wextra -O2 -std=c++14
+LDFLAGS=
+LDLIBS=
 
 SRCS=$(shell find $(SRCDIR) -type f -name *.cpp)
 OBJS=$(subst .cpp,.o,$(SRCS))
@@ -33,7 +34,7 @@ $(DATASET): $(DATASET_COMPRESSED)
 	@touch "$@"
 
 $(OBJDIR)/tp2: $(OBJS)
-	$(CXX) $(LDFLAGS) $(INC_PARAMS) -o tp2 $(OBJS) $(LDLIBS)
+	$(CXX) $(LDFLAGS) $(CPPFLAGS) -o tp2 $(OBJS) $(LDLIBS)
 
 tests: tp1 test/tester.py
 	cd test;
@@ -43,7 +44,7 @@ depend: .depend
 
 .depend: $(SRCS)
 	@$(RM) ./.depend
-	@$(CXX) $(CPPFLAGS) -MM $^ | \
+	@$(CXX) $(CPPFLAGS) -MM -MG $^ | \
 		sed 's|[a-zA-Z0-9_-]*\.o|$(OBJDIR)/&|' >>./.depend;
 
 clean:
