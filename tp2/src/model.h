@@ -1,35 +1,35 @@
 #pragma once
 
 #include <string.h>
-#include <Eigen/SparseCore>
+//#include <Eigen/SparseCore>
 
 #include "entry/types.h"
 #include "files.h"
 
 class Model {
-  public:
+   public:
     virtual ~Model();
     // Analize an entry and decide its polarity, using kNN(k).
-    virtual bool analize(const entry::VectorizedEntry&) const;
+    virtual bool analize(const entry::VectorizedEntry&) const = 0;
 };
 
 class ModelKNN : public Model {
-  private:
+   private:
     entry::VectorizedEntriesMap trainEntries;
-    int k; // Number of neighbours to use with kNN
+    int k;  // Number of neighbours to use with kNN
 
-  public:
+   public:
     ModelKNN(entry::VectorizedEntriesMap&&, int k);
-    bool analize(const entry::VectorizedEntry&) const;
+    bool analize(const entry::VectorizedEntry&) const override;
 };
 
 class ModelPCA : public Model {
-  private:
+   private:
     entry::VectorizedEntriesMap trainEntries;
     int k;
     int alpha;
 
-  public:
+   public:
     ModelPCA(entry::VectorizedEntriesMap&&, int k, int alpha);
-    bool analize(const entry::VectorizedEntry&) const;
+    bool analize(const entry::VectorizedEntry&) const override;
 };

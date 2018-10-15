@@ -55,18 +55,18 @@ void readEntries(const Options& opts, entry::FrecuencyVocabularyMap& vocabulary,
     testEntries = entry::vectorizeMap(vocabulary, testTokenized);
 }
 
-Model makeModel(const Options& opts, entry::VectorizedEntriesMap&& entries) {
+const Model* makeModel(const Options& opts, entry::VectorizedEntriesMap&& entries) {
     switch (opts.method) {
         case KNN:
-            return (Model)ModelKNN(move(entries), opts.k);
+            return new ModelKNN(move(entries), opts.k);
         case PCAKNN:
-            return (Model)ModelPCA(move(entries), opts.k, opts.alpha);
+            return new ModelPCA(move(entries), opts.k, opts.alpha);
         default:
             (throw std::runtime_error("Invalid method!"));
     }
 }
 
-void testModel(const Options& opts, const Model& model,
+void testModel(const Options& opts, const Model* model,
                const entry::VectorizedEntriesMap& testEntries) {
     int total = 0;
     int trueP = 0;
@@ -78,7 +78,7 @@ void testModel(const Options& opts, const Model& model,
         const entry::VectorizedEntry& entry = test.second;
 
         bool expected = entry.is_positive;
-        bool result = model.analize(entry);
+        bool result = model->analize(entry);
 
         total++;
         if (expected and result)
@@ -91,6 +91,8 @@ void testModel(const Options& opts, const Model& model,
             falseN++;
 
         // TODO: Print each test result to a "classifications" file
+
+        if(total > 8) break;
     }
 
     // TODO: Output statistics about the model instead of this
@@ -130,13 +132,16 @@ int main(int argc, char* argv[]) {
 
     /*************** Train the model ********************/
     DEBUG("---------------- Training ----------------");
-    Model model = makeModel(options, move(trainEntries));
+    const Model* model = makeModel(options, move(trainEntries));
 
     /*************** Test the model ********************/
     DEBUG("---------------- Testing -----------------");
     if (not options.dontTest) {
         testModel(options, model, testEntries);
     }
+
+
+    delete model;
 
     return 0;
 }
