@@ -10,6 +10,8 @@ enum Method {
     METHODS_COUNT
 };
 
+std::string showMethod(Method);
+
 struct Options {
     std::string trainFilename;
     std::string testFilename;

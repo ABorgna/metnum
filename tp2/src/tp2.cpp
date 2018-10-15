@@ -55,7 +55,8 @@ void readEntries(const Options& opts, entry::FrecuencyVocabularyMap& vocabulary,
     testEntries = entry::vectorizeMap(vocabulary, testTokenized);
 }
 
-const Model* makeModel(const Options& opts, entry::VectorizedEntriesMap&& entries) {
+const Model* makeModel(const Options& opts,
+                       entry::VectorizedEntriesMap&& entries) {
     switch (opts.method) {
         case KNN:
             return new ModelKNN(move(entries), opts.k);
@@ -92,17 +93,29 @@ void testModel(const Options& opts, const Model* model,
 
         // TODO: Print each test result to a "classifications" file
 
-        if(total > 8) break;
+        // TODO: Remove this once we have a faster knn implementation
+        const int TEST_CUTOUT_SO_WE_CAN_TEST_THE_DUMB_KNN_IMPLEMENTATION = 64;
+        if (total >= TEST_CUTOUT_SO_WE_CAN_TEST_THE_DUMB_KNN_IMPLEMENTATION)
+            break;
     }
+
+    const double accuracy = (double)trueP / (trueP + falseP);
+    const double recall = (double)trueP / (trueP + falseN);
 
     // TODO: Output statistics about the model instead of this
     auto outFile = Output(opts.outFilename);
     auto& outStream = outFile.stream();
-    outStream << "total: " << total << endl;
+    outStream << "method: " << showMethod(opts.method) << endl;
+    outStream << "k: " << opts.k << endl;
+    if (opts.method == PCAKNN)
+        outStream << "alpha: " << opts.alpha << endl;
+    outStream << "countEntries: " << total << endl;
     outStream << "trueP: " << trueP << endl;
     outStream << "falseP: " << falseP << endl;
     outStream << "trueN: " << trueN << endl;
     outStream << "falseN: " << falseN << endl;
+    outStream << "accuracy: " << accuracy << endl;
+    outStream << "recall: " << recall << endl;
     outFile.close();
 }
 
@@ -135,11 +148,10 @@ int main(int argc, char* argv[]) {
     const Model* model = makeModel(options, move(trainEntries));
 
     /*************** Test the model ********************/
-    DEBUG("---------------- Testing -----------------");
     if (not options.dontTest) {
+        DEBUG("---------------- Testing -----------------");
         testModel(options, model, testEntries);
     }
-
 
     delete model;
 

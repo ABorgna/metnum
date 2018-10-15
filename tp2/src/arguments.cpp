@@ -5,6 +5,17 @@
 
 using namespace std;
 
+std::string showMethod(Method m) {
+    switch (m) {
+        case (KNN):
+            return "KNN";
+        case (PCAKNN):
+            return "PCA+KNN";
+        default:
+            return "unknown method";
+    }
+}
+
 void printHelp(const string& cmd, const Options& defaults) {
     cerr << "Usage: " << cmd << " [OPTIONS]" << endl
          << endl
