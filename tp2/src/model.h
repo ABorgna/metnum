@@ -10,7 +10,7 @@ class Model {
   public:
     virtual ~Model();
     // Analize an entry and decide its polarity, using kNN(k).
-    virtual bool analize(const entry::VectorizedEntry&);
+    virtual bool analize(const entry::VectorizedEntry&) const;
 };
 
 class ModelKNN : public Model {
@@ -20,7 +20,7 @@ class ModelKNN : public Model {
 
   public:
     ModelKNN(entry::VectorizedEntriesMap&&, int k);
-    bool analize(const entry::VectorizedEntry&);
+    bool analize(const entry::VectorizedEntry&) const;
 };
 
 class ModelPCA : public Model {
@@ -31,5 +31,5 @@ class ModelPCA : public Model {
 
   public:
     ModelPCA(entry::VectorizedEntriesMap&&, int k, int alpha);
-    bool analize(const entry::VectorizedEntry&);
+    bool analize(const entry::VectorizedEntry&) const;
 };

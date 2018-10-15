@@ -1,7 +1,8 @@
 #include "model.h"
 
 Model::~Model(){};
-bool Model::analize(const entry::VectorizedEntry& e __attribute__((unused))) {
+bool Model::analize(const entry::VectorizedEntry& e
+                    __attribute__((unused))) const {
     return true;
 };
 
@@ -11,7 +12,7 @@ ModelKNN::ModelKNN(entry::VectorizedEntriesMap&& entries, int k)
     : trainEntries(entries), k(k){};
 
 bool ModelKNN::analize(const entry::VectorizedEntry& entry
-                       __attribute__((unused))) {
+                       __attribute__((unused))) const {
     // return runKNN(entry, k);
     return true;
 }
@@ -22,7 +23,7 @@ ModelPCA::ModelPCA(entry::VectorizedEntriesMap&& entries, int k, int alpha)
     : trainEntries(entries), k(k), alpha(alpha){};
 
 bool ModelPCA::analize(const entry::VectorizedEntry& entry
-                       __attribute__((unused))) {
+                       __attribute__((unused))) const {
     // ???
     return true;
 }
