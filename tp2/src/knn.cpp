@@ -3,7 +3,7 @@
 #include <queue>
 
 // Squared L2 distance between two bag of words
-double distance2(const entry::VectorizedEntry& a, const entry::VectorizedEntry& b) {
+double distance2(const entry::Entry& a, const entry::Entry& b) {
     auto itA = a.bag_of_words.begin();
     auto itB = b.bag_of_words.begin();
     auto aEnd = a.bag_of_words.end();
@@ -16,14 +16,13 @@ double distance2(const entry::VectorizedEntry& a, const entry::VectorizedEntry& 
     return res;
 }
 
-bool dumbKnn(const entry::VectorizedEntriesMap& entries,
-             const entry::VectorizedEntry& test, int k) {
+bool dumbKnn(const entry::Entries& entries,
+             const entry::Entry& test, int k) {
 
     std::priority_queue<std::pair<double, bool>> queue;
 
     // Get the nearest k polarities
-    for(const auto& p : entries) {
-        const entry::VectorizedEntry& e = p.second;
+    for(const auto& e : entries) {
         double dist = distance2(e, test);
 
         if(queue.size() < (size_t)k) {

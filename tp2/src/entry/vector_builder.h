@@ -9,9 +9,7 @@
 
 namespace entry {
 
-VectorizedEntriesMap vectorizeMap(const FrecuencyVocabularyMap& vocab,
-                                  const TokenizedEntriesMap&);
-
+Entries vectorize(const Vocabulary& vocab, const TokenizedEntries&);
 }
 
 #endif  // VECTOR_BUILDER__H

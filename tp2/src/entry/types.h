@@ -2,24 +2,25 @@
 #define TYPES__H
 
 #include <functional>
-#include <unordered_map>
 #include <vector>
 
 namespace entry {
 
 // Estructuras para las entradas tokenizadas
 struct TokenizedEntry {
+    int id;
     bool is_positive;
     std::vector<int> tokens;
 };
-using TokenizedEntriesMap = std::unordered_map<int, TokenizedEntry>;
+using TokenizedEntries = std::vector<TokenizedEntry>;
 
 // Estructuras para las entradas vectorizadas
-struct VectorizedEntry {
+struct Entry {
+    int id;
     bool is_positive;
     std::vector<double> bag_of_words;
 };
-using VectorizedEntriesMap = std::unordered_map<int, VectorizedEntry>;
+using Entries = std::vector<Entry>;
 
 // Token del vocabulario, con su frecuencia en el corpus.
 struct VocabToken {
@@ -31,7 +32,7 @@ bool operator<(const VocabToken& x, const VocabToken& y);
 
 // Estructura para el vocabulario.
 // Vector de tokens ordenado por ids.
-using FrecuencyVocabularyMap = std::vector<VocabToken>;
+using Vocabulary = std::vector<VocabToken>;
 
 /**
  *  Lambda para usar como filtro de vocabulario

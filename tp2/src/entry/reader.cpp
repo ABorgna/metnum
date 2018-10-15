@@ -12,8 +12,8 @@
 
 namespace entry {
 
-void read_entry(std::string& line, TokenizedEntriesMap& train_entries,
-                TokenizedEntriesMap& test_entries, EntryType type) {
+void read_entry(std::string& line, TokenizedEntries& train_entries,
+                TokenizedEntries& test_entries, EntryType type) {
     // Leo una línea y cargo una entrada
     int review_id(stoi(std::string(strtok(&line[0u], ","))));
     std::string dataset(strtok(NULL, ","));
@@ -27,18 +27,19 @@ void read_entry(std::string& line, TokenizedEntriesMap& train_entries,
     }
 
     entry.is_positive = polarity == "pos";
+    entry.id = review_id;
     if (dataset == "test") {
         if(type == ENTRY_ALL || type == ENTRY_TEST)
-            test_entries[review_id] = entry;
+            test_entries.push_back(entry);
     } else {
         if(type == ENTRY_ALL || type == ENTRY_TRAIN)
-            train_entries[review_id] = entry;
+            train_entries.push_back(entry);
     }
 }
 
 // Version privada con todos los parámetros posibles.
-void read_entries(Input& file, TokenizedEntriesMap& train_entries,
-                  TokenizedEntriesMap& test_entries, EntryType type) {
+void read_entries(Input& file, TokenizedEntries& train_entries,
+                  TokenizedEntries& test_entries, EntryType type) {
     DEBUG("Reading entries.");
     std::string line;
     if (file.fail())
@@ -59,16 +60,16 @@ void read_entries(Input& file, TokenizedEntriesMap& train_entries,
     }
 }
 
-void read_entries(Input& file, TokenizedEntriesMap& entries) {
+void read_entries(Input& file, TokenizedEntries& entries) {
     read_entries(file, entries, entries);
 }
 
-void read_entries(Input& file, TokenizedEntriesMap& entries, EntryType type) {
+void read_entries(Input& file, TokenizedEntries& entries, EntryType type) {
     read_entries(file, entries, entries, type);
 }
 
-void read_entries(Input& file, TokenizedEntriesMap& train_entries,
-                  TokenizedEntriesMap& test_entries) {
+void read_entries(Input& file, TokenizedEntries& train_entries,
+                  TokenizedEntries& test_entries) {
     read_entries(file, train_entries, test_entries, ENTRY_ALL);
 }
 
@@ -86,9 +87,9 @@ VocabToken read_vocab_token(std::string& line) {
     return {token_id, frequency};
 }
 
-FrecuencyVocabularyMap read_vocabulary(Input& file, const VocabFilter& filter) {
+Vocabulary read_vocabulary(Input& file, const VocabFilter& filter) {
     DEBUG("Reading the vocabulary.");
-    FrecuencyVocabularyMap vocabulary;
+    Vocabulary vocabulary;
     std::string line;
     if (file.fail())
         throw std::runtime_error(
@@ -111,7 +112,7 @@ FrecuencyVocabularyMap read_vocabulary(Input& file, const VocabFilter& filter) {
     return vocabulary;
 }
 
-FrecuencyVocabularyMap read_vocabulary(Input& file) {
+Vocabulary read_vocabulary(Input& file) {
     auto vocabulary = read_vocabulary(file, [](auto) { return false; });
     return vocabulary;
 }

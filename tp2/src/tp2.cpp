@@ -28,35 +28,36 @@ const Options defaultOptions = {
     dontTest : false,
 };
 
-void readEntries(const Options& opts, entry::FrecuencyVocabularyMap& vocabulary,
-                 entry::VectorizedEntriesMap& trainEntries,
-                 entry::VectorizedEntriesMap& testEntries) {
+void readEntries(const Options& opts, entry::Vocabulary& vocabulary,
+                 entry::Entries& trainEntries,
+                 entry::Entries& testEntries) {
     auto vocabFile = Input(opts.vocabFilename);
     vocabulary = entry::read_vocabulary(
         vocabFile, entry::filterPassBand(opts.minVocabFreq, opts.maxVocabFreq));
     vocabFile.close();
 
-    entry::TokenizedEntriesMap trainTokenized;
-    entry::TokenizedEntriesMap testTokenized;
+    entry::TokenizedEntries trainTokenized;
+    entry::TokenizedEntries testTokenized;
     if (opts.trainFilename == opts.testFilename) {
         auto file = Input(opts.testFilename);
         entry::read_entries(file, trainTokenized, testTokenized);
         file.close();
     } else {
         auto trainFile = Input(opts.trainFilename);
-        auto testFile = Input(opts.testFilename);
         entry::read_entries(trainFile, trainTokenized);
+        trainFile.close();
+
+        auto testFile = Input(opts.testFilename);
         entry::read_entries(testFile, testTokenized);
         testFile.close();
-        trainFile.close();
     }
 
-    trainEntries = entry::vectorizeMap(vocabulary, trainTokenized);
-    testEntries = entry::vectorizeMap(vocabulary, testTokenized);
+    trainEntries = entry::vectorize(vocabulary, trainTokenized);
+    testEntries = entry::vectorize(vocabulary, testTokenized);
 }
 
 const Model* makeModel(const Options& opts,
-                       entry::VectorizedEntriesMap&& entries) {
+                       entry::Entries&& entries) {
     switch (opts.method) {
         case KNN:
             return new ModelKNN(move(entries), opts.k);
@@ -68,16 +69,14 @@ const Model* makeModel(const Options& opts,
 }
 
 void testModel(const Options& opts, const Model* model,
-               const entry::VectorizedEntriesMap& testEntries) {
+               const entry::Entries& testEntries) {
     int total = 0;
     int trueP = 0;
     int falseP = 0;
     int trueN = 0;
     int falseN = 0;
 
-    for (const auto& test : testEntries) {
-        const entry::VectorizedEntry& entry = test.second;
-
+    for (const auto& entry : testEntries) {
         bool expected = entry.is_positive;
         bool result = model->analize(entry);
 
@@ -132,9 +131,9 @@ int main(int argc, char* argv[]) {
     /*************** Read the entries ********************/
     DEBUG("---------------- Loading data ------------");
 
-    entry::VectorizedEntriesMap trainEntries;
-    entry::VectorizedEntriesMap testEntries;
-    entry::FrecuencyVocabularyMap vocabulary;
+    entry::Entries trainEntries;
+    entry::Entries testEntries;
+    entry::Vocabulary vocabulary;
 
     readEntries(options, vocabulary, trainEntries, testEntries);
 
