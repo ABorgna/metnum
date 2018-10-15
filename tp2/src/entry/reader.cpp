@@ -13,7 +13,7 @@
 namespace entry {
 
 void read_entry(std::string& line, TokenizedEntriesMap& train_entries,
-                TokenizedEntriesMap& test_entries) {
+                TokenizedEntriesMap& test_entries, EntryType type) {
     // Leo una línea y cargo una entrada
     int review_id(stoi(std::string(strtok(&line[0u], ","))));
     std::string dataset(strtok(NULL, ","));
@@ -27,30 +27,18 @@ void read_entry(std::string& line, TokenizedEntriesMap& train_entries,
     }
 
     entry.is_positive = polarity == "pos";
-    if (dataset == "test")
-        test_entries[review_id] = entry;
-    else
-        train_entries[review_id] = entry;
-}
-
-void read_entries(Input& file, TokenizedEntriesMap& entries) {
-    read_entries(file, entries, entries);
-}
-
-void read_entries(Input& train_file, Input& test_file,
-                  TokenizedEntriesMap& train_entries,
-                  TokenizedEntriesMap& test_entries) {
-    // Check if both files are the same one, and do a single pass.
-    if (&train_file == &test_file) {
-        read_entries(train_file, train_entries, test_entries);
+    if (dataset == "test") {
+        if(type == ENTRY_ALL || type == ENTRY_TEST)
+            test_entries[review_id] = entry;
     } else {
-        read_entries(train_file, train_entries);
-        read_entries(test_file, test_entries);
+        if(type == ENTRY_ALL || type == ENTRY_TRAIN)
+            train_entries[review_id] = entry;
     }
 }
 
+// Version privada con todos los parámetros posibles.
 void read_entries(Input& file, TokenizedEntriesMap& train_entries,
-                  TokenizedEntriesMap& test_entries) {
+                  TokenizedEntriesMap& test_entries, EntryType type) {
     DEBUG("Reading entries.");
     std::string line;
     if (file.fail())
@@ -60,7 +48,7 @@ void read_entries(Input& file, TokenizedEntriesMap& train_entries,
 
     while (std::getline(file.stream(), line)) {
         lineCount++;
-        read_entry(line, train_entries, test_entries);
+        read_entry(line, train_entries, test_entries, type);
     }
 
     if (&train_entries == &test_entries) {
@@ -69,6 +57,19 @@ void read_entries(Input& file, TokenizedEntriesMap& train_entries,
         DEBUG(train_entries.size() << " train entries read.");
         DEBUG(test_entries.size() << " test entries read.");
     }
+}
+
+void read_entries(Input& file, TokenizedEntriesMap& entries) {
+    read_entries(file, entries, entries);
+}
+
+void read_entries(Input& file, TokenizedEntriesMap& entries, EntryType type) {
+    read_entries(file, entries, entries, type);
+}
+
+void read_entries(Input& file, TokenizedEntriesMap& train_entries,
+                  TokenizedEntriesMap& test_entries) {
+    read_entries(file, train_entries, test_entries, ENTRY_ALL);
 }
 
 VocabToken read_vocab_token(std::string& line) {
@@ -111,7 +112,7 @@ FrecuencyVocabularyMap read_vocabulary(Input& file, const VocabFilter& filter) {
 }
 
 FrecuencyVocabularyMap read_vocabulary(Input& file) {
-    auto vocabulary = read_vocabulary(file, [](auto n) { return false; });
+    auto vocabulary = read_vocabulary(file, [](auto) { return false; });
     return vocabulary;
 }
 

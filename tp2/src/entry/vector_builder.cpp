@@ -20,10 +20,10 @@ bool vectorize(const FrecuencyVocabularyMap& vocab,
 
     // Find the index in the bag of words for each token in the entry
     for(int tokenId : entry.tokens) {
-        const VocabToken searchToken = {tokenId, 0.};
+        const VocabToken searchToken = {token: tokenId, 0};
         const auto it = lower_bound(vocab.begin(), vocab.end(), searchToken); 
         // If the token was not filtered from the vocabulary, get its index
-        if(it != vocab.end()) {
+        if(it != vocab.end() && it->token == tokenId) {
             const int index = it - vocab.begin();
             res.bag_of_words[index]++;
             allFiltered = false;

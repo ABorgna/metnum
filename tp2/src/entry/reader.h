@@ -6,6 +6,12 @@
 
 namespace entry {
 
+enum EntryType {
+    ENTRY_ALL,
+    ENTRY_TRAIN,
+    ENTRY_TEST,
+};
+
 /**
  *  Parsea el archivo de reviews tokenizadas.
  *  El archivo en cuestión no debe tener una línea vacía al final.
@@ -13,19 +19,17 @@ namespace entry {
 void read_entries(Input& file, TokenizedEntriesMap&);
 
 /**
+ *  Parsea el archivo de reviews tokenizadas, filtrando por el tipo de entry.
+ *  El archivo en cuestión no debe tener una línea vacía al final.
+ **/
+void read_entries(Input& file, TokenizedEntriesMap&, EntryType);
+
+/**
  *  Parsea el archivo de reviews tokenizadas,
  *  dividiendo las entradas entre testing y training.
  *  El archivo en cuestión no debe tener una línea vacía al final.
  **/
 void read_entries(Input& file, TokenizedEntriesMap& train_entries,
-                  TokenizedEntriesMap& test_entries);
-
-/**
- *  Parsea los archivos de reviews tokenizados de testing y training.
- *  Puede haber aliasing entre ambos archivos.
- **/
-void read_entries(Input& trainFile, Input& testFile,
-                  TokenizedEntriesMap& train_entries,
                   TokenizedEntriesMap& test_entries);
 
 /**

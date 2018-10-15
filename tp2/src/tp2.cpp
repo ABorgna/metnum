@@ -1,20 +1,23 @@
 #include <getopt.h>
+#include <string.h>
 #include <iostream>
+
 #include "debug.h"
 #include "entry/reader.h"
 #include "entry/vector_builder.h"
 #include "files.h"
+
 using namespace std;
 
-const char* const defaultTrainFile = "data/imdb_tokenized.csv";
-const char* const defaultTestFile = "data/imdb_tokenized.csv";
-const char* const defaultOutFile = "-";
+const string defaultTrainFile = "data/imdb_tokenized.csv";
+const string defaultTestFile = "data/imdb_tokenized.csv";
+const string defaultOutFile = "-";
 
-const char* const defaultVocabFile = "data/vocab.csv";
+const string defaultVocabFile = "data/vocab.csv";
 const double defaultMinVocabFreq = 0.01;
 const double defaultMaxVocabFreq = 0.99;
 
-void printHelp(const char* cmd) {
+void printHelp(const string& cmd) {
     cerr << "Usage: " << cmd << " [OPTIONS]" << endl
          << endl
          << "  Options:" << endl
@@ -65,18 +68,18 @@ enum Method {
 };
 
 int main(int argc, char* argv[]) {
-    const char* const cmd = argv[0];
+    const string cmd = argv[0];
 
     // Print all the info by default (TODO: remove this later)
     debugging_enabled = true;
 
     Method method = KNN;
-    const char* trainFilename = defaultTrainFile;
-    const char* testFilename = defaultTestFile;
-    const char* outFilename = defaultOutFile;
-    const char* cacheFilename = nullptr;
+    string trainFilename = defaultTrainFile;
+    string testFilename = defaultTestFile;
+    string outFilename = defaultOutFile;
+    string cacheFilename;
 
-    const char* vocabFilename = defaultVocabFile;
+    string vocabFilename = defaultVocabFile;
     double minVocabFreq = defaultMinVocabFreq;
     double maxVocabFreq = defaultMaxVocabFreq;
 
@@ -183,23 +186,28 @@ int main(int argc, char* argv[]) {
     entry::VectorizedEntriesMap trainEntries;
     entry::VectorizedEntriesMap testEntries;
 
-    auto trainFile = Input(trainFilename);
-    auto testFile = Input(testFilename);
     auto vocabFile = Input(vocabFilename);
-
     vocabulary = entry::read_vocabulary(
         vocabFile, entry::filterPassBand(minVocabFreq, maxVocabFreq));
+    vocabFile.close();
 
     entry::TokenizedEntriesMap trainTokenized;
     entry::TokenizedEntriesMap testTokenized;
-    entry::read_entries(trainFile, testFile, trainTokenized, testTokenized);
+    if (trainFilename == testFilename) {
+        auto file = Input(testFilename);
+        entry::read_entries(file, trainTokenized, testTokenized);
+        file.close();
+    } else {
+        auto trainFile = Input(trainFilename);
+        auto testFile = Input(testFilename);
+        entry::read_entries(trainFile, trainTokenized);
+        entry::read_entries(testFile, testTokenized);
+        testFile.close();
+        trainFile.close();
+    }
 
     trainEntries = entry::vectorizeMap(vocabulary, trainTokenized);
     testEntries = entry::vectorizeMap(vocabulary, testTokenized);
-
-    vocabFile.close();
-    testFile.close();
-    trainFile.close();
 
     DEBUG("Finished preprocessing the data.");
     DEBUG("    Vocabulary size: " << vocabulary.size());
