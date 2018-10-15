@@ -16,7 +16,7 @@ INC_PARAMS=$(foreach d, $(INC), -I$d)
 SRCS=$(shell find $(SRCDIR) -type f -name *.cpp)
 OBJS=$(subst .cpp,.o,$(SRCS))
 
-DATASET_COMPRESSED=$(DATADIR)/imdb_data.tar.xz
+DATASET_COMPRESSED=$(DATADIR)/data.tar.xz
 
 .PHONY: all tp2 depend tests clean distclean .depend dataset
 
