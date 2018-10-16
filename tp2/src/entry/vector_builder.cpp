@@ -13,7 +13,7 @@ bool vectorizeEntry(const Vocabulary& vocab, const TokenizedEntry& entry,
                     Entry& res) {
     res.id = entry.id;
     res.is_positive = entry.is_positive;
-    res.bag_of_words = std::vector<double>(vocab.size(), 0);
+    res.bag_of_words = Eigen::SparseVector<int>(vocab.size());
 
     // Check if the entry was completely filtered from the vocabulary
     bool allFiltered = true;
@@ -25,7 +25,7 @@ bool vectorizeEntry(const Vocabulary& vocab, const TokenizedEntry& entry,
         // If the token was not filtered from the vocabulary, get its index
         if (it != vocab.end() && it->token == tokenId) {
             const int index = it - vocab.begin();
-            res.bag_of_words[index]++;
+            res.bag_of_words.coeffRef(index)++;
             allFiltered = false;
         }
     }

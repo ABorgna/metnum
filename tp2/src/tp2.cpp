@@ -91,7 +91,7 @@ void testModel(const Options& opts, const Model* model,
         // TODO: Print each test result to a "classifications" file
 
         // TODO: Remove this once we have a faster knn implementation
-        const int TEST_CUTOUT_SO_WE_CAN_TEST_THE_DUMB_KNN_IMPLEMENTATION = 64;
+        const int TEST_CUTOUT_SO_WE_CAN_TEST_THE_DUMB_KNN_IMPLEMENTATION = 128;
         if (total >= TEST_CUTOUT_SO_WE_CAN_TEST_THE_DUMB_KNN_IMPLEMENTATION)
             break;
     }
