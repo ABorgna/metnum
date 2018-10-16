@@ -3,8 +3,7 @@
 #include <string.h>
 //#include <Eigen/SparseCore>
 
-#include "entry/types.h"
-#include "files.h"
+#include "../entry/types.h"
 
 class Model {
    public:

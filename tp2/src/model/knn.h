@@ -3,7 +3,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "entry/types.h"
+#include "../entry/types.h"
 
 // The dumbest possible implementation for knn
 bool dumbKnn(const entry::Entries& entries,

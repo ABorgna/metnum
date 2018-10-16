@@ -6,7 +6,7 @@
 #include "entry/reader.h"
 #include "entry/vector_builder.h"
 #include "files.h"
-#include "model.h"
+#include "model/model.h"
 
 using namespace std;
 
@@ -29,8 +29,7 @@ const Options defaultOptions = {
 };
 
 void readEntries(const Options& opts, entry::Vocabulary& vocabulary,
-                 entry::Entries& trainEntries,
-                 entry::Entries& testEntries) {
+                 entry::Entries& trainEntries, entry::Entries& testEntries) {
     auto vocabFile = Input(opts.vocabFilename);
     vocabulary = entry::read_vocabulary(
         vocabFile, entry::filterPassBand(opts.minVocabFreq, opts.maxVocabFreq));
@@ -56,8 +55,7 @@ void readEntries(const Options& opts, entry::Vocabulary& vocabulary,
     testEntries = entry::vectorize(vocabulary, testTokenized);
 }
 
-const Model* makeModel(const Options& opts,
-                       entry::Entries&& entries) {
+const Model* makeModel(const Options& opts, entry::Entries&& entries) {
     switch (opts.method) {
         case KNN:
             return new ModelKNN(move(entries), opts.k);
