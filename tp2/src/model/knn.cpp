@@ -1,36 +1,34 @@
 #include "knn.h"
 
 #include <queue>
+#include <utility>
 
 // Squared L2 distance between two bag of words
 long long distance2(const entry::Entry& a, const entry::Entry& b) {
-    Eigen::SparseVector<int>::InnerIterator itA(a.bag_of_words);
-    Eigen::SparseVector<int>::InnerIterator itB(b.bag_of_words);
-
+    Eigen::SparseVector<int>::InnerIterator it1(a.bag_of_words);
+    Eigen::SparseVector<int>::InnerIterator it2(b.bag_of_words);
     long long res = 0;
-    while (itA and itB) {
-        int ai = itA.value();
-        int bi = itB.value();
-        if (itA.index() < itB.index()) {
-            res += ai * ai;
-            ++itA;
-        } else if (itA.index() == itB.index()) {
-            res += (bi - ai) * (bi - ai);
-            ++itA;
-            ++itB;
+
+    while (it1 and it2) {
+        if (it1.index() > it2.index())
+            std::swap(it1, it2);
+        int x = it1.value();
+        int y = it2.value();
+
+        if (it1.index() < it2.index()) {
+            res += x * x;
+            ++it1;
         } else {
-            res += bi * bi;
-            ++itB;
+            res += (y - x) * (y - x);
+            ++it1;
+            ++it2;
         }
     }
-    while (itA) {
-        res += itA.value() * itA.value();
-        ++itA;
-    }
-    while (itB) {
-        res += itB.value() * itB.value();
-        ++itB;
-    }
+    if (not it1)
+        std::swap(it1, it2);
+    do {
+        res += it1.value() * it1.value();
+    } while (++it1);
     return res;
 }
 
