@@ -10,7 +10,7 @@ using namespace std;
 
 int main(){
 	
-	float a = INT_MAX; // 2147483647
+	float a = INT_MAX; // 			2147483647
 	float b = LONG_MAX; // 9223372036854775807
 	
 	float f = a + b;

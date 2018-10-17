@@ -15,6 +15,11 @@ float mirand(float hasta){
 }
 //////////////////////////////////////////////////////////////
 
+bool fun(float i,float j)
+{
+   return fabs(i)<fabs(j);
+}
+
 int nums = 10000000;
 
 int main(){
@@ -22,7 +27,8 @@ int main(){
 	vector<float> numeros;
 	for(int i=0;i<nums;i++){
 		numeros.push_back(pow(2,-rand()%10));
-		//~ numeros.push_back(pow(2,-20));
+		// numeros.push_back(-pow(2,-rand()%10));
+		// ~ numeros.push_back(pow(2,-20));
 	}
 	//~ numeros[50] = 16.;
 	 
@@ -32,9 +38,12 @@ int main(){
 	for(int i=0;i<nums;i++){
 		//~ printf("%.10lf\n", numeros[i]);
 		suma += numeros[i];
-		float y = numeros[i]-c;
-		float t = kahan + y;
-		c = (t - kahan) - y;
+
+		float y = numeros[i]-c; // la parte grande de numeros[i]
+		float t = kahan + y; // lo que tenia + la parte grande
+		// c = t - (kahan + y);
+		c = (t - kahan) - y; // el nuevo kahan menos el viejo (t - kahan) deberia ser cercano a y, menos la parte gande de 
+							// numeros[i]
 		kahan = t;
 	}
 	
@@ -50,9 +59,14 @@ int main(){
 		suma2+=numeros[i];
 		suma3+=numeros[nums-1-i];
 	}
-	
+
+	sort(numeros.begin(), numeros.end(), fun);
+	float suma4 = 0.0;
+	for (auto x:numeros){
+		suma4 += x;
+	}
 	
 	printf("Como viene: %.15lf\nOrden Ascendente: %.15lf\nOrden Descendente: %.15lf\nSUPER KAHAN!: %.15lf\n", suma, suma2, suma3, kahan);
-	 
+	printf("Orden ascendente de val abs: %.15lf\n", suma4);
 	return 0;
 }
