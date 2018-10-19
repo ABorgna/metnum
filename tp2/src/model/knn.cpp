@@ -102,7 +102,7 @@ bool InvertedIndexKNN::knn(const entry::Entry& testEntry, int k) const {
 
         const auto& entry = entries[entryId];
         double dist = distance1(entry, testEntry);
-        pushIfBetter(neighQueue, k, dist, testEntry.is_positive);
+        pushIfBetter(neighQueue, k, dist, entry.is_positive);
 
         while (not entriesQueue.empty() and
                std::get<0>(entriesQueue.top()) == entryId) {
