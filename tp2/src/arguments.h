@@ -22,6 +22,8 @@ struct Options {
     double minVocabFreq;
     double maxVocabFreq;
 
+    int maxTestEntries;
+
     Method method;
     int k;      // kNN hyper-parameter
     int alpha;  // PCA hyper-parameter

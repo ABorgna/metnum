@@ -7,7 +7,7 @@ TESTDIR=test
 OBJDIR=build
 DATADIR=data
 
-INC=lib/eigen
+INC=
 INC_PARAMS=$(foreach d,$(INC),-I$d)
 
 CPPFLAGS=$(INC_PARAMS) -g -Wall -Wextra -O2 -std=c++14

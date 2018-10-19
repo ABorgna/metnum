@@ -9,27 +9,29 @@ typedef std::priority_queue<std::pair<double, bool>> NeighQueue;
 
 // L1 distance between two bag of words
 double distance1(const entry::Entry& a, const entry::Entry& b) {
-    Eigen::SparseVector<double>::InnerIterator it1(a.bag_of_words);
-    Eigen::SparseVector<double>::InnerIterator it2(b.bag_of_words);
+    auto itA = a.bag_of_words.begin();
+    auto itB = b.bag_of_words.begin();
+    auto endA = a.bag_of_words.begin();
+    auto endB = b.bag_of_words.begin();
     double res = 0;
 
-    while (it1 and it2) {
-        if (it1.index() > it2.index())
-            std::swap(it1, it2);
-        if (it1.index() < it2.index()) {
-            res += it1.value();
-            ++it1;
-        } else {
-            res += abs(it2.value() - it1.value());
-            ++it1;
-            ++it2;
+    while (itA != endA and itB != endB) {
+        if (itA->first > itB->first) {
+            std::swap(itA, itB);
+            std::swap(endA, endB);
         }
+        if (itA->first < itB->first)
+            res += (++itA)->second;
+        else
+            res += abs((++itB)->second - (++itA)->second);
     }
-    if (not it1)
-        std::swap(it1, it2);
-    do {
-        res += it1.value();
-    } while (++it1);
+    if (itA == endA) {
+        std::swap(itA, itB);
+        std::swap(endA, endB);
+    }
+    while (itA != endA) {
+        res += (++itA)->first;
+    }
     return res;
 }
 
@@ -84,10 +86,11 @@ void InvertedIndexKNN::precomputeInvIndex() {
         const auto& e = entries[i];
 
         // Note: The vector invertedIndex[i] must remain sorted.
-        for (Eigen::SparseVector<double>::InnerIterator it(e.bag_of_words); it;
-             ++it) {
-            if (it.value() > 0)
-                invertedIndex[it.index()].push_back(i);
+        for (const auto& p : e.bag_of_words) {
+            const size_t word = p.first;
+            const double frequency = p.second;
+            if (frequency > 0)
+                invertedIndex[word].push_back(i);
         }
     }
 }
@@ -102,11 +105,11 @@ bool InvertedIndexKNN::knn(const entry::Entry& testEntry, int k) const {
         entriesQueue;
 
     // Get the nearest k polarities
-    for (Eigen::SparseVector<double>::InnerIterator it(testEntry.bag_of_words); it;
-         ++it) {
-        const auto& wordVec = invertedIndex[it.index()];
+    for (const auto& p : testEntry.bag_of_words) {
+        const size_t word = p.first;
+        const auto& wordVec = invertedIndex[word];
         if (wordVec.size() > 0) {
-            entriesQueue.emplace(wordVec[0], it.index(), 0);
+            entriesQueue.emplace(wordVec[0], word, 0);
         }
     }
 

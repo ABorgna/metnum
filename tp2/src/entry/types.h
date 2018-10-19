@@ -1,9 +1,10 @@
 #ifndef TYPES__H
 #define TYPES__H
 
-#include <Eigen/SparseCore>
 #include <functional>
 #include <vector>
+
+#include "../linearAlg/sparse_vector.h"
 
 namespace entry {
 
@@ -19,7 +20,7 @@ using TokenizedEntries = std::vector<TokenizedEntry>;
 struct Entry {
     int id;
     bool is_positive;
-    Eigen::SparseVector<double> bag_of_words;
+    SparseVector<double> bag_of_words;
 };
 using Entries = std::vector<Entry>;
 

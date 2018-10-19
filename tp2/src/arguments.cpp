@@ -49,6 +49,8 @@ void printHelp(const string& cmd, const Options& defaults) {
             "for stdout."
          << endl
          << "                   (Default: stdout)" << endl
+         << "        --test-entries n" << endl
+         << "                   Test at most n entries." << endl
          << "  VOCABULARY" << endl
          << "    -p, --vocabulary <file>"
          << "                   File with the vocabulary." << endl
@@ -84,6 +86,7 @@ bool parseArguments(int argc, char* argv[], const Options& defaults,
                                 {"vocabulary", required_argument, nullptr, 'p'},
                                 {"minVocabFreq", required_argument, nullptr, 1},
                                 {"maxVocabFreq", required_argument, nullptr, 2},
+                                {"test-entries", required_argument, nullptr, 3},
                                 {0, 0, 0, 0}};
 
     while (true) {
@@ -115,6 +118,14 @@ bool parseArguments(int argc, char* argv[], const Options& defaults,
                     return -3;
                 }
                 opt.maxVocabFreq = freq;
+            } break;
+            case 3: {
+                // Max test entries
+                int n = stoi(optarg);
+                // Negative means no limit
+                if (n < 0)
+                  n = -1;
+                opt.maxTestEntries = n;
             } break;
             case 'h':
                 return false;
