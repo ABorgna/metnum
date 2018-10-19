@@ -13,10 +13,10 @@ bool vectorizeEntry(const Vocabulary& vocab, const TokenizedEntry& entry,
                     Entry& res) {
     res.id = entry.id;
     res.is_positive = entry.is_positive;
-    res.bag_of_words = Eigen::SparseVector<int>(vocab.size());
+    res.bag_of_words = Eigen::SparseVector<double>(vocab.size());
 
-    // Check if the entry was completely filtered from the vocabulary
-    bool allFiltered = true;
+    // Count the number of non-filtered tokens
+    int numWords = 0;
 
     // Find the index in the bag of words for each token in the entry
     for (int tokenId : entry.tokens) {
@@ -26,15 +26,24 @@ bool vectorizeEntry(const Vocabulary& vocab, const TokenizedEntry& entry,
         if (it != vocab.end() && it->token == tokenId) {
             const int index = it - vocab.begin();
             res.bag_of_words.coeffRef(index)++;
-            allFiltered = false;
+            numWords++;
         }
     }
 
-    return not allFiltered;
+    const bool allFiltered = numWords == 0;
+    if (allFiltered)
+        return false;
+
+    // Normalize the vector (for norm-1)
+    for (Eigen::SparseVector<double>::InnerIterator it(res.bag_of_words); it;
+         ++it) {
+        it.valueRef() /= numWords;
+    }
+
+    return true;
 }
 
-Entries vectorize(const Vocabulary& vocab,
-                            const TokenizedEntries& entries) {
+Entries vectorize(const Vocabulary& vocab, const TokenizedEntries& entries) {
     DEBUG("Vectorizing the entries.");
     Entries res;
     res.reserve(entries.size());

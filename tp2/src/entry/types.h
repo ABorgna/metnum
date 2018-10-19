@@ -19,7 +19,7 @@ using TokenizedEntries = std::vector<TokenizedEntry>;
 struct Entry {
     int id;
     bool is_positive;
-    Eigen::SparseVector<int> bag_of_words;
+    Eigen::SparseVector<double> bag_of_words;
 };
 using Entries = std::vector<Entry>;
 

@@ -5,25 +5,22 @@
 
 #include "../debug.h"
 
-typedef std::priority_queue<std::pair<long long, bool>> NeighQueue;
+typedef std::priority_queue<std::pair<double, bool>> NeighQueue;
 
-// Squared L2 distance between two bag of words
-long long distance2(const entry::Entry& a, const entry::Entry& b) {
-    Eigen::SparseVector<int>::InnerIterator it1(a.bag_of_words);
-    Eigen::SparseVector<int>::InnerIterator it2(b.bag_of_words);
-    long long res = 0;
+// L1 distance between two bag of words
+double distance1(const entry::Entry& a, const entry::Entry& b) {
+    Eigen::SparseVector<double>::InnerIterator it1(a.bag_of_words);
+    Eigen::SparseVector<double>::InnerIterator it2(b.bag_of_words);
+    double res = 0;
 
     while (it1 and it2) {
         if (it1.index() > it2.index())
             std::swap(it1, it2);
-        int x = it1.value();
-        int y = it2.value();
-
         if (it1.index() < it2.index()) {
-            res += x * x;
+            res += it1.value();
             ++it1;
         } else {
-            res += (y - x) * (y - x);
+            res += abs(it2.value() - it1.value());
             ++it1;
             ++it2;
         }
@@ -31,12 +28,12 @@ long long distance2(const entry::Entry& a, const entry::Entry& b) {
     if (not it1)
         std::swap(it1, it2);
     do {
-        res += it1.value() * it1.value();
+        res += it1.value();
     } while (++it1);
     return res;
 }
 
-void pushIfBetter(NeighQueue& queue, int k, long long newDist,
+void pushIfBetter(NeighQueue& queue, double k, double newDist,
                   bool positivity) {
     if (queue.size() < (size_t)k) {
         queue.emplace(newDist, positivity);
@@ -66,7 +63,7 @@ bool dumbKnn(const entry::Entries& entries, const entry::Entry& test, int k) {
 
     // Get the nearest k polarities
     for (const auto& e : entries) {
-        long long dist = distance2(e, test);
+        double dist = distance1(e, test);
         pushIfBetter(queue, k, dist, e.is_positive);
     }
 
@@ -87,7 +84,7 @@ void InvertedIndexKNN::precomputeInvIndex() {
         const auto& e = entries[i];
 
         // Note: The vector invertedIndex[i] must remain sorted.
-        for (Eigen::SparseVector<int>::InnerIterator it(e.bag_of_words); it;
+        for (Eigen::SparseVector<double>::InnerIterator it(e.bag_of_words); it;
              ++it) {
             if (it.value() > 0)
                 invertedIndex[it.index()].push_back(i);
@@ -105,7 +102,7 @@ bool InvertedIndexKNN::knn(const entry::Entry& testEntry, int k) const {
         entriesQueue;
 
     // Get the nearest k polarities
-    for (Eigen::SparseVector<int>::InnerIterator it(testEntry.bag_of_words); it;
+    for (Eigen::SparseVector<double>::InnerIterator it(testEntry.bag_of_words); it;
          ++it) {
         const auto& wordVec = invertedIndex[it.index()];
         if (wordVec.size() > 0) {
@@ -121,7 +118,7 @@ bool InvertedIndexKNN::knn(const entry::Entry& testEntry, int k) const {
         std::tie(entryId, word, posInInvArray) = entriesQueue.top();
 
         const auto& entry = entries[entryId];
-        long long dist = distance2(entry, testEntry);
+        double dist = distance1(entry, testEntry);
         pushIfBetter(neighQueue, k, dist, testEntry.is_positive);
 
         while (not entriesQueue.empty() and
