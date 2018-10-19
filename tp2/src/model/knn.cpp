@@ -9,30 +9,10 @@ typedef std::priority_queue<std::pair<double, bool>> NeighQueue;
 
 // L1 distance between two bag of words
 double distance1(const entry::Entry& a, const entry::Entry& b) {
-    auto itA = a.bag_of_words.begin();
-    auto itB = b.bag_of_words.begin();
-    auto endA = a.bag_of_words.begin();
-    auto endB = b.bag_of_words.begin();
-    double res = 0;
-
-    while (itA != endA and itB != endB) {
-        if (itA->first > itB->first) {
-            std::swap(itA, itB);
-            std::swap(endA, endB);
-        }
-        if (itA->first < itB->first)
-            res += (++itA)->second;
-        else
-            res += abs((++itB)->second - (++itA)->second);
-    }
-    if (itA == endA) {
-        std::swap(itA, itB);
-        std::swap(endA, endB);
-    }
-    while (itA != endA) {
-        res += (++itA)->first;
-    }
-    return res;
+    auto f = [](double t1, double t2) {
+        return t1 + t2;
+    };
+    return accumulate2(f, 0, a.bag_of_words, b.bag_of_words);
 }
 
 void pushIfBetter(NeighQueue& queue, double k, double newDist,

@@ -1,8 +1,12 @@
 #pragma once
 
+#include <cassert>
+#include <functional>
 #include <limits>
 #include <map>
 #include <vector>
+
+#include "vector.h"
 
 /*
  * Constant sparse vector structure.
@@ -40,11 +44,9 @@ class SparseVector {
         }
     }
 
-    //
+    // Queries
 
     size_t size() const { return sz; }
-
-    // Element access
 
     const_iterator at(size_t j) const {
         if (j >= sz)
@@ -72,3 +74,13 @@ class SparseVector {
 
     const_iterator end() const noexcept { return elems.end(); }
 };
+
+// Zip two vectors together and reduce the result.
+double accumulate2(std::function<double(double, double)> f, double init,
+              const SparseVector<double>& v1, const SparseVector<double>& v2);
+
+// Operations with Vector
+Vector operator+(const Vector&, const SparseVector<double>&);
+Vector& operator+=(Vector&, const SparseVector<double>&);
+Vector operator-(const Vector&, const SparseVector<double>&);
+Vector& operator-=(Vector&, const SparseVector<double>&);

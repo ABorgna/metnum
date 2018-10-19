@@ -1,14 +1,18 @@
 #pragma once
 
-#include <vector>
+#include "vector.h"
+#include "sparse_vector.h"
 
-typedef std::pair<double, std::vector<double>> EigenValue;
-
-//TODO borrar esto
-typedef std::vector<double> Vector;
+typedef std::pair<double, Vector> EigenValue;
 
 typedef std::vector<Vector> Matriz; // vector de filas
 
-double operator*(const Vector& V1, const Vector& V2);
-double Norma(const Vector& V);
+// Norma 2
+double norma(const Vector&);
+double norma(const SparseVector<double>&);
+
+// Norma N
+double norma(const Vector&, int);
+double norma(const SparseVector<double>&, int);
+
 Vector operator*(const Matriz& M, const Vector& V);

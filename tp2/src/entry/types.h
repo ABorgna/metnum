@@ -4,7 +4,7 @@
 #include <functional>
 #include <vector>
 
-#include "../linearAlg/sparse_vector.h"
+#include "../linearAlg/linearAlg.h"
 
 namespace entry {
 
