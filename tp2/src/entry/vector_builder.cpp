@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <functional>
+#include <map>
 #include <iostream>
 #include <vector>
 
@@ -13,7 +14,8 @@ bool vectorizeEntry(const Vocabulary& vocab, const TokenizedEntry& entry,
                     Entry& res) {
     res.id = entry.id;
     res.is_positive = entry.is_positive;
-    res.bag_of_words = Eigen::SparseVector<double>(vocab.size());
+
+    std::map<size_t, double> bag_of_words;
 
     // Count the number of non-filtered tokens
     int numWords = 0;
@@ -25,7 +27,7 @@ bool vectorizeEntry(const Vocabulary& vocab, const TokenizedEntry& entry,
         // If the token was not filtered from the vocabulary, get its index
         if (it != vocab.end() && it->token == tokenId) {
             const int index = it - vocab.begin();
-            res.bag_of_words.coeffRef(index)++;
+            bag_of_words[index]++;
             numWords++;
         }
     }
@@ -35,10 +37,11 @@ bool vectorizeEntry(const Vocabulary& vocab, const TokenizedEntry& entry,
         return false;
 
     // Normalize the vector (for norm-1)
-    for (Eigen::SparseVector<double>::InnerIterator it(res.bag_of_words); it;
-         ++it) {
-        it.valueRef() /= numWords;
+    for (auto& p : bag_of_words) {
+        p.second /= numWords;
     }
+
+    res.bag_of_words = SparseVector<double>(bag_of_words, vocab.size());
 
     return true;
 }
