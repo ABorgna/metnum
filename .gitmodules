@@ -1,3 +1,0 @@
-[submodule "tp2/lib/eigen"]
-	path = tp2/lib/eigen
-	url = git@github.com:eigenteam/eigen-git-mirror.git
