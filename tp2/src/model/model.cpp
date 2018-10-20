@@ -5,9 +5,18 @@ Model::~Model(){};
 /********** KNN model ************/
 
 ModelKNN::ModelKNN(entry::SpEntries&& entries, int k)
-    : invKnn(move(entries)), k(k) {};
+    : trainEntries(entries), k(k) {};
 
 bool ModelKNN::analize(const entry::SpEntry& test) const {
+    return dumbKnn(trainEntries, test, k);
+}
+
+/********** Inverted KNN model ************/
+
+ModelKNNInv::ModelKNNInv(entry::SpEntries&& entries, int k)
+    : invKnn(move(entries)), k(k) {};
+
+bool ModelKNNInv::analize(const entry::SpEntry& test) const {
     return invKnn.knn(test, k);
 }
 

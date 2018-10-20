@@ -4,7 +4,9 @@
 
 enum Method {
     KNN,
+    KNN_INVERTED,
     PCAKNN,
+    PCAKNN_INVERTED,
 
     // Add new methods before this entry
     METHODS_COUNT

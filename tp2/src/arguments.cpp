@@ -9,8 +9,12 @@ std::string showMethod(Method m) {
     switch (m) {
         case (KNN):
             return "KNN";
+        case (KNN_INVERTED):
+            return "Inverted Index KNN";
         case (PCAKNN):
             return "PCA+KNN";
+        case (PCAKNN_INVERTED):
+            return "PCA+Inverted index KNN";
         default:
             return "unknown method";
     }
@@ -26,7 +30,9 @@ void printHelp(const string& cmd, const Options& defaults) {
          << "  MODEL" << endl
          << "    -m #           Method:" << endl
          << "                     0: kNN." << endl
-         << "                     1: PCA + kNN (default)." << endl
+         << "                     1: Inverted index kNN." << endl
+         << "                     2: PCA + kNN." << endl
+         << "                     3: PCA + Inverted Index kNN (default)." << endl
          << "    -k #           K hyper-parameter for kNN (Default: "
          << defaults.k << ")" << endl
          << "    -a #           Alpha hyper-parameter for PCA (Default: "

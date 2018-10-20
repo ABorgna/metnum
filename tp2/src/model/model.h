@@ -15,11 +15,21 @@ class Model {
 
 class ModelKNN : public Model {
    private:
-    InvertedIndexKNN<SparseVector, SparseVector> invKnn;
+    entry::SpEntries trainEntries;
     int k;  // Number of neighbours to use with kNN
 
    public:
     ModelKNN(entry::SpEntries&&, int k);
+    bool analize(const entry::SpEntry&) const override;
+};
+
+class ModelKNNInv : public Model {
+   private:
+    InvertedIndexKNN<SparseVector, SparseVector> invKnn;
+    int k;  // Number of neighbours to use with kNN
+
+   public:
+    ModelKNNInv(entry::SpEntries&&, int k);
     bool analize(const entry::SpEntry&) const override;
 };
 

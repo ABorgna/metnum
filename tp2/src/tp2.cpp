@@ -62,7 +62,12 @@ const Model* makeModel(const Options& opts, entry::SpEntries&& entries) {
     switch (opts.method) {
         case KNN:
             return new ModelKNN(move(entries), opts.k);
+        case KNN_INVERTED:
+            return new ModelKNNInv(move(entries), opts.k);
         case PCAKNN:
+            return new ModelPCA(move(entries), opts.k, opts.alpha);
+        case PCAKNN_INVERTED:
+            // TODO: Change the KNN method here
             return new ModelPCA(move(entries), opts.k, opts.alpha);
         default:
             (throw std::runtime_error("Invalid method!"));
