@@ -5,6 +5,7 @@
 
 #include "../entry/types.h"
 #include "knn.h"
+#include "pca.h"
 
 class Model {
    public:
@@ -25,9 +26,8 @@ class ModelKNN : public Model {
 
 class ModelPCA : public Model {
    private:
-    entry::Entries trainEntries;
-    int k;
-    int alpha;
+    PCA PCTrans;
+    ModelKNN analyzer;
 
    public:
     ModelPCA(entry::Entries&&, int k, int alpha);

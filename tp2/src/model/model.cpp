@@ -14,9 +14,8 @@ bool ModelKNN::analize(const entry::Entry& test) const {
 /********** PCA+KNN model ************/
 
 ModelPCA::ModelPCA(entry::Entries&& entries, int k, int alpha)
-    : trainEntries(entries), k(k), alpha(alpha){};
+    : PCTrans(entries, alpha), analyzer(PCTrans.tcs(entries), k){};
 
 bool ModelPCA::analize(const entry::Entry& test) const {
-    // TODO: PSA
-    return dumbKnn(trainEntries, test, k);
+    return analyzer.analize(PCTrans.tc(test));
 }
