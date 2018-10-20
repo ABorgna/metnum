@@ -28,4 +28,4 @@ private:
 	std::chrono::time_point<std::chrono::system_clock> start;
 	int iter;
 	Vector lastvk;
-}
+};

@@ -22,9 +22,9 @@ bool ModelKNNInv::analize(const entry::SpEntry& test) const {
 
 /********** PCA+KNN model ************/
 
-ModelPCA::ModelPCA(entry::Entries&& entries, int k, int alpha)
+ModelPCA::ModelPCA(entry::SpEntries&& entries, int k, int alpha)
     : PCTrans(entries, alpha), analyzer(PCTrans.tcs(entries), k){};
 
-bool ModelPCA::analize(const entry::Entry& test) const {
+bool ModelPCA::analize(const entry::SpEntry& test) const {
     return analyzer.analize(PCTrans.tc(test));
 }
