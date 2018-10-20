@@ -2,8 +2,8 @@
 
 #include <algorithm>
 #include <functional>
-#include <map>
 #include <iostream>
+#include <map>
 #include <vector>
 
 #include "../debug.h"
@@ -41,7 +41,7 @@ bool vectorizeEntry(const Vocabulary& vocab, const TokenizedEntry& entry,
         p.second /= numWords;
     }
 
-    res.bag_of_words = SparseVector<double>(bag_of_words, vocab.size());
+    res.bag_of_words = SparseVector(bag_of_words, vocab.size());
 
     return true;
 }

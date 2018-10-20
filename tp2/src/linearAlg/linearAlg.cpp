@@ -12,9 +12,9 @@ double norma(const Vector& v, int n) {
     return res;
 }
 
-double norma(const SparseVector<double>& v) { return norma(v, 2); }
+double norma(const SparseVector& v) { return norma(v, 2); }
 
-double norma(const SparseVector<double>& v, int n) {
+double norma(const SparseVector& v, int n) {
     double res = 0;
     for_each(v.begin(), v.end(),
              [&res, n](const auto& p) { res += pow(p.second, n); });
@@ -40,13 +40,11 @@ double distancia(const Vector& v1, const Vector& v2, int n) {
     return distVec(v1, v2, n);
 }
 
-double distancia(const SparseVector<double>& v1,
-                 const SparseVector<double>& v2) {
+double distancia(const SparseVector& v1, const SparseVector& v2) {
     return distVec(v1, v2, 2);
 }
 
-double distancia(const SparseVector<double>& v1, const SparseVector<double>& v2,
-                 int n) {
+double distancia(const SparseVector& v1, const SparseVector& v2, int n) {
     return distVec(v1, v2, n);
 }
 

@@ -20,7 +20,7 @@ using TokenizedEntries = std::vector<TokenizedEntry>;
 struct Entry {
     int id;
     bool is_positive;
-    SparseVector<double> bag_of_words;
+    SparseVector bag_of_words;
 };
 using Entries = std::vector<Entry>;
 
