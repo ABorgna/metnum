@@ -19,6 +19,7 @@ struct Options {
     std::string testFilename;
     std::string outFilename;
     std::string cacheFilename;
+    std::string classifFilename;
 
     std::string vocabFilename;
     double minVocabFreq;

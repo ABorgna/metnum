@@ -15,6 +15,7 @@ const Options defaultOptions = {
     testFilename : "data/imdb_tokenized.csv",
     outFilename : "-",
     cacheFilename : "",
+    classifFilename : "",
     vocabFilename : "data/vocab.csv",
     minVocabFreq : 0.01,
     maxVocabFreq : 0.99,
@@ -26,7 +27,7 @@ const Options defaultOptions = {
     k : 3,
     alpha : 10,
 
-    // Print all the info by default (TODO: remove this later)
+    // Print all the info by default (TODO: set this to false later?)
     debug : true,
     dontTest : false,
 };
@@ -84,6 +85,7 @@ void testModel(const Options& opts, const Model<SparseVector>* model,
     int trueN = 0;
     int falseN = 0;
 
+    auto classifFile = Output(opts.classifFilename);
     for (const auto& entry : testEntries) {
         bool expected = entry.is_positive;
         bool result = model->analize(entry);
@@ -98,11 +100,13 @@ void testModel(const Options& opts, const Model<SparseVector>* model,
         else if (expected and not result)
             falseN++;
 
-        // TODO: Print each test result to a "classifications" file
+        // Print each test result to a "classifications" file
+        classifFile.stream() << (int)result << endl;
 
         if (opts.maxTestEntries > 0 and total >= opts.maxTestEntries)
             break;
     }
+    classifFile.close();
 
     const double accuracy = (double)trueP / (trueP + falseP);
     const double recall = (double)trueP / (trueP + falseN);
