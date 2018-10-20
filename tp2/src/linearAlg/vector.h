@@ -1,6 +1,7 @@
 #pragma once
 
 #include <functional>
+#include <iostream>
 #include <vector>
 
 typedef std::vector<double> Vector;

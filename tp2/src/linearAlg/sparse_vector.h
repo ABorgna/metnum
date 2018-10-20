@@ -6,6 +6,7 @@
 #include <map>
 #include <vector>
 
+#include "serialization.h"
 #include "vector.h"
 
 /*
@@ -50,6 +51,9 @@ class SparseVector {
     const_iterator begin() const noexcept;
 
     const_iterator end() const noexcept;
+
+    friend std::ostream& operator<<(std::ostream&, const SparseVector&);
+    friend std::istream& operator>>(std::istream&, SparseVector&);
 };
 
 // Zip two vectors together and reduce the result.
@@ -60,10 +64,15 @@ double accumulate2(std::function<double(double, double)> f, double init,
 double accumulate2(std::function<double(double, double)> f, double init,
                    const Vector& v1, const SparseVector& v2);
 
-void traverseVector(const SparseVector& v, std::function<void(size_t, double)> f);
+void traverseVector(const SparseVector& v,
+                    std::function<void(size_t, double)> f);
 
 // Operations with Vector
 Vector operator+(const Vector&, const SparseVector&);
 Vector& operator+=(Vector&, const SparseVector&);
 Vector operator-(const Vector&, const SparseVector&);
 Vector& operator-=(Vector&, const SparseVector&);
+
+// Input/output operators
+std::ostream& operator<<(std::ostream&, const SparseVector&);
+std::istream& operator>>(std::istream&, SparseVector&);

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "serialization.h"
 #include "sparse_vector.h"
 #include "vector.h"
 
