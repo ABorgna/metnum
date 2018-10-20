@@ -11,17 +11,27 @@ class Model {
    public:
     virtual ~Model();
     // Analize an entry and decide its polarity, using kNN(k).
-    virtual bool analize(const entry::Entry&) const = 0;
+    virtual bool analize(const entry::SpEntry&) const = 0;
 };
 
 class ModelKNN : public Model {
    private:
-    InvertedIndexKNN invKnn;
+    entry::SpEntries trainEntries;
     int k;  // Number of neighbours to use with kNN
 
    public:
-    ModelKNN(entry::Entries&&, int k);
-    bool analize(const entry::Entry&) const override;
+    ModelKNN(entry::SpEntries&&, int k);
+    bool analize(const entry::SpEntry&) const override;
+};
+
+class ModelKNNInv : public Model {
+   private:
+    InvertedIndexKNN<SparseVector, SparseVector> invKnn;
+    int k;  // Number of neighbours to use with kNN
+
+   public:
+    ModelKNNInv(entry::SpEntries&&, int k);
+    bool analize(const entry::SpEntry&) const override;
 };
 
 class ModelPCA : public Model {
@@ -30,6 +40,6 @@ class ModelPCA : public Model {
     ModelKNN analyzer;
 
    public:
-    ModelPCA(entry::Entries&&, int k, int alpha);
-    bool analize(const entry::Entry&) const override;
+    ModelPCA(entry::SpEntries&&, int k, int alpha);
+    bool analize(const entry::SpEntry&) const override;
 };

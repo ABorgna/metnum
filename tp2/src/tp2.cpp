@@ -31,7 +31,8 @@ const Options defaultOptions = {
 };
 
 void readEntries(const Options& opts, entry::Vocabulary& vocabulary,
-                 entry::Entries& trainEntries, entry::Entries& testEntries) {
+                 entry::SpEntries& trainEntries,
+                 entry::SpEntries& testEntries) {
     auto vocabFile = Input(opts.vocabFilename);
     vocabulary = entry::read_vocabulary(
         vocabFile, entry::filterPassBand(opts.minVocabFreq, opts.maxVocabFreq));
@@ -57,11 +58,16 @@ void readEntries(const Options& opts, entry::Vocabulary& vocabulary,
     testEntries = entry::vectorize(vocabulary, testTokenized);
 }
 
-const Model* makeModel(const Options& opts, entry::Entries&& entries) {
+const Model* makeModel(const Options& opts, entry::SpEntries&& entries) {
     switch (opts.method) {
         case KNN:
             return new ModelKNN(move(entries), opts.k);
+        case KNN_INVERTED:
+            return new ModelKNNInv(move(entries), opts.k);
         case PCAKNN:
+            return new ModelPCA(move(entries), opts.k, opts.alpha);
+        case PCAKNN_INVERTED:
+            // TODO: Change the KNN method here
             return new ModelPCA(move(entries), opts.k, opts.alpha);
         default:
             (throw std::runtime_error("Invalid method!"));
@@ -69,7 +75,7 @@ const Model* makeModel(const Options& opts, entry::Entries&& entries) {
 }
 
 void testModel(const Options& opts, const Model* model,
-               const entry::Entries& testEntries) {
+               const entry::SpEntries& testEntries) {
     int total = 0;
     int trueP = 0;
     int falseP = 0;
@@ -129,8 +135,8 @@ int main(int argc, char* argv[]) {
     /*************** Read the entries ********************/
     DEBUG("---------------- Loading data ------------");
 
-    entry::Entries trainEntries;
-    entry::Entries testEntries;
+    entry::SpEntries trainEntries;
+    entry::SpEntries testEntries;
     entry::Vocabulary vocabulary;
 
     readEntries(options, vocabulary, trainEntries, testEntries);

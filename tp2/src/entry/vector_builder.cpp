@@ -2,8 +2,8 @@
 
 #include <algorithm>
 #include <functional>
-#include <map>
 #include <iostream>
+#include <map>
 #include <vector>
 
 #include "../debug.h"
@@ -11,7 +11,7 @@
 namespace entry {
 
 bool vectorizeEntry(const Vocabulary& vocab, const TokenizedEntry& entry,
-                    Entry& res) {
+                    SpEntry& res) {
     res.id = entry.id;
     res.is_positive = entry.is_positive;
 
@@ -41,19 +41,19 @@ bool vectorizeEntry(const Vocabulary& vocab, const TokenizedEntry& entry,
         p.second /= numWords;
     }
 
-    res.bag_of_words = SparseVector<double>(bag_of_words, vocab.size());
+    res.bag_of_words = SparseVector(bag_of_words, vocab.size());
 
     return true;
 }
 
-Entries vectorize(const Vocabulary& vocab, const TokenizedEntries& entries) {
+SpEntries vectorize(const Vocabulary& vocab, const TokenizedEntries& entries) {
     DEBUG("Vectorizing the entries.");
-    Entries res;
+    SpEntries res;
     res.reserve(entries.size());
 
     std::for_each(entries.begin(), entries.end(),
                   [&res, &vocab](const auto& node) {
-                      Entry vec;
+                      SpEntry vec;
                       bool notEmpty = vectorizeEntry(vocab, node, vec);
                       if (notEmpty)
                           res.push_back(std::move(vec));

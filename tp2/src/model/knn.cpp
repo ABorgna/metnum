@@ -1,39 +1,12 @@
 #include "knn.h"
 
+#include <functional>
 #include <queue>
 #include <utility>
 
 #include "../debug.h"
 
 typedef std::priority_queue<std::pair<double, bool>> NeighQueue;
-
-// L1 distance between two bag of words
-double distance1(const entry::Entry& a, const entry::Entry& b) {
-    auto itA = a.bag_of_words.begin();
-    auto itB = b.bag_of_words.begin();
-    auto endA = a.bag_of_words.begin();
-    auto endB = b.bag_of_words.begin();
-    double res = 0;
-
-    while (itA != endA and itB != endB) {
-        if (itA->first > itB->first) {
-            std::swap(itA, itB);
-            std::swap(endA, endB);
-        }
-        if (itA->first < itB->first)
-            res += (++itA)->second;
-        else
-            res += abs((++itB)->second - (++itA)->second);
-    }
-    if (itA == endA) {
-        std::swap(itA, itB);
-        std::swap(endA, endB);
-    }
-    while (itA != endA) {
-        res += (++itA)->first;
-    }
-    return res;
-}
 
 void pushIfBetter(NeighQueue& queue, double k, double newDist,
                   bool positivity) {
@@ -60,12 +33,14 @@ bool decideFromQueue(NeighQueue& queue) {
 
 /*********** DumbKnn ******************/
 
-bool dumbKnn(const entry::Entries& entries, const entry::Entry& test, int k) {
+template <typename V, typename W>
+bool dumbKnn(const entry::Entries<V>& entries, const entry::Entry<W>& test,
+             int k) {
     NeighQueue queue;
 
     // Get the nearest k polarities
     for (const auto& e : entries) {
-        double dist = distance1(e, test);
+        double dist = distancia(e.bag_of_words, test.bag_of_words, 1);
         pushIfBetter(queue, k, dist, e.is_positive);
     }
 
@@ -74,29 +49,32 @@ bool dumbKnn(const entry::Entries& entries, const entry::Entry& test, int k) {
 
 /*********** Inverted Index Knn ******************/
 
-InvertedIndexKNN::InvertedIndexKNN(const entry::Entries&& entries)
+template <typename V, typename W>
+InvertedIndexKNN<V, W>::InvertedIndexKNN(const entry::Entries<V>&& entries)
     : entries(std::move(entries)), vocabSize(entries[0].bag_of_words.size()) {
     precomputeInvIndex();
 };
 
-void InvertedIndexKNN::precomputeInvIndex() {
+template <typename V, typename W>
+void InvertedIndexKNN<V, W>::precomputeInvIndex() {
     invertedIndex.resize(vocabSize);
 
     for (size_t i = 0; i < entries.size(); i++) {
         const auto& e = entries[i];
 
         // Note: The vector invertedIndex[i] must remain sorted.
-        for (const auto& p : e.bag_of_words) {
-            const size_t word = p.first;
-            const double frequency = p.second;
-            if (frequency > 0)
-                invertedIndex[word].push_back(i);
-        }
+        traverseVector(e.bag_of_words,
+                       [this, i](size_t word, double frequency) {
+                           if (frequency > 0)
+                               invertedIndex[word].push_back(i);
+                       });
     }
 }
 
 // TODO: Document this better if we actually use it
-bool InvertedIndexKNN::knn(const entry::Entry& testEntry, int k) const {
+template <typename V, typename W>
+bool InvertedIndexKNN<V, W>::knn(const entry::Entry<W>& testEntry,
+                                 int k) const {
     // Queue with (num entry, word number, entry position for number in the
     // inverted array)
     typedef std::tuple<int, int, size_t> QueueItem;
@@ -105,13 +83,13 @@ bool InvertedIndexKNN::knn(const entry::Entry& testEntry, int k) const {
         entriesQueue;
 
     // Get the nearest k polarities
-    for (const auto& p : testEntry.bag_of_words) {
-        const size_t word = p.first;
-        const auto& wordVec = invertedIndex[word];
-        if (wordVec.size() > 0) {
-            entriesQueue.emplace(wordVec[0], word, 0);
-        }
-    }
+    traverseVector(testEntry.bag_of_words,
+                   [this, &entriesQueue](size_t word, double) {
+                       const auto& wordVec = invertedIndex[word];
+                       if (wordVec.size() > 0) {
+                           entriesQueue.emplace(wordVec[0], word, 0);
+                       }
+                   });
 
     NeighQueue neighQueue;
 
@@ -121,8 +99,8 @@ bool InvertedIndexKNN::knn(const entry::Entry& testEntry, int k) const {
         std::tie(entryId, word, posInInvArray) = entriesQueue.top();
 
         const auto& entry = entries[entryId];
-        double dist = distance1(entry, testEntry);
-        pushIfBetter(neighQueue, k, dist, testEntry.is_positive);
+        double dist = distancia(entry.bag_of_words, testEntry.bag_of_words, 1);
+        pushIfBetter(neighQueue, k, dist, entry.is_positive);
 
         while (not entriesQueue.empty() and
                std::get<0>(entriesQueue.top()) == entryId) {
@@ -136,3 +114,17 @@ bool InvertedIndexKNN::knn(const entry::Entry& testEntry, int k) const {
 
     return decideFromQueue(neighQueue);
 }
+
+// Explicit instantiations for the exported functions
+template bool dumbKnn<SparseVector, SparseVector>(
+    const entry::Entries<SparseVector>&, const entry::Entry<SparseVector>&,
+    int);
+template bool dumbKnn<SparseVector, Vector>(
+    const entry::Entries<SparseVector>&, const entry::Entry<Vector>&,
+    int);
+template bool dumbKnn<Vector, Vector>(const entry::Entries<Vector>&,
+                                      const entry::Entry<Vector>&, int);
+
+template class InvertedIndexKNN<SparseVector, SparseVector>;
+template class InvertedIndexKNN<Vector, SparseVector>;
+template class InvertedIndexKNN<Vector, Vector>;

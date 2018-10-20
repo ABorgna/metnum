@@ -17,12 +17,12 @@ Vector randomVector(int n){
 EigenValue potencia (const Matriz& B, Vector x0, StopPolicy stop){
 	while(!stop(x0)){
 		x0 = B*x0;
-		auto norm = Norma(x0);
+		auto norm = norma(x0);
 		for(auto& x : x0) x /= norm;
 	}
 
 	auto autov = x0*(B*x0);
-	autov /= Norma(x0);
+	autov /= norma(x0);
 	return {autov, x0};
 }
 
