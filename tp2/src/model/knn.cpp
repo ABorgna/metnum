@@ -32,8 +32,8 @@ bool decideFromQueue(NeighQueue& queue) {
 
 /*********** DumbKnn ******************/
 
-bool dumbKnn(const entry::Entries<SparseVector>& entries,
-             const entry::Entry<SparseVector>& test, int k) {
+bool dumbKnn(const entry::SpEntries& entries, const entry::SpEntry& test,
+             int k) {
     NeighQueue queue;
 
     // Get the nearest k polarities
@@ -47,7 +47,7 @@ bool dumbKnn(const entry::Entries<SparseVector>& entries,
 
 /*********** Inverted Index Knn ******************/
 
-InvertedIndexKNN::InvertedIndexKNN(const entry::Entries<SparseVector>&& entries)
+InvertedIndexKNN::InvertedIndexKNN(const entry::SpEntries&& entries)
     : entries(std::move(entries)), vocabSize(entries[0].bag_of_words.size()) {
     precomputeInvIndex();
 };
@@ -69,8 +69,7 @@ void InvertedIndexKNN::precomputeInvIndex() {
 }
 
 // TODO: Document this better if we actually use it
-bool InvertedIndexKNN::knn(const entry::Entry<SparseVector>& testEntry,
-                           int k) const {
+bool InvertedIndexKNN::knn(const entry::SpEntry& testEntry, int k) const {
     // Queue with (num entry, word number, entry position for number in the
     // inverted array)
     typedef std::tuple<int, int, size_t> QueueItem;

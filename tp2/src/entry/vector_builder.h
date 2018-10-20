@@ -9,7 +9,7 @@
 
 namespace entry {
 
-Entries<SparseVector> vectorize(const Vocabulary& vocab,
+SpEntries vectorize(const Vocabulary& vocab,
                                 const TokenizedEntries&);
 }
 

@@ -6,8 +6,8 @@
 #include "../entry/types.h"
 
 // The dumbest possible implementation for knn
-bool dumbKnn(const entry::Entries<SparseVector>& entries,
-             const entry::Entry<SparseVector>& test, int k);
+bool dumbKnn(const entry::SpEntries& entries, const entry::SpEntry& test,
+             int k);
 
 /* Inverted index KNN.
  *
@@ -23,13 +23,13 @@ bool dumbKnn(const entry::Entries<SparseVector>& entries,
  */
 class InvertedIndexKNN {
    private:
-    const entry::Entries<SparseVector>&& entries;
+    const entry::SpEntries&& entries;
     const int vocabSize;
     std::vector<std::vector<int>> invertedIndex;
 
     void precomputeInvIndex();
 
    public:
-    InvertedIndexKNN(const entry::Entries<SparseVector>&&);
-    bool knn(const entry::Entry<SparseVector>& test, int k) const;
+    InvertedIndexKNN(const entry::SpEntries&&);
+    bool knn(const entry::SpEntry& test, int k) const;
 };

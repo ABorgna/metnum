@@ -27,6 +27,10 @@ struct Entry {
 template <typename V>
 using Entries = std::vector<Entry<V>>;
 
+// Sparse entries
+using SpEntry = Entry<SparseVector>;
+using SpEntries = Entries<SparseVector>;
+
 // Token del vocabulario, con su frecuencia en el corpus.
 struct VocabToken {
     int token;

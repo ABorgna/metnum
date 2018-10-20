@@ -11,7 +11,7 @@
 namespace entry {
 
 bool vectorizeEntry(const Vocabulary& vocab, const TokenizedEntry& entry,
-                    Entry<SparseVector>& res) {
+                    SpEntry& res) {
     res.id = entry.id;
     res.is_positive = entry.is_positive;
 
@@ -46,14 +46,14 @@ bool vectorizeEntry(const Vocabulary& vocab, const TokenizedEntry& entry,
     return true;
 }
 
-Entries<SparseVector> vectorize(const Vocabulary& vocab, const TokenizedEntries& entries) {
+SpEntries vectorize(const Vocabulary& vocab, const TokenizedEntries& entries) {
     DEBUG("Vectorizing the entries.");
-    Entries<SparseVector> res;
+    SpEntries res;
     res.reserve(entries.size());
 
     std::for_each(entries.begin(), entries.end(),
                   [&res, &vocab](const auto& node) {
-                      Entry<SparseVector> vec;
+                      SpEntry vec;
                       bool notEmpty = vectorizeEntry(vocab, node, vec);
                       if (notEmpty)
                           res.push_back(std::move(vec));

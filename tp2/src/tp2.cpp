@@ -31,8 +31,8 @@ const Options defaultOptions = {
 };
 
 void readEntries(const Options& opts, entry::Vocabulary& vocabulary,
-                 entry::Entries<SparseVector>& trainEntries,
-                 entry::Entries<SparseVector>& testEntries) {
+                 entry::SpEntries& trainEntries,
+                 entry::SpEntries& testEntries) {
     auto vocabFile = Input(opts.vocabFilename);
     vocabulary = entry::read_vocabulary(
         vocabFile, entry::filterPassBand(opts.minVocabFreq, opts.maxVocabFreq));
@@ -58,7 +58,7 @@ void readEntries(const Options& opts, entry::Vocabulary& vocabulary,
     testEntries = entry::vectorize(vocabulary, testTokenized);
 }
 
-const Model* makeModel(const Options& opts, entry::Entries<SparseVector>&& entries) {
+const Model* makeModel(const Options& opts, entry::SpEntries&& entries) {
     switch (opts.method) {
         case KNN:
             return new ModelKNN(move(entries), opts.k);
@@ -70,7 +70,7 @@ const Model* makeModel(const Options& opts, entry::Entries<SparseVector>&& entri
 }
 
 void testModel(const Options& opts, const Model* model,
-               const entry::Entries<SparseVector>& testEntries) {
+               const entry::SpEntries& testEntries) {
     int total = 0;
     int trueP = 0;
     int falseP = 0;
@@ -130,8 +130,8 @@ int main(int argc, char* argv[]) {
     /*************** Read the entries ********************/
     DEBUG("---------------- Loading data ------------");
 
-    entry::Entries<SparseVector> trainEntries;
-    entry::Entries<SparseVector> testEntries;
+    entry::SpEntries trainEntries;
+    entry::SpEntries testEntries;
     entry::Vocabulary vocabulary;
 
     readEntries(options, vocabulary, trainEntries, testEntries);
