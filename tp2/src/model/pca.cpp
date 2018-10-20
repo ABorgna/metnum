@@ -51,7 +51,7 @@ PCA::PCA(const entry::SpEntries& train, int alpha):alpha(alpha){
 	DEBUG("-----------Eigen obtenidos-----------");
 	// 4. Me guardo eso en algún lugar
 	CB = Matriz(alpha);
-	for(size_t f = 0; f < alpha; f++){
+	for(size_t f = 0; f < (size_t)alpha; f++){
 		CB[f] = move(eigen[f].second);
 	}
 	DEBUG("-----------CB obtenida-----------");

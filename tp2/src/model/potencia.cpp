@@ -37,7 +37,7 @@ std::vector<EigenValue> eigenvalues(const Matriz& B, int alpha, StopPolicy stop)
 
 TrivialStopper::TrivialStopper(int ms, int iter, double eps):eps(eps), dur(ms), start(std::chrono::system_clock::now()), iter(iter){}
 
-bool TrivialStopper::operator()(const Vector& vk){
+bool TrivialStopper::operator()(const Vector&){
 	if (eps > 0){
 		//TODO compare
 	}
