@@ -6,13 +6,14 @@
 #include "../entry/types.h"
 
 // The dumbest possible implementation for knn
-bool dumbKnn(const entry::Entries& entries,
-             const entry::Entry& test, int k);
+bool dumbKnn(const entry::Entries<SparseVector>& entries,
+             const entry::Entry<SparseVector>& test, int k);
 
 /* Inverted index KNN.
  *
- * For each word token we keep a vector with the entries which have a non-zero value for it.
- * When analyzing a new entry, we only compare it to other entries that share at least one word with it.
+ * For each word token we keep a vector with the entries which have a non-zero
+ * value for it. When analyzing a new entry, we only compare it to other entries
+ * that share at least one word with it.
  *
  * (TODO: Prove that this is valid)
  *
@@ -21,13 +22,14 @@ bool dumbKnn(const entry::Entries& entries,
  * (TODO: Remove this comment before turning in the TP :) )
  */
 class InvertedIndexKNN {
-  private:
-    const entry::Entries&& entries;
+   private:
+    const entry::Entries<SparseVector>&& entries;
     const int vocabSize;
     std::vector<std::vector<int>> invertedIndex;
 
     void precomputeInvIndex();
-  public:
-    InvertedIndexKNN(const entry::Entries&&);
-    bool knn(const entry::Entry& test, int k) const;
+
+   public:
+    InvertedIndexKNN(const entry::Entries<SparseVector>&&);
+    bool knn(const entry::Entry<SparseVector>& test, int k) const;
 };

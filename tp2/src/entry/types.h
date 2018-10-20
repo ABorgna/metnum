@@ -17,12 +17,15 @@ struct TokenizedEntry {
 using TokenizedEntries = std::vector<TokenizedEntry>;
 
 // Estructuras para las entradas vectorizadas
+template <typename V>
 struct Entry {
     int id;
     bool is_positive;
-    SparseVector bag_of_words;
+    V bag_of_words;
 };
-using Entries = std::vector<Entry>;
+
+template <typename V>
+using Entries = std::vector<Entry<V>>;
 
 // Token del vocabulario, con su frecuencia en el corpus.
 struct VocabToken {

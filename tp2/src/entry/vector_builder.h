@@ -9,7 +9,8 @@
 
 namespace entry {
 
-Entries vectorize(const Vocabulary& vocab, const TokenizedEntries&);
+Entries<SparseVector> vectorize(const Vocabulary& vocab,
+                                const TokenizedEntries&);
 }
 
 #endif  // VECTOR_BUILDER__H
