@@ -12,6 +12,10 @@ double accumulate2(std::function<double(double, double)> f, double init,
     return res;
 }
 
+void traverseVector(const Vector& v, std::function<void(size_t, double)> f) {
+    for (size_t i = 0; i < v.size(); i++) f(i, v[i]);
+}
+
 double operator*(const Vector& v1, const Vector& v2) {
     assert(v1.size() == v2.size());
     double ans = 0;

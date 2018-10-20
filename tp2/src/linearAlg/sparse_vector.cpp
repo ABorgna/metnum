@@ -55,11 +55,11 @@ double accumulate2(std::function<double(double, double)> f, double init,
 
     while (it1 != v1.end() and it2 != v2.end()) {
         if (it1->first < it2->first) {
-            res += f((++it1)->second, 0);
+            res += f((it1++)->second, 0);
         } else if (it1->first > it2->first) {
-            res += f(0, (++it2)->second);
+            res += f(0, (it2++)->second);
         } else {
-            res += f((++it1)->second, (++it2)->second);
+            res += f((it1++)->second, (it2++)->second);
         }
     }
     for (; it1 != v1.end(); it1++) {
@@ -69,6 +69,35 @@ double accumulate2(std::function<double(double, double)> f, double init,
         res += f(0, it2->second);
     }
     return res;
+}
+
+// Zip two vectors together and reduce the result.
+double accumulate2(std::function<double(double, double)> f, double init,
+                   const SparseVector& v1, const Vector& v2) {
+    auto it1 = v1.begin();
+    double res = init;
+
+    for(size_t i=0; i<v2.size(); i++) {
+        if(it1 == v1.end()) {
+            res += f(0, v2[i]);
+            continue;
+        }
+        if(it1->first == i) {
+            res += f((it1++)->second, v2[i]);
+        } else {
+            res += f(0, v2[i]);
+        }
+    }
+    return res;
+}
+
+double accumulate2(std::function<double(double, double)> f, double init,
+                   const Vector& v1, const SparseVector& v2) {
+    return accumulate2([&f](double x, double y){return f(y,x);}, init, v2, v1);
+}
+
+void traverseVector(const SparseVector& v, std::function<void(size_t, double)> f) {
+    for (const auto& p : v) f(p.first, p.second);
 }
 
 Vector operator+(const Vector& v1, const SparseVector& v2) {

@@ -14,9 +14,9 @@ double norma(const SparseVector&);
 double norma(const SparseVector&, int);
 
 // Distancias (L2 si no se especifica)
-double distancia(const Vector&, const Vector&);
 double distancia(const Vector&, const Vector&, int);
-double distancia(const SparseVector&, const SparseVector&);
+double distancia(const SparseVector&, const Vector&, int);
+double distancia(const Vector&, const SparseVector&, int);
 double distancia(const SparseVector&, const SparseVector&, int);
 
 Vector operator*(const Matriz& M, const Vector& V);

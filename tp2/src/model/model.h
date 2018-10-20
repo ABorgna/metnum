@@ -15,7 +15,7 @@ class Model {
 
 class ModelKNN : public Model {
    private:
-    InvertedIndexKNN invKnn;
+    InvertedIndexKNN<SparseVector, SparseVector> invKnn;
     int k;  // Number of neighbours to use with kNN
 
    public:

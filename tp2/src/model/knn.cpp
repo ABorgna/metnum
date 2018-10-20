@@ -1,5 +1,6 @@
 #include "knn.h"
 
+#include <functional>
 #include <queue>
 #include <utility>
 
@@ -32,7 +33,8 @@ bool decideFromQueue(NeighQueue& queue) {
 
 /*********** DumbKnn ******************/
 
-bool dumbKnn(const entry::SpEntries& entries, const entry::SpEntry& test,
+template <typename V, typename W>
+bool dumbKnn(const entry::Entries<V>& entries, const entry::Entry<W>& test,
              int k) {
     NeighQueue queue;
 
@@ -47,29 +49,32 @@ bool dumbKnn(const entry::SpEntries& entries, const entry::SpEntry& test,
 
 /*********** Inverted Index Knn ******************/
 
-InvertedIndexKNN::InvertedIndexKNN(const entry::SpEntries&& entries)
+template <typename V, typename W>
+InvertedIndexKNN<V, W>::InvertedIndexKNN(const entry::Entries<V>&& entries)
     : entries(std::move(entries)), vocabSize(entries[0].bag_of_words.size()) {
     precomputeInvIndex();
 };
 
-void InvertedIndexKNN::precomputeInvIndex() {
+template <typename V, typename W>
+void InvertedIndexKNN<V, W>::precomputeInvIndex() {
     invertedIndex.resize(vocabSize);
 
     for (size_t i = 0; i < entries.size(); i++) {
         const auto& e = entries[i];
 
         // Note: The vector invertedIndex[i] must remain sorted.
-        for (const auto& p : e.bag_of_words) {
-            const size_t word = p.first;
-            const double frequency = p.second;
-            if (frequency > 0)
-                invertedIndex[word].push_back(i);
-        }
+        traverseVector(e.bag_of_words,
+                       [this, i](size_t word, double frequency) {
+                           if (frequency > 0)
+                               invertedIndex[word].push_back(i);
+                       });
     }
 }
 
 // TODO: Document this better if we actually use it
-bool InvertedIndexKNN::knn(const entry::SpEntry& testEntry, int k) const {
+template <typename V, typename W>
+bool InvertedIndexKNN<V, W>::knn(const entry::Entry<W>& testEntry,
+                                 int k) const {
     // Queue with (num entry, word number, entry position for number in the
     // inverted array)
     typedef std::tuple<int, int, size_t> QueueItem;
@@ -78,13 +83,13 @@ bool InvertedIndexKNN::knn(const entry::SpEntry& testEntry, int k) const {
         entriesQueue;
 
     // Get the nearest k polarities
-    for (const auto& p : testEntry.bag_of_words) {
-        const size_t word = p.first;
-        const auto& wordVec = invertedIndex[word];
-        if (wordVec.size() > 0) {
-            entriesQueue.emplace(wordVec[0], word, 0);
-        }
-    }
+    traverseVector(testEntry.bag_of_words,
+                   [this, &entriesQueue](size_t word, double) {
+                       const auto& wordVec = invertedIndex[word];
+                       if (wordVec.size() > 0) {
+                           entriesQueue.emplace(wordVec[0], word, 0);
+                       }
+                   });
 
     NeighQueue neighQueue;
 
@@ -109,3 +114,17 @@ bool InvertedIndexKNN::knn(const entry::SpEntry& testEntry, int k) const {
 
     return decideFromQueue(neighQueue);
 }
+
+// Explicit instantiations for the exported functions
+template bool dumbKnn<SparseVector, SparseVector>(
+    const entry::Entries<SparseVector>&, const entry::Entry<SparseVector>&,
+    int);
+template bool dumbKnn<SparseVector, Vector>(
+    const entry::Entries<SparseVector>&, const entry::Entry<Vector>&,
+    int);
+template bool dumbKnn<Vector, Vector>(const entry::Entries<Vector>&,
+                                      const entry::Entry<Vector>&, int);
+
+template class InvertedIndexKNN<SparseVector, SparseVector>;
+template class InvertedIndexKNN<Vector, SparseVector>;
+template class InvertedIndexKNN<Vector, Vector>;

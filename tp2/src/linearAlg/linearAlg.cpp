@@ -22,8 +22,8 @@ double norma(const SparseVector& v, int n) {
 }
 
 // Auxiliar para calcular la distancia entre vectores (densos o ralos).
-template <typename V>
-double distVec(const V& v1, const V& v2, int n) {
+template <typename V, typename W>
+double distVec(const V& v1, const W& v2, int n) {
     auto f = [n](double t1, double t2) {
         return pow(fabs(t1 - t2), (double)n);
     };
@@ -31,17 +31,17 @@ double distVec(const V& v1, const V& v2, int n) {
     return pow(res, -n);
 }
 
-// Distancias (L2 si no se especifica)
-double distancia(const Vector& v1, const Vector& v2) {
-    return distVec(v1, v2, 2);
-}
-
+// Distancias
 double distancia(const Vector& v1, const Vector& v2, int n) {
     return distVec(v1, v2, n);
 }
 
-double distancia(const SparseVector& v1, const SparseVector& v2) {
-    return distVec(v1, v2, 2);
+double distancia(const SparseVector& v1, const Vector& v2, int n) {
+    return distVec(v1, v2, n);
+}
+
+double distancia(const Vector& v1, const SparseVector& v2, int n) {
+    return distVec(v1, v2, n);
 }
 
 double distancia(const SparseVector& v1, const SparseVector& v2, int n) {

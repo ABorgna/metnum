@@ -50,6 +50,12 @@ class SparseVector {
 // Zip two vectors together and reduce the result.
 double accumulate2(std::function<double(double, double)> f, double init,
                    const SparseVector& v1, const SparseVector& v2);
+double accumulate2(std::function<double(double, double)> f, double init,
+                   const SparseVector& v1, const Vector& v2);
+double accumulate2(std::function<double(double, double)> f, double init,
+                   const Vector& v1, const SparseVector& v2);
+
+void traverseVector(const SparseVector& v, std::function<void(size_t, double)> f);
 
 // Operations with Vector
 Vector operator+(const Vector&, const SparseVector&);
