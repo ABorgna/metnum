@@ -55,6 +55,8 @@ void printHelp(const string& cmd, const Options& defaults) {
             "for stdout."
          << endl
          << "                   (Default: stdout)" << endl
+         << "        --train-entries n" << endl
+         << "                   Train at most n entries." << endl
          << "        --test-entries n" << endl
          << "                   Test at most n entries." << endl
          << "  VOCABULARY" << endl
@@ -92,7 +94,8 @@ bool parseArguments(int argc, char* argv[], const Options& defaults,
                                 {"vocabulary", required_argument, nullptr, 'p'},
                                 {"minVocabFreq", required_argument, nullptr, 1},
                                 {"maxVocabFreq", required_argument, nullptr, 2},
-                                {"test-entries", required_argument, nullptr, 3},
+                                {"train-entries", required_argument, nullptr, 3},
+                                {"test-entries", required_argument, nullptr, 4},
                                 {0, 0, 0, 0}};
 
     while (true) {
@@ -126,6 +129,14 @@ bool parseArguments(int argc, char* argv[], const Options& defaults,
                 opt.maxVocabFreq = freq;
             } break;
             case 3: {
+                // Max train entries
+                int n = stoi(optarg);
+                // Negative means no limit
+                if (n < 0)
+                  n = -1;
+                opt.maxTrainEntries = n;
+            } break;
+            case 4: {
                 // Max test entries
                 int n = stoi(optarg);
                 // Negative means no limit

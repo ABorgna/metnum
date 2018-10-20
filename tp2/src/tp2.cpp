@@ -19,6 +19,7 @@ const Options defaultOptions = {
     minVocabFreq : 0.01,
     maxVocabFreq : 0.99,
 
+    maxTrainEntries : -1,
     maxTestEntries : -1,
 
     method : PCAKNN,
@@ -55,26 +56,27 @@ void readEntries(const Options& opts, entry::Vocabulary& vocabulary,
     }
 
     trainEntries = entry::vectorize(vocabulary, trainTokenized);
+    if (opts.maxTrainEntries > 0)
+        trainEntries.resize(min(trainEntries.size(), (size_t)opts.maxTrainEntries));
     testEntries = entry::vectorize(vocabulary, testTokenized);
 }
 
-const Model* makeModel(const Options& opts, entry::SpEntries&& entries) {
+const Model<SparseVector>* makeModel(const Options& opts, entry::SpEntries&& entries) {
     switch (opts.method) {
         case KNN:
             return new ModelKNN(move(entries), opts.k);
         case KNN_INVERTED:
             return new ModelKNNInv(move(entries), opts.k);
         case PCAKNN:
-            return new ModelPCA(move(entries), opts.k, opts.alpha);
+            return new ModelPCA<ModelKNNtmp<Vector, Vector>>(move(entries), opts.k, opts.alpha);
         case PCAKNN_INVERTED:
-            // TODO: Change the KNN method here
-            return new ModelPCA(move(entries), opts.k, opts.alpha);
+            return new ModelPCA<ModelKNNInvtmp<Vector, Vector>>(move(entries), opts.k, opts.alpha);
         default:
             (throw std::runtime_error("Invalid method!"));
     }
 }
 
-void testModel(const Options& opts, const Model* model,
+void testModel(const Options& opts, const Model<SparseVector>* model,
                const entry::SpEntries& testEntries) {
     int total = 0;
     int trueP = 0;
@@ -98,7 +100,7 @@ void testModel(const Options& opts, const Model* model,
 
         // TODO: Print each test result to a "classifications" file
 
-        if (total >= opts.maxTestEntries)
+        if (opts.maxTestEntries > 0 and total >= opts.maxTestEntries)
             break;
     }
 
@@ -148,7 +150,7 @@ int main(int argc, char* argv[]) {
 
     /*************** Train the model ********************/
     DEBUG("---------------- Training ----------------");
-    const Model* model = makeModel(options, move(trainEntries));
+    const Model<SparseVector>* model = makeModel(options, move(trainEntries));
 
     /*************** Test the model ********************/
     if (not options.dontTest) {

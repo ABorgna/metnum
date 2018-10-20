@@ -13,7 +13,26 @@ SparseVector::SparseVector(const std::map<size_t, double>& m, size_t sz)
     }
 }
 
+SparseVector::SparseVector(const Vector& v){
+    for (size_t i = 0; i < v.size(); i++) {
+        const double& x = v[i];
+        const bool isZero = -Epsilon <= x && x <= Epsilon;
+
+        if (not isZero)
+            elems.emplace_back(i, x);
+    }
+}
+
 size_t SparseVector::size() const { return sz; }
+
+Vector SparseVector::toVector() const{
+    Vector ans(size(), 0.0);
+    for (const auto& it : elems){
+        ans[it.first] = it.second;
+    }
+
+    return ans;
+}
 
 SparseVector::const_iterator SparseVector::at(size_t j) const {
     if (j >= sz)

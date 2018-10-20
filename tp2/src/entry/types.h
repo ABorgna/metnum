@@ -31,6 +31,10 @@ using Entries = std::vector<Entry<V>>;
 using SpEntry = Entry<SparseVector>;
 using SpEntries = Entries<SparseVector>;
 
+// Dense entries
+using DnsEntry = Entry<Vector>;
+using DnsEntries = Entries<Vector>;
+
 // Token del vocabulario, con su frecuencia en el corpus.
 struct VocabToken {
     int token;

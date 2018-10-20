@@ -15,6 +15,7 @@ Vector randomVector(int n){
 }
 
 EigenValue potencia (const Matriz& B, Vector x0, StopPolicy stop){
+	DEBUG("    -----------Potencia-----------");
 	while(!stop(x0)){
 		x0 = B*x0;
 		auto norm = norma(x0);
@@ -38,7 +39,7 @@ TrivialStopper::TrivialStopper(int ms, int iter, double eps):eps(eps), dur(ms), 
 
 bool TrivialStopper::operator()(const Vector& vk){
 	if (eps > 0){
-		//compare
+		//TODO compare
 	}
 	if(iter > 0 and !(iter--))
 		return true;

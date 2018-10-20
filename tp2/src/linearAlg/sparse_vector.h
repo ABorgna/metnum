@@ -34,6 +34,11 @@ class SparseVector {
 
     SparseVector(const std::map<size_t, double>& m, size_t sz);
 
+    SparseVector(const Vector& v);
+
+    // Casting
+    Vector toVector() const;
+
     // Queries
 
     size_t size() const;

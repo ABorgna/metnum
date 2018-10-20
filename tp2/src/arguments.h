@@ -24,6 +24,7 @@ struct Options {
     double minVocabFreq;
     double maxVocabFreq;
 
+    int maxTrainEntries;
     int maxTestEntries;
 
     Method method;

@@ -7,37 +7,46 @@
 #include "knn.h"
 #include "pca.h"
 
+template <typename TestVector>
 class Model {
    public:
     virtual ~Model();
     // Analize an entry and decide its polarity, using kNN(k).
-    virtual bool analize(const entry::SpEntry&) const = 0;
+    virtual bool analize(const entry::Entry<TestVector>&) const = 0;
 };
 
-class ModelKNN : public Model {
+template <typename TrainVector, typename TestVector>
+class ModelKNNtmp : public Model<TestVector> {
    private:
-    entry::SpEntries trainEntries;
+    entry::Entries<TrainVector> trainEntries;
     int k;  // Number of neighbours to use with kNN
 
    public:
-    ModelKNN(entry::SpEntries&&, int k);
-    bool analize(const entry::SpEntry&) const override;
+    ModelKNNtmp(entry::Entries<TrainVector>&&, int k);
+    bool analize(const entry::Entry<TestVector>&) const override;
 };
 
-class ModelKNNInv : public Model {
+typedef ModelKNNtmp<SparseVector, SparseVector> ModelKNN;
+
+template <typename TrainVector, typename TestVector>
+class ModelKNNInvtmp : public Model<TestVector> {
    private:
-    InvertedIndexKNN<SparseVector, SparseVector> invKnn;
+    InvertedIndexKNN<TrainVector, TestVector> invKnn;
     int k;  // Number of neighbours to use with kNN
 
    public:
-    ModelKNNInv(entry::SpEntries&&, int k);
-    bool analize(const entry::SpEntry&) const override;
+    ModelKNNInvtmp(entry::Entries<TrainVector>&&, int k);
+    bool analize(const entry::Entry<TestVector>&) const override;
 };
 
-class ModelPCA : public Model {
+typedef ModelKNNInvtmp<SparseVector, SparseVector> ModelKNNInv;
+
+//TODO Hacer que PCA sea parametrico en todo, no se si vale la pena
+template<typename T> // The kNN model to use
+class ModelPCA : public Model<SparseVector> {
    private:
     PCA PCTrans;
-    ModelKNN analyzer;
+    T analyzer;
 
    public:
     ModelPCA(entry::SpEntries&&, int k, int alpha);

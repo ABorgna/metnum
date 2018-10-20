@@ -10,12 +10,6 @@
 typedef std::function<bool(const Vector& vk)> StopPolicy;
 
 
-
-
-EigenValue potencia (const Matriz& B, Vector x0, StopPolicy stop);
-
-std::vector<EigenValue> eigenvalues(const Matriz& B, int alpha, StopPolicy stop);
-
 class TrivialStopper{
 public:
 	TrivialStopper(int ms, int iter, double eps);
@@ -29,3 +23,8 @@ private:
 	int iter;
 	Vector lastvk;
 };
+
+
+EigenValue potencia (const Matriz& B, Vector x0, StopPolicy stop);
+
+std::vector<EigenValue> eigenvalues(const Matriz& B, int alpha, StopPolicy stop = TrivialStopper(10000, 1000000, -1));
