@@ -7,14 +7,6 @@
 
 typedef std::priority_queue<std::pair<double, bool>> NeighQueue;
 
-// L1 distance between two bag of words
-double distance1(const entry::Entry& a, const entry::Entry& b) {
-    auto f = [](double t1, double t2) {
-        return t1 + t2;
-    };
-    return accumulate2(f, 0, a.bag_of_words, b.bag_of_words);
-}
-
 void pushIfBetter(NeighQueue& queue, double k, double newDist,
                   bool positivity) {
     if (queue.size() < (size_t)k) {
@@ -45,7 +37,7 @@ bool dumbKnn(const entry::Entries& entries, const entry::Entry& test, int k) {
 
     // Get the nearest k polarities
     for (const auto& e : entries) {
-        double dist = distance1(e, test);
+        double dist = distancia(e.bag_of_words, test.bag_of_words, 1);
         pushIfBetter(queue, k, dist, e.is_positive);
     }
 
@@ -101,7 +93,7 @@ bool InvertedIndexKNN::knn(const entry::Entry& testEntry, int k) const {
         std::tie(entryId, word, posInInvArray) = entriesQueue.top();
 
         const auto& entry = entries[entryId];
-        double dist = distance1(entry, testEntry);
+        double dist = distancia(entry.bag_of_words, testEntry.bag_of_words, 1);
         pushIfBetter(neighQueue, k, dist, entry.is_positive);
 
         while (not entriesQueue.empty() and
