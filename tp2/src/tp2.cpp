@@ -13,6 +13,8 @@
 using namespace std;
 
 const size_t SEED = 42;
+// Used to invalidate the models cache
+const size_t VERSION = 1;
 
 const Options defaultOptions = {
     trainFilename : "data/imdb_tokenized.csv",
@@ -66,7 +68,8 @@ bool readEntries(const Options& opts, entry::Vocabulary& vocabulary,
                 cerr << "Could not open the training file" << endl;
                 return false;
             }
-            entry::read_entries(trainFile.stream(), trainTokenized, entry::ENTRY_TRAIN);
+            entry::read_entries(trainFile.stream(), trainTokenized,
+                                entry::ENTRY_TRAIN);
             trainFile.close();
         }
 
@@ -76,7 +79,8 @@ bool readEntries(const Options& opts, entry::Vocabulary& vocabulary,
                 cerr << "Could not open the testing file" << endl;
                 return false;
             }
-            entry::read_entries(testFile.stream(), testTokenized, entry::ENTRY_TEST);
+            entry::read_entries(testFile.stream(), testTokenized,
+                                entry::ENTRY_TEST);
             testFile.close();
         }
     }
@@ -108,30 +112,40 @@ bool fromCache(const Options& opts, const Model<SparseVector>*& model) {
         DEBUG("No cached model found");
         return false;
     }
+    auto& stream = cacheFile.stream();
+
+    // Check the caché version
+    size_t version;
+    stream >> version;
+    if (version < VERSION) {
+        DEBUG("Old cache version "
+              << version << ",ignoring. (Current: " << VERSION << ")");
+        return false;
+    }
+    stream.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
     // Drop the first line (the calling command)
-    cacheFile.stream().ignore(std::numeric_limits<std::streamsize>::max(),
-                              '\n');
+    stream.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
     bool res = false;
     try {
         switch (opts.method) {
             case KNN:
-                model = new ModelKNN(cacheFile.stream(), opts.k);
+                model = new ModelKNN(stream, opts.k);
                 res = true;
                 break;
             case KNN_INVERTED:
-                model = new ModelKNNInv(cacheFile.stream(), opts.k);
+                model = new ModelKNNInv(stream, opts.k);
                 res = true;
                 break;
             case PCAKNN:
-                model = new ModelPCA<ModelKNNtmp<Vector, Vector>>(
-                    cacheFile.stream(), opts.k);
+                model =
+                    new ModelPCA<ModelKNNtmp<Vector, Vector>>(stream, opts.k);
                 res = true;
                 break;
             case PCAKNN_INVERTED:
-                model = new ModelPCA<ModelKNNInvtmp<Vector, Vector>>(
-                    cacheFile.stream(), opts.k);
+                model = new ModelPCA<ModelKNNInvtmp<Vector, Vector>>(stream,
+                                                                     opts.k);
                 res = true;
                 break;
             default:
@@ -229,15 +243,6 @@ int main(int argc, char* argv[]) {
         DEBUG("---------------- Reading model cache ------------");
         DEBUG("Loading from " << cacheFilename(options));
         validCache = fromCache(options, model);
-
-        if(validCache) {
-            DEBUG("Storing the cache again");
-            auto cacheFile = Output(cacheFilename(options) + ".diff");
-            cacheFile.stream() << fullCmd << endl;
-            model->saveCache(cacheFile.stream());
-            cacheFile.close();
-            DEBUG("Stored in " << cacheFilename(options) + ".diff");
-        }
     }
 
     /*************** Read the entries ********************/
@@ -281,6 +286,7 @@ int main(int argc, char* argv[]) {
                 DEBUG("Could not open the cache file: "
                       << cacheFilename(options));
             }
+            cacheFile.stream() << VERSION << endl;
             cacheFile.stream() << fullCmd << endl;
             model->saveCache(cacheFile.stream());
             cacheFile.close();
