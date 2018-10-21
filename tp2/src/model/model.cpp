@@ -67,13 +67,13 @@ ModelPCA<T>::ModelPCA(entry::SpEntries&& entries, int k, int alpha)
 
 template <typename T>
 ModelPCA<T>::ModelPCA(std::istream& is, int k) {
-    //is >> PCTrans;
+    is >> PCTrans;
     analyzer = T(is, k);
 }
 
 template <typename T>
 void ModelPCA<T>::saveCache(std::ostream& os) const {
-    //os << PCTrans << std::endl;
+    os << PCTrans << std::endl;
     analyzer.saveCache(os);
 }
 
