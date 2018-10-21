@@ -23,15 +23,33 @@ bool dumbKnn(const entry::Entries<TrainVector>& entries,
  * (TODO: Remove this comment before turning in the TP :) )
  */
 template <typename TrainVector, typename TestVector>
+class InvertedIndexKNN;
+
+// Input/output operators
+// (This has to be defined before the class because reasons)
+template <typename TrainVector, typename TestVector>
+std::ostream& operator<<(std::ostream&,
+                         const InvertedIndexKNN<TrainVector, TestVector>&);
+template <typename TrainVector, typename TestVector>
+std::istream& operator>>(std::istream&,
+                         InvertedIndexKNN<TrainVector, TestVector>&);
+
+template <typename TrainVector, typename TestVector>
 class InvertedIndexKNN {
    private:
-    const entry::Entries<TrainVector>&& entries;
-    const int vocabSize;
+    entry::Entries<TrainVector> entries;
+    int vocabSize;
     std::vector<std::vector<int>> invertedIndex;
 
     void precomputeInvIndex();
 
    public:
+    InvertedIndexKNN();
     InvertedIndexKNN(const entry::Entries<TrainVector>&&);
     bool knn(const entry::Entry<TestVector>& test, int k) const;
+
+    friend std::ostream& operator<< <>(
+        std::ostream&, const InvertedIndexKNN<TrainVector, TestVector>&);
+    friend std::istream& operator>> <>(
+        std::istream&, InvertedIndexKNN<TrainVector, TestVector>&);
 };

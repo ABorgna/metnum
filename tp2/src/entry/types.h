@@ -56,4 +56,10 @@ typedef std::function<bool(const VocabToken&)> VocabFilter;
 
 }  // namespace entry
 
+// Input/output operators
+template <typename V>
+std::ostream& operator<<(std::ostream&, const entry::Entry<V>&);
+template <typename V>
+std::istream& operator>>(std::istream&, entry::Entry<V>&);
+
 #endif  // TYPES__H

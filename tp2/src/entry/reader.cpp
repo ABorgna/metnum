@@ -29,25 +29,22 @@ void read_entry(std::string& line, TokenizedEntries& train_entries,
     entry.is_positive = polarity == "pos";
     entry.id = review_id;
     if (dataset == "test") {
-        if(type == ENTRY_ALL || type == ENTRY_TEST)
+        if (type == ENTRY_ALL || type == ENTRY_TEST)
             test_entries.push_back(entry);
     } else {
-        if(type == ENTRY_ALL || type == ENTRY_TRAIN)
+        if (type == ENTRY_ALL || type == ENTRY_TRAIN)
             train_entries.push_back(entry);
     }
 }
 
 // Version privada con todos los parámetros posibles.
-void read_entries(Input& file, TokenizedEntries& train_entries,
+void read_entries(std::istream& file, TokenizedEntries& train_entries,
                   TokenizedEntries& test_entries, EntryType type) {
     DEBUG("Reading entries.");
     std::string line;
-    if (file.fail())
-        throw std::runtime_error(
-            "An error occurred while opening the entries file.");
     int lineCount = 0;
 
-    while (std::getline(file.stream(), line)) {
+    while (std::getline(file, line)) {
         lineCount++;
         read_entry(line, train_entries, test_entries, type);
     }
@@ -60,15 +57,16 @@ void read_entries(Input& file, TokenizedEntries& train_entries,
     }
 }
 
-void read_entries(Input& file, TokenizedEntries& entries) {
+void read_entries(std::istream& file, TokenizedEntries& entries) {
     read_entries(file, entries, entries);
 }
 
-void read_entries(Input& file, TokenizedEntries& entries, EntryType type) {
+void read_entries(std::istream& file, TokenizedEntries& entries,
+                  EntryType type) {
     read_entries(file, entries, entries, type);
 }
 
-void read_entries(Input& file, TokenizedEntries& train_entries,
+void read_entries(std::istream& file, TokenizedEntries& train_entries,
                   TokenizedEntries& test_entries) {
     read_entries(file, train_entries, test_entries, ENTRY_ALL);
 }
@@ -87,17 +85,14 @@ VocabToken read_vocab_token(std::string& line) {
     return {token_id, frequency};
 }
 
-Vocabulary read_vocabulary(Input& file, const VocabFilter& filter) {
+Vocabulary read_vocabulary(std::istream& file, const VocabFilter& filter) {
     DEBUG("Reading the vocabulary.");
     Vocabulary vocabulary;
     std::string line;
-    if (file.fail())
-        throw std::runtime_error(
-            "An error occurred while opening the vocabulary file.");
     int lineCount = 0;
 
-    std::getline(file.stream(), line);           // Sacamos el header del csv
-    while (std::getline(file.stream(), line)) {  // Leemos una línea
+    std::getline(file, line);           // Sacamos el header del csv
+    while (std::getline(file, line)) {  // Leemos una línea
         lineCount++;
         auto token = read_vocab_token(line);
         if (not filter(token)) {
@@ -112,7 +107,7 @@ Vocabulary read_vocabulary(Input& file, const VocabFilter& filter) {
     return vocabulary;
 }
 
-Vocabulary read_vocabulary(Input& file) {
+Vocabulary read_vocabulary(std::istream& file) {
     auto vocabulary = read_vocabulary(file, [](auto) { return false; });
     return vocabulary;
 }

@@ -1,5 +1,6 @@
 #include <string.h>
 #include <iostream>
+#include <algorithm>
 
 #include "arguments.h"
 #include "model/potencia.h"
@@ -33,46 +34,72 @@ const Options defaultOptions = {
     dontTest : false,
 };
 
-void readEntries(const Options& opts, entry::Vocabulary& vocabulary,
+bool readEntries(const Options& opts, entry::Vocabulary& vocabulary,
                  entry::SpEntries& trainEntries,
                  entry::SpEntries& testEntries) {
     auto vocabFile = Input(opts.vocabFilename);
+    if (vocabFile.fail()) {
+        cerr << "Could not open the vocabulary file" << endl;
+        return false;
+    }
     vocabulary = entry::read_vocabulary(
-        vocabFile, entry::filterPassBand(opts.minVocabFreq, opts.maxVocabFreq));
+        vocabFile.stream(),
+        entry::filterPassBand(opts.minVocabFreq, opts.maxVocabFreq));
     vocabFile.close();
 
     entry::TokenizedEntries trainTokenized;
     entry::TokenizedEntries testTokenized;
     if (opts.trainFilename == opts.testFilename) {
         auto file = Input(opts.testFilename);
-        entry::read_entries(file, trainTokenized, testTokenized);
+        if (file.fail()) {
+            cerr << "Could not open the test/training file" << endl;
+            return false;
+        }
+        entry::read_entries(file.stream(), trainTokenized, testTokenized);
         file.close();
     } else {
         auto trainFile = Input(opts.trainFilename);
-        entry::read_entries(trainFile, trainTokenized);
+        if (trainFile.fail()) {
+            cerr << "Could not open the training file" << endl;
+            return false;
+        }
+        entry::read_entries(trainFile.stream(), trainTokenized);
         trainFile.close();
 
         auto testFile = Input(opts.testFilename);
-        entry::read_entries(testFile, testTokenized);
+        if (testFile.fail()) {
+            cerr << "Could not open the testing file" << endl;
+            return false;
+        }
+        entry::read_entries(testFile.stream(), testTokenized);
         testFile.close();
     }
 
     trainEntries = entry::vectorize(vocabulary, trainTokenized);
+    std::random_shuffle ( trainEntries.begin(), trainEntries.end());
     if (opts.maxTrainEntries > 0)
-        trainEntries.resize(min(trainEntries.size(), (size_t)opts.maxTrainEntries));
+        trainEntries.resize(
+            min(trainEntries.size(), (size_t)opts.maxTrainEntries));
     testEntries = entry::vectorize(vocabulary, testTokenized);
+    std::random_shuffle ( testEntries.begin(), testEntries.end());
+    if (opts.maxTestEntries > 0)
+        testEntries.resize(min(testEntries.size(), (size_t)opts.maxTestEntries));
+    return true;
 }
 
-const Model<SparseVector>* makeModel(const Options& opts, entry::SpEntries&& entries) {
+const Model<SparseVector>* makeModel(const Options& opts,
+                                     entry::SpEntries&& entries) {
     switch (opts.method) {
         case KNN:
             return new ModelKNN(move(entries), opts.k);
         case KNN_INVERTED:
             return new ModelKNNInv(move(entries), opts.k);
         case PCAKNN:
-            return new ModelPCA<ModelKNNtmp<Vector, Vector>>(move(entries), opts.k, opts.alpha);
+            return new ModelPCA<ModelKNNtmp<Vector, Vector>>(
+                move(entries), opts.k, opts.alpha);
         case PCAKNN_INVERTED:
-            return new ModelPCA<ModelKNNInvtmp<Vector, Vector>>(move(entries), opts.k, opts.alpha);
+            return new ModelPCA<ModelKNNInvtmp<Vector, Vector>>(
+                move(entries), opts.k, opts.alpha);
         default:
             (throw std::runtime_error("Invalid method!"));
     }
@@ -104,8 +131,6 @@ void testModel(const Options& opts, const Model<SparseVector>* model,
         // Print each test result to a "classifications" file
         classifFile.stream() << (int)result << endl;
 
-        if (opts.maxTestEntries > 0 and total >= opts.maxTestEntries)
-            break;
     }
     classifFile.close();
 
@@ -147,12 +172,18 @@ int main(int argc, char* argv[]) {
     entry::SpEntries testEntries;
     entry::Vocabulary vocabulary;
 
-    readEntries(options, vocabulary, trainEntries, testEntries);
+    bool res = readEntries(options, vocabulary, trainEntries, testEntries);
+    if (not res)
+        return -2;
 
     DEBUG("Finished preprocessing the data.");
     DEBUG("    Vocabulary size: " << vocabulary.size());
     DEBUG("    Train entries count: " << trainEntries.size());
+    DEBUG("        Positive train entries: " << 
+        std::count_if(trainEntries.begin(), trainEntries.end(), [](const entry::SpEntry& e){return e.is_positive;}));
     DEBUG("    Test entries count: " << testEntries.size());
+    DEBUG("        Positive test entries: " << 
+        std::count_if(testEntries.begin(), testEntries.end(), [](const entry::SpEntry& e){return e.is_positive;}));
 
     /*************** Train the model ********************/
     DEBUG("---------------- Training ----------------");

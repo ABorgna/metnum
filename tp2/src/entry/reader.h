@@ -1,8 +1,9 @@
 #ifndef READER__H
 #define READER__H
 
-#include "../files.h"
 #include "types.h"
+
+#include <iostream>
 
 namespace entry {
 
@@ -16,28 +17,28 @@ enum EntryType {
  *  Parsea el archivo de reviews tokenizadas.
  *  El archivo en cuestión no debe tener una línea vacía al final.
  **/
-void read_entries(Input& file, TokenizedEntries&);
+void read_entries(std::istream& file, TokenizedEntries&);
 
 /**
  *  Parsea el archivo de reviews tokenizadas, filtrando por el tipo de entry.
  *  El archivo en cuestión no debe tener una línea vacía al final.
  **/
-void read_entries(Input& file, TokenizedEntries&, EntryType);
+void read_entries(std::istream& file, TokenizedEntries&, EntryType);
 
 /**
  *  Parsea el archivo de reviews tokenizadas,
  *  dividiendo las entradas entre testing y training.
  *  El archivo en cuestión no debe tener una línea vacía al final.
  **/
-void read_entries(Input& file, TokenizedEntries& train_entries,
+void read_entries(std::istream& file, TokenizedEntries& train_entries,
                   TokenizedEntries& test_entries);
 
 /**
  *  Parsea el archivo de vocabulario.
  *  El archivo en cuestión no debe tener una línea vacía al final.
  **/
-Vocabulary read_vocabulary(Input& file);
-Vocabulary read_vocabulary(Input& file, const VocabFilter&);
+Vocabulary read_vocabulary(std::istream& file);
+Vocabulary read_vocabulary(std::istream& file, const VocabFilter&);
 
 /*
  * Filtro de vocabulario frecuente.

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <string.h>
-//#include <Eigen/SparseCore>
 
 #include "../entry/types.h"
 #include "knn.h"
@@ -11,6 +10,10 @@ template <typename TestVector>
 class Model {
    public:
     virtual ~Model();
+
+    // Store the trained model in a cache file
+    virtual void saveCache(std::ostream&) const;
+
     // Analize an entry and decide its polarity, using kNN(k).
     virtual bool analize(const entry::Entry<TestVector>&) const = 0;
 };
@@ -22,7 +25,15 @@ class ModelKNNtmp : public Model<TestVector> {
     int k;  // Number of neighbours to use with kNN
 
    public:
+    ModelKNNtmp();
     ModelKNNtmp(entry::Entries<TrainVector>&&, int k);
+
+    // Load the trained model from a cache file
+    ModelKNNtmp(std::istream&, int k);
+
+    // Store the trained model in a cache file
+    void saveCache(std::ostream&) const override;
+
     bool analize(const entry::Entry<TestVector>&) const override;
 };
 
@@ -35,14 +46,22 @@ class ModelKNNInvtmp : public Model<TestVector> {
     int k;  // Number of neighbours to use with kNN
 
    public:
+    ModelKNNInvtmp();
     ModelKNNInvtmp(entry::Entries<TrainVector>&&, int k);
+
+    // Load the trained model from a cache file
+    ModelKNNInvtmp(std::istream&, int k);
+
+    // Store the trained model in a cache file
+    void saveCache(std::ostream&) const override;
+
     bool analize(const entry::Entry<TestVector>&) const override;
 };
 
 typedef ModelKNNInvtmp<SparseVector, SparseVector> ModelKNNInv;
 
-//TODO Hacer que PCA sea parametrico en todo, no se si vale la pena
-template<typename T> // The kNN model to use
+// TODO Hacer que PCA sea parametrico en todo, no se si vale la pena
+template <typename T>  // The kNN model to use
 class ModelPCA : public Model<SparseVector> {
    private:
     PCA PCTrans;
@@ -50,5 +69,12 @@ class ModelPCA : public Model<SparseVector> {
 
    public:
     ModelPCA(entry::SpEntries&&, int k, int alpha);
+
+    // Load the trained model from a cache file
+    ModelPCA(std::istream&, int k);
+
+    // Store the trained model in a cache file
+    void saveCache(std::ostream&) const override;
+
     bool analize(const entry::SpEntry&) const override;
 };
