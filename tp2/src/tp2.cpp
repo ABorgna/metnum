@@ -2,6 +2,7 @@
 #include <iostream>
 
 #include "arguments.h"
+#include "model/potencia.h"
 #include "debug.h"
 #include "entry/reader.h"
 #include "entry/vector_builder.h"
@@ -11,12 +12,12 @@
 using namespace std;
 
 const Options defaultOptions = {
-    trainFilename : "data/imdb_tokenized.csv",
-    testFilename : "data/imdb_tokenized.csv",
+    trainFilename : "../data/imdb_tokenized.csv",
+    testFilename : "../data/imdb_tokenized.csv",
     outFilename : "-",
     cacheFilename : "",
     classifFilename : "",
-    vocabFilename : "data/vocab.csv",
+    vocabFilename : "../data/vocab.csv",
     minVocabFreq : 0.01,
     maxVocabFreq : 0.99,
 
@@ -129,6 +130,7 @@ void testModel(const Options& opts, const Model<SparseVector>* model,
 }
 
 int main(int argc, char* argv[]) {
+
     const string cmd = argv[0];
     Options options;
 
