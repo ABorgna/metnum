@@ -1,6 +1,7 @@
 #include <string.h>
-#include <iostream>
 #include <algorithm>
+#include <exception>
+#include <iostream>
 
 #include "arguments.h"
 #include "debug.h"
@@ -11,11 +12,15 @@
 
 using namespace std;
 
+const size_t SEED = 42;
+// Used to invalidate the models cache
+const size_t VERSION = 1;
+
 const Options defaultOptions = {
     trainFilename : "data/imdb_tokenized.csv",
     testFilename : "data/imdb_tokenized.csv",
     outFilename : "-",
-    cacheFilename : "",
+    cachePath : "cache",
     classifFilename : "",
     vocabFilename : "data/vocab.csv",
     minVocabFreq : 0.01,
@@ -34,8 +39,8 @@ const Options defaultOptions = {
 };
 
 bool readEntries(const Options& opts, entry::Vocabulary& vocabulary,
-                 entry::SpEntries& trainEntries,
-                 entry::SpEntries& testEntries) {
+                 entry::SpEntries& trainEntries, entry::SpEntries& testEntries,
+                 bool readTraining, bool readTest) {
     auto vocabFile = Input(opts.vocabFilename);
     if (vocabFile.fail()) {
         cerr << "Could not open the vocabulary file" << endl;
@@ -48,7 +53,7 @@ bool readEntries(const Options& opts, entry::Vocabulary& vocabulary,
 
     entry::TokenizedEntries trainTokenized;
     entry::TokenizedEntries testTokenized;
-    if (opts.trainFilename == opts.testFilename) {
+    if (readTraining and readTest and opts.trainFilename == opts.testFilename) {
         auto file = Input(opts.testFilename);
         if (file.fail()) {
             cerr << "Could not open the test/training file" << endl;
@@ -57,33 +62,100 @@ bool readEntries(const Options& opts, entry::Vocabulary& vocabulary,
         entry::read_entries(file.stream(), trainTokenized, testTokenized);
         file.close();
     } else {
-        auto trainFile = Input(opts.trainFilename);
-        if (trainFile.fail()) {
-            cerr << "Could not open the training file" << endl;
-            return false;
+        if (readTraining) {
+            auto trainFile = Input(opts.trainFilename);
+            if (trainFile.fail()) {
+                cerr << "Could not open the training file" << endl;
+                return false;
+            }
+            entry::read_entries(trainFile.stream(), trainTokenized,
+                                entry::ENTRY_TRAIN);
+            trainFile.close();
         }
-        entry::read_entries(trainFile.stream(), trainTokenized);
-        trainFile.close();
 
-        auto testFile = Input(opts.testFilename);
-        if (testFile.fail()) {
-            cerr << "Could not open the testing file" << endl;
-            return false;
+        if (readTest) {
+            auto testFile = Input(opts.testFilename);
+            if (testFile.fail()) {
+                cerr << "Could not open the testing file" << endl;
+                return false;
+            }
+            entry::read_entries(testFile.stream(), testTokenized,
+                                entry::ENTRY_TEST);
+            testFile.close();
         }
-        entry::read_entries(testFile.stream(), testTokenized);
-        testFile.close();
     }
 
-    trainEntries = entry::vectorize(vocabulary, trainTokenized);
-    std::random_shuffle ( trainEntries.begin(), trainEntries.end());
-    if (opts.maxTrainEntries > 0)
-        trainEntries.resize(
-            min(trainEntries.size(), (size_t)opts.maxTrainEntries));
-    testEntries = entry::vectorize(vocabulary, testTokenized);
-    std::random_shuffle ( testEntries.begin(), testEntries.end());
-    if (opts.maxTestEntries > 0)
-        testEntries.resize(min(testEntries.size(), (size_t)opts.maxTestEntries));
+    if (readTraining) {
+        trainEntries = entry::vectorize(vocabulary, trainTokenized);
+        std::srand(SEED);
+        std::random_shuffle(trainEntries.begin(), trainEntries.end());
+        if (opts.maxTrainEntries > 0)
+            trainEntries.resize(
+                min(trainEntries.size(), (size_t)opts.maxTrainEntries));
+    }
+    if (readTest) {
+        testEntries = entry::vectorize(vocabulary, testTokenized);
+        std::srand(SEED);
+        std::random_shuffle(testEntries.begin(), testEntries.end());
+        if (opts.maxTestEntries > 0)
+            testEntries.resize(
+                min(testEntries.size(), (size_t)opts.maxTestEntries));
+    }
     return true;
+}
+
+bool fromCache(const Options& opts, const Model<SparseVector>*& model) {
+    if (opts.cachePath == "")
+        return false;
+    auto cacheFile = Input(cacheFilename(opts));
+    if (cacheFile.fail()) {
+        DEBUG("No cached model found");
+        return false;
+    }
+    auto& stream = cacheFile.stream();
+
+    // Check the caché version
+    size_t version;
+    stream >> version;
+    if (version < VERSION) {
+        DEBUG("Old cache version "
+              << version << ",ignoring. (Current: " << VERSION << ")");
+        return false;
+    }
+    stream.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+    // Drop the first line (the calling command)
+    stream.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+    bool res = false;
+    try {
+        switch (opts.method) {
+            case KNN:
+                model = new ModelKNN(stream, opts.k);
+                res = true;
+                break;
+            case KNN_INVERTED:
+                model = new ModelKNNInv(stream, opts.k);
+                res = true;
+                break;
+            case PCAKNN:
+                model =
+                    new ModelPCA<ModelKNNtmp<Vector, Vector>>(stream, opts.k);
+                res = true;
+                break;
+            case PCAKNN_INVERTED:
+                model = new ModelPCA<ModelKNNInvtmp<Vector, Vector>>(stream,
+                                                                     opts.k);
+                res = true;
+                break;
+            default:
+                break;
+        }
+    } catch (const std::invalid_argument&) {
+        DEBUG("Could not parse the cached model.");
+    }
+    cacheFile.close();
+    return res;
 }
 
 const Model<SparseVector>* makeModel(const Options& opts,
@@ -129,7 +201,6 @@ void testModel(const Options& opts, const Model<SparseVector>* model,
 
         // Print each test result to a "classifications" file
         classifFile.stream() << (int)result << endl;
-
     }
     classifFile.close();
 
@@ -156,12 +227,23 @@ void testModel(const Options& opts, const Model<SparseVector>* model,
 int main(int argc, char* argv[]) {
     const string cmd = argv[0];
     Options options;
+    string fullCmd = string(argv[0]);
+    for (int i = 1; i < argc; i++) fullCmd += " " + string(argv[i]);
 
     if (not parseArguments(argc, argv, defaultOptions, options)) {
         printHelp(cmd, defaultOptions);
         return -1;
     }
     debugging_enabled = (bool)options.debug;
+
+    /*************** Read a cached version of the model ********************/
+    const Model<SparseVector>* model;
+    bool validCache = false;
+    if (options.cachePath != "") {
+        DEBUG("---------------- Reading model cache ------------");
+        DEBUG("Loading from " << cacheFilename(options));
+        validCache = fromCache(options, model);
+    }
 
     /*************** Read the entries ********************/
     DEBUG("---------------- Loading data ------------");
@@ -170,25 +252,50 @@ int main(int argc, char* argv[]) {
     entry::SpEntries testEntries;
     entry::Vocabulary vocabulary;
 
-    bool res = readEntries(options, vocabulary, trainEntries, testEntries);
+    const bool doTrain = not validCache;
+    const bool doTest = not options.dontTest;
+    bool res = readEntries(options, vocabulary, trainEntries, testEntries,
+                           doTrain, doTest);
     if (not res)
         return -2;
 
     DEBUG("Finished preprocessing the data.");
     DEBUG("    Vocabulary size: " << vocabulary.size());
-    DEBUG("    Train entries count: " << trainEntries.size());
-    DEBUG("        Positive train entries: " << 
-        std::count_if(trainEntries.begin(), trainEntries.end(), [](const entry::SpEntry& e){return e.is_positive;}));
-    DEBUG("    Test entries count: " << testEntries.size());
-    DEBUG("        Positive test entries: " << 
-        std::count_if(testEntries.begin(), testEntries.end(), [](const entry::SpEntry& e){return e.is_positive;}));
+    if (doTrain) {
+        DEBUG("    Train entries count: " << trainEntries.size());
+        DEBUG("        Positive train entries: " << std::count_if(
+                  trainEntries.begin(), trainEntries.end(),
+                  [](const entry::SpEntry& e) { return e.is_positive; }));
+    }
+    if (doTest) {
+        DEBUG("    Test entries count: " << testEntries.size());
+        DEBUG("        Positive test entries: " << std::count_if(
+                  testEntries.begin(), testEntries.end(),
+                  [](const entry::SpEntry& e) { return e.is_positive; }));
+    }
 
-    /*************** Train the model ********************/
-    DEBUG("---------------- Training ----------------");
-    const Model<SparseVector>* model = makeModel(options, move(trainEntries));
+    if (doTrain) {
+        /*************** Train the model ********************/
+        DEBUG("---------------- Training ----------------");
+        model = makeModel(options, move(trainEntries));
+
+        if (options.cachePath != "") {
+            DEBUG("---------------- Storing cache ------------");
+            auto cacheFile = Output(cacheFilename(options));
+            if (cacheFile.fail()) {
+                DEBUG("Could not open the cache file: "
+                      << cacheFilename(options));
+            }
+            cacheFile.stream() << VERSION << endl;
+            cacheFile.stream() << fullCmd << endl;
+            model->saveCache(cacheFile.stream());
+            cacheFile.close();
+            DEBUG("Stored in " << cacheFilename(options));
+        }
+    }
 
     /*************** Test the model ********************/
-    if (not options.dontTest) {
+    if (doTest) {
         DEBUG("---------------- Testing -----------------");
         testModel(options, model, testEntries);
     }

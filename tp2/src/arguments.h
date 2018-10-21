@@ -18,7 +18,7 @@ struct Options {
     std::string trainFilename;
     std::string testFilename;
     std::string outFilename;
-    std::string cacheFilename;
+    std::string cachePath;
     std::string classifFilename;
 
     std::string vocabFilename;
@@ -40,3 +40,9 @@ void printHelp(const std::string& cmd, const Options& defaultOptions);
 
 bool parseArguments(int argc, char* argv[], const Options& defaults,
                     Options& out);
+
+// Get a cache key from the model training options
+size_t trainingCacheKey(const Options&);
+
+// Derive the filename from the cachePath and a computed key
+std::string cacheFilename(const Options&);
