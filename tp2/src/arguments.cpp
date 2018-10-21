@@ -27,19 +27,28 @@ void printHelp(const string& cmd, const Options& defaults) {
          << "    -h, --help     Show this help message." << endl
          << "    -v, --verbose  Print debug info to stderr." << endl
          << "        --quiet    Do not print debug info." << endl
+         << endl
          << "  MODEL" << endl
          << "    -m #           Method:" << endl
          << "                     0: kNN." << endl
          << "                     1: Inverted index kNN." << endl
          << "                     2: PCA + kNN." << endl
-         << "                     3: PCA + Inverted Index kNN (default)." << endl
+         << "                     3: PCA + Inverted Index kNN (default)."
+         << endl
          << "    -k #           K hyper-parameter for kNN (Default: "
          << defaults.k << ")" << endl
          << "    -a #           Alpha hyper-parameter for PCA (Default: "
          << defaults.alpha << ")" << endl
-         << "    -c <file>      Cache the trained model in a file." << endl
          << "    -Q, --no-test  Only run the training step. Save the model "
             "using -c."
+         << endl
+         << "    -C, --cache <file>" << endl
+         << "                   Cache the trained model in a file." << endl
+         << "    -c, --classif-file <file>" << endl
+         << "                   Output the classification results for each "
+            "test case." << endl
+         << "                   Use '-' for stdout."
+         << endl
          << endl
          << "  ENTRIES" << endl
          << "    -t <file>      File with the training set. Use '-' for stdin."
@@ -59,6 +68,7 @@ void printHelp(const string& cmd, const Options& defaults) {
          << "                   Train at most n entries." << endl
          << "        --test-entries n" << endl
          << "                   Test at most n entries." << endl
+         << endl
          << "  VOCABULARY" << endl
          << "    -p, --vocabulary <file>"
          << "                   File with the vocabulary." << endl
@@ -84,19 +94,22 @@ bool parseArguments(int argc, char* argv[], const Options& defaults,
     const string cmd = argv[0];
     opt = defaults;
 
-    const char* const short_opts = "hvm:t:Qq:p:o:c:a:k:";
-    const option long_opts[] = {/* These options set a flag. */
-                                {"verbose", no_argument, &opt.debug, 1},
-                                {"quiet", no_argument, &opt.debug, 0},
-                                {"no-test", no_argument, &opt.dontTest, 1},
-                                /* These options receive a parameter. */
-                                {"help", required_argument, nullptr, 'h'},
-                                {"vocabulary", required_argument, nullptr, 'p'},
-                                {"minVocabFreq", required_argument, nullptr, 1},
-                                {"maxVocabFreq", required_argument, nullptr, 2},
-                                {"train-entries", required_argument, nullptr, 3},
-                                {"test-entries", required_argument, nullptr, 4},
-                                {0, 0, 0, 0}};
+    const char* const short_opts = "hvm:t:Qq:p:o:c:C:a:k:";
+    const option long_opts[] = {
+        /* These options set a flag. */
+        {"verbose", no_argument, &opt.debug, 1},
+        {"quiet", no_argument, &opt.debug, 0},
+        {"no-test", no_argument, &opt.dontTest, 1},
+        /* These options receive a parameter. */
+        {"help", required_argument, nullptr, 'h'},
+        {"cache", required_argument, nullptr, 'C'},
+        {"classif-file", required_argument, nullptr, 'c'},
+        {"vocabulary", required_argument, nullptr, 'p'},
+        {"minVocabFreq", required_argument, nullptr, 1},
+        {"maxVocabFreq", required_argument, nullptr, 2},
+        {"train-entries", required_argument, nullptr, 3},
+        {"test-entries", required_argument, nullptr, 4},
+        {0, 0, 0, 0}};
 
     while (true) {
         int option_index = 0;
@@ -133,7 +146,7 @@ bool parseArguments(int argc, char* argv[], const Options& defaults,
                 int n = stoi(optarg);
                 // Negative means no limit
                 if (n < 0)
-                  n = -1;
+                    n = -1;
                 opt.maxTrainEntries = n;
             } break;
             case 4: {
@@ -141,7 +154,7 @@ bool parseArguments(int argc, char* argv[], const Options& defaults,
                 int n = stoi(optarg);
                 // Negative means no limit
                 if (n < 0)
-                  n = -1;
+                    n = -1;
                 opt.maxTestEntries = n;
             } break;
             case 'h':
@@ -180,6 +193,9 @@ bool parseArguments(int argc, char* argv[], const Options& defaults,
                 opt.outFilename = optarg;
                 break;
             case 'c':
+                opt.classifFilename = optarg;
+                break;
+            case 'C':
                 opt.cacheFilename = optarg;
                 break;
             case '?':

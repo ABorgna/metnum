@@ -12,7 +12,7 @@ typedef std::function<bool(const Vector& vk)> StopPolicy;
 
 class TrivialStopper{
 public:
-	TrivialStopper(int ms=200, int iter=5000, double eps=-1);
+	TrivialStopper(int ms=2000, int iter=20000, double eps=-1);
 
 	virtual bool operator()(const Vector& vk);
 

@@ -1,5 +1,8 @@
 #include "sparse_vector.h"
 
+#include <cstring>
+#include <tuple>
+
 // SparceVector class
 SparseVector::SparseVector(const std::map<size_t, double>& m, size_t sz)
     : sz(sz) {
@@ -13,7 +16,7 @@ SparseVector::SparseVector(const std::map<size_t, double>& m, size_t sz)
     }
 }
 
-SparseVector::SparseVector(const Vector& v){
+SparseVector::SparseVector(const Vector& v) {
     for (size_t i = 0; i < v.size(); i++) {
         const double& x = v[i];
         const bool isZero = -Epsilon <= x && x <= Epsilon;
@@ -25,9 +28,9 @@ SparseVector::SparseVector(const Vector& v){
 
 size_t SparseVector::size() const { return sz; }
 
-Vector SparseVector::toVector() const{
+Vector SparseVector::toVector() const {
     Vector ans(size(), 0.0);
-    for (const auto& it : elems){
+    for (const auto& it : elems) {
         ans[it.first] = it.second;
     }
 
@@ -96,12 +99,12 @@ double accumulate2(std::function<double(double, double)> f, double init,
     auto it1 = v1.begin();
     double res = init;
 
-    for(size_t i=0; i<v2.size(); i++) {
-        if(it1 == v1.end()) {
+    for (size_t i = 0; i < v2.size(); i++) {
+        if (it1 == v1.end()) {
             res += f(0, v2[i]);
             continue;
         }
-        if(it1->first == i) {
+        if (it1->first == i) {
             res += f((it1++)->second, v2[i]);
         } else {
             res += f(0, v2[i]);
@@ -112,10 +115,12 @@ double accumulate2(std::function<double(double, double)> f, double init,
 
 double accumulate2(std::function<double(double, double)> f, double init,
                    const Vector& v1, const SparseVector& v2) {
-    return accumulate2([&f](double x, double y){return f(y,x);}, init, v2, v1);
+    return accumulate2([&f](double x, double y) { return f(y, x); }, init, v2,
+                       v1);
 }
 
-void traverseVector(const SparseVector& v, std::function<void(size_t, double)> f) {
+void traverseVector(const SparseVector& v,
+                    std::function<void(size_t, double)> f) {
     for (const auto& p : v) f(p.first, p.second);
 }
 
@@ -151,4 +156,30 @@ Vector& operator-=(Vector& v1, const SparseVector& v2) {
         v1[pos] -= value;
     }
     return v1;
+}
+
+std::ostream& operator<<(std::ostream& os, const SparseVector& v) {
+    std::tuple<size_t, SparseVector::Container> tup (v.sz, v.elems);
+    writeNamedTuple(os, "SparseVector", tup);
+    return os;
+}
+
+std::istream& operator>>(std::istream& is, SparseVector& v) {
+    std::tuple<size_t, SparseVector::Container> tup;
+    readNamedTuple(is, "SparseVector", tup);
+    std::tie(v.sz, v.elems) = tup;
+
+    // Validate the data
+    long long last = -1;
+    for(auto p : v.elems) {
+        if((long long)p.first <= last or p.first >= v.sz) {
+          // Invalid data
+          v.sz = 0;
+          v.elems = {};
+          break;
+        }
+        last = p.first;
+    }
+
+    return is;
 }

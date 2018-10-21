@@ -21,25 +21,32 @@ class StreamWrapper {
 
     S& stream() {
         if (streamPtr == nullptr) {
-            // Closed file
-            streamPtr = &fileHandle;
+            // Return a reference to a closed file.
+            return fileHandle;
         }
         return *streamPtr;
     }
 
     void open(const std::string& file) {
-        if (file != "-") {
-            fileHandle.open(file);
+        if (file == "-") {
+            streamPtr = defaultStream;
+        } else if (file == "") {
+            // Uses the default initialized stream
+            // (always closed, doesn't read nor write anything).
             streamPtr = &fileHandle;
         } else {
-            streamPtr = defaultStream;
+            fileHandle.open(file);
+            streamPtr = &fileHandle;
         }
     }
 
     void close() {
-        if (fileHandle.is_open())
+        // We don't close the defaultStream, only files we opened.
+        if (streamPtr == &fileHandle) {
             fileHandle.close();
-        streamPtr = nullptr;
+        } else {
+            streamPtr = nullptr;
+        }
     }
 
     bool is_open() {
