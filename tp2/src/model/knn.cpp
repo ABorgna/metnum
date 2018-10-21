@@ -140,6 +140,12 @@ std::istream& operator>>(std::istream& is,
         tup;
     readNamedTuple(is, "InvertedIndexKNN", tup);
     std::tie(knn.entries, knn.vocabSize, knn.invertedIndex) = tup;
+
+    // Invalid data
+    if (knn.vocabSize <= 0) {
+        throw std::invalid_argument("Error while parsing InvertedIndexKNN");
+    }
+
     return is;
 }
 

@@ -42,13 +42,17 @@ void printHelp(const string& cmd, const Options& defaults) {
          << "    -Q, --no-test  Only run the training step. Save the model "
             "using -c."
          << endl
-         << "    -C, --cache <file>" << endl
-         << "                   Cache the trained model in a file." << endl
+         << "    -C, --cache <path>" << endl
+         << "                   Directory for storing and reading the trained "
+            "model cache."
+         << endl
+         << "        --no-cache" << endl
+         << "                   Don't use a cache for the model." << endl
          << "    -c, --classif-file <file>" << endl
          << "                   Output the classification results for each "
-            "test case." << endl
-         << "                   Use '-' for stdout."
+            "test case."
          << endl
+         << "                   Use '-' for stdout." << endl
          << endl
          << "  ENTRIES" << endl
          << "    -t <file>      File with the training set. Use '-' for stdin."
@@ -109,6 +113,7 @@ bool parseArguments(int argc, char* argv[], const Options& defaults,
         {"maxVocabFreq", required_argument, nullptr, 2},
         {"train-entries", required_argument, nullptr, 3},
         {"test-entries", required_argument, nullptr, 4},
+        {"no-cache", required_argument, nullptr, 5},
         {0, 0, 0, 0}};
 
     while (true) {
@@ -157,6 +162,9 @@ bool parseArguments(int argc, char* argv[], const Options& defaults,
                     n = -1;
                 opt.maxTestEntries = n;
             } break;
+            case 5:  // no-cache
+                opt.cachePath = "";
+                break;
             case 'h':
                 return false;
             case 'v':
@@ -196,7 +204,7 @@ bool parseArguments(int argc, char* argv[], const Options& defaults,
                 opt.classifFilename = optarg;
                 break;
             case 'C':
-                opt.cacheFilename = optarg;
+                opt.cachePath = optarg;
                 break;
             case '?':
                 if (optopt == 't' || optopt == 'q' || optopt == 'o' ||
@@ -220,4 +228,17 @@ bool parseArguments(int argc, char* argv[], const Options& defaults,
     }
 
     return true;
+}
+
+size_t trainingCacheKey(const Options& o) {
+    return std::hash<std::string>{}(o.trainFilename) ^
+           std::hash<std::string>{}(o.vocabFilename) ^
+           std::hash<double>{}(o.minVocabFreq) ^
+           std::hash<double>{}(o.maxVocabFreq) ^
+           std::hash<double>{}(o.maxTestEntries) ^
+           std::hash<size_t>{}((size_t)o.method) ^ std::hash<int>{}(o.alpha);
+}
+
+std::string cacheFilename(const Options& o) {
+    return o.cachePath + "/" + to_string(trainingCacheKey(o));
 }

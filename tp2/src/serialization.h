@@ -14,6 +14,8 @@
 #include <type_traits>
 #include <vector>
 
+#include "debug.h"
+
 // Writes the vector as "[size;x0,x1,x2,...]"
 template <typename T>
 std::ostream& operator<<(std::ostream&, const std::vector<T>&);
@@ -48,6 +50,11 @@ template <typename... T>
 void readNamedTuple(std::istream& is, const std::string& name,
                     std::tuple<T...>& tup);
 
+inline void dropWhitespace(std::istream& is) {
+    while(is.peek() == ' ' or is.peek() == '\n')
+        is.get();
+}
+
 /******************** Template implementations *********************/
 
 template <typename T>
@@ -69,33 +76,44 @@ std::istream& operator>>(std::istream& is, std::vector<T>& v) {
     char c;
 
     // '['
+    dropWhitespace(is);
     is >> c;
     if (c != '[') {
+        DEBUG("Parser: Invalid vector start delimiter '" << c << "'");
         v.resize(0);
         return is;
     }
 
     // size
     // Don't reserve more than 10k, to prevent malformed input DoS.
-    size_t s;
-    is >> s;
-    v.reserve(std::min(s, (size_t)10000));
+    size_t sz;
+    is >> sz;
+    v.reserve(std::min(sz, (size_t)10000));
 
+    dropWhitespace(is);
     is >> c;
     if (c != ';') {
+        DEBUG("Parser: Invalid vector size delimiter '" << c << "'");
         v.resize(0);
         return is;
     }
 
     // data
-    for (c = ','; c == ','; is >> c) {
-        T x;
-        is >> x;
-        v.push_back(std::move(x));
+    if (sz > 0) {
+        for (c = ','; c == ','; is >> c) {
+            T x;
+            is >> x;
+            v.push_back(std::move(x));
+            dropWhitespace(is);
+        }
+    } else {
+        dropWhitespace(is);
+        is >> c;
     }
 
     // ]
     if (c != ']') {
+        DEBUG("Parser: Invalid vector end delimiter '" << c << "'");
         v.resize(0);
         return is;
     }
@@ -115,18 +133,24 @@ std::istream& operator>>(std::istream& is, std::pair<T, U>& p) {
     p.second = {};
 
     // '('
+    dropWhitespace(is);
     is >> c;
     if (c != '(')
         return is;
 
+    dropWhitespace(is);
     is >> p.first;
 
     // ','
+    dropWhitespace(is);
     is >> c;
     if (c != ',')
         return is;
 
+    dropWhitespace(is);
     is >> p.second;
+
+    dropWhitespace(is);
     is >> c;  // ')'
     return is;
 }
@@ -160,9 +184,12 @@ typename std::enable_if<(n < sizeof...(T))>::type read_tuple(
     std::istream& is, std::tuple<T...>& tup) {
     if (n != 0) {
         char c;
+        dropWhitespace(is);
         is >> c;
-        if (c != ',')
+        if (c != ',') {
+            DEBUG("Parser: Invalid tuple separator '" << c << "'");
             return;
+        }
     }
     is >> std::get<n>(tup);
     read_tuple<n + 1>(is, tup);
@@ -170,12 +197,14 @@ typename std::enable_if<(n < sizeof...(T))>::type read_tuple(
 
 template <typename... T>
 std::istream& operator>>(std::istream& is, std::tuple<T...>& tup) {
+    dropWhitespace(is);
     tup = {};
     char c;
     is >> c;
     if (c != '(')
         return is;
     read_tuple<0>(is, tup);
+    dropWhitespace(is);
     is >> c;  // ')'
     return is;
 }
@@ -190,11 +219,14 @@ template <typename... T>
 void readNamedTuple(std::istream& is, const std::string& name,
                     std::tuple<T...>& tup) {
     const size_t nameLen = name.size();
+    dropWhitespace(is);
+
     std::string s(nameLen + 1, ' ');
     is.get(&s[0], nameLen + 1, '(');
     s.pop_back();
     if (s != name) {
         tup = {};
+        DEBUG("Parser: Invalid named tuple " << s);
         return;
     }
     is >> tup;
