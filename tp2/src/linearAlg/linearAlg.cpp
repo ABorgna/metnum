@@ -9,7 +9,7 @@ double norma(const Vector& v) { return norma(v, 2); }
 double norma(const Vector& v, int n) {
     double res = 0;
     for_each(v.begin(), v.end(), [&res, n](double x) { res += pow(x, n); });
-    return res;
+    return pow(res, 1.0/((double)n));
 }
 
 double norma(const SparseVector& v) { return norma(v, 2); }
@@ -18,7 +18,7 @@ double norma(const SparseVector& v, int n) {
     double res = 0;
     for_each(v.begin(), v.end(),
              [&res, n](const auto& p) { res += pow(p.second, n); });
-    return res;
+    return pow(res, 1.0/((double)n));
 }
 
 // Auxiliar para calcular la distancia entre vectores (densos o ralos).

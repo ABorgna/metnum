@@ -12,19 +12,21 @@ typedef std::function<bool(const Vector& vk)> StopPolicy;
 
 class TrivialStopper{
 public:
-	TrivialStopper(int ms, int iter, double eps);
+	TrivialStopper(int ms=200, int iter=5000, double eps=-1);
 
-	bool operator()(const Vector& vk);
+	virtual bool operator()(const Vector& vk);
+
+	virtual void reset();
 
 private:
 	double eps;
 	std::chrono::milliseconds dur;
 	std::chrono::time_point<std::chrono::system_clock> start;
-	int iter;
+	int iter, iter_cnt;
 	Vector lastvk;
 };
 
 
 EigenValue potencia (const Matriz& B, Vector x0, StopPolicy stop);
 
-std::vector<EigenValue> eigenvalues(const Matriz& B, int alpha, StopPolicy stop = TrivialStopper(10000, 1000000, -1));
+std::vector<EigenValue> eigenvalues(Matriz&& B, int alpha, TrivialStopper stop = TrivialStopper());

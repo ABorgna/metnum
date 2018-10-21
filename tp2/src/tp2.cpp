@@ -1,5 +1,6 @@
 #include <string.h>
 #include <iostream>
+#include <algorithm>
 
 #include "arguments.h"
 #include "debug.h"
@@ -56,9 +57,13 @@ void readEntries(const Options& opts, entry::Vocabulary& vocabulary,
     }
 
     trainEntries = entry::vectorize(vocabulary, trainTokenized);
+    std::random_shuffle ( trainEntries.begin(), trainEntries.end());
     if (opts.maxTrainEntries > 0)
         trainEntries.resize(min(trainEntries.size(), (size_t)opts.maxTrainEntries));
     testEntries = entry::vectorize(vocabulary, testTokenized);
+    std::random_shuffle ( testEntries.begin(), testEntries.end());
+    if (opts.maxTestEntries > 0)
+        testEntries.resize(min(testEntries.size(), (size_t)opts.maxTestEntries));
 }
 
 const Model<SparseVector>* makeModel(const Options& opts, entry::SpEntries&& entries) {
@@ -99,9 +104,6 @@ void testModel(const Options& opts, const Model<SparseVector>* model,
             falseN++;
 
         // TODO: Print each test result to a "classifications" file
-
-        if (opts.maxTestEntries > 0 and total >= opts.maxTestEntries)
-            break;
     }
 
     const double accuracy = (double)trueP / (trueP + falseP);
@@ -146,7 +148,11 @@ int main(int argc, char* argv[]) {
     DEBUG("Finished preprocessing the data.");
     DEBUG("    Vocabulary size: " << vocabulary.size());
     DEBUG("    Train entries count: " << trainEntries.size());
+    DEBUG("        Positive train entries: " << 
+        std::count_if(trainEntries.begin(), trainEntries.end(), [](const entry::SpEntry& e){return e.is_positive;}));
     DEBUG("    Test entries count: " << testEntries.size());
+    DEBUG("        Positive test entries: " << 
+        std::count_if(testEntries.begin(), testEntries.end(), [](const entry::SpEntry& e){return e.is_positive;}));
 
     /*************** Train the model ********************/
     DEBUG("---------------- Training ----------------");

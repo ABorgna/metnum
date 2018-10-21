@@ -27,7 +27,7 @@ PCA::PCA(const entry::SpEntries& train, int alpha):alpha(alpha){
 			mu[ix.first] += ix.second;
 		}
 	}
-	for(auto& m : mu) m /= n;
+	for(auto& m : mu) m /= (double)n;
 	// Como la matriz X puede ser gigante, la genero dinámicamente
 	auto X = [&](int fil, int col){
 			return train[fil].bag_of_words[col] - mu[col];
@@ -36,18 +36,64 @@ PCA::PCA(const entry::SpEntries& train, int alpha):alpha(alpha){
 	DEBUG("-----------X obtenida-----------");
 
 	// 2. Obtengo la de covarianza
+	// fil(i, D) = train[i].bag_of_words, fil(i, U) = mu
+	// M = (D-U)t * (D-U) = Dt*D - Ut*D - Dt*U + Ut*U
 	Matriz M(m, Vector(m, 0));
-	for (size_t i = 0; i < m; i++) for (size_t j = i; j < m; j++){
-		// DEBUG_VAR(i);
-		// DEBUG_VAR(j);
-		for (size_t k = 0; k < n; k++)
-			M[i][j] += X(k, i)*X(k, j);
-		M[i][j] /= n-1;
-		M[j][i] = M[i][j];
+
+	// Dt*D
+	for (size_t col = 0; col < n; col++){
+		for (auto& it : train[col].bag_of_words){
+			size_t fil = it.first;
+			for (size_t k = 0; k < m; k++){
+				M[fil][k] += it.second*train[col].bag_of_words[k];
+			}
+		}
 	}
+
+	// -Ut*D
+	for (size_t fil = 0; fil < n; fil++){
+		for (auto& it : train[fil].bag_of_words){
+			size_t col = it.first;
+			for (size_t k = 0; k < m; k++){
+				M[k][col] -= it.second*mu[k];
+			}
+		}
+	}
+
+	// -Dt*U
+	for (size_t col = 0; col < n; col++){
+		for (auto& it : train[col].bag_of_words){
+			size_t fil = it.first;
+			for (size_t k = 0; k < m; k++){
+				M[fil][k] -= it.second*mu[k];
+			}
+		}
+	}
+
+	// +Ut*U
+	for (size_t fil = 0; fil < m; fil++)
+		for (size_t col = 0; col < m; col++){
+			M[fil][col] += mu[fil]*mu[col]*(double)n;
+		}
+	
+	for (size_t fil = 0; fil < m; fil++)
+		for (size_t col = 0; col < m; col++){
+			M[fil][col] /= n-1.0;
+		}
+
+
+	// for (size_t i = 0; i < m; i++) for (size_t j = i; j < m; j++){
+	// 	// DEBUG_VAR(i);
+	// 	// DEBUG_VAR(j);
+	// 	for (size_t k = 0; k < n; k++)
+	// 		M[i][j] += X(k, i)*X(k, j);
+	// 	M[i][j] /= n-1.0;
+	// 	M[j][i] = M[i][j];
+	// }
+
 	DEBUG("-----------M obtenida-----------");
 	// 3. Obtengo sus alpha autovalores (con el metodo de la potencia)
-	auto eigen = eigenvalues(M, alpha);
+	auto eigen = eigenvalues(move(M), alpha);
 	DEBUG("-----------Eigen obtenidos-----------");
 	// 4. Me guardo eso en algún lugar
 	CB = Matriz(alpha);
