@@ -3,6 +3,9 @@
 #include <ctime>
 #include "../debug.h"
 
+// #define TEST
+
+
 Vector randomVector(int n){
 	std::srand(std::time(nullptr));
 	Vector ans;
@@ -15,7 +18,7 @@ Vector randomVector(int n){
 }
 
 EigenValue potencia (const Matriz& B, Vector x0, StopPolicy stop){
-	// DEBUG("    -----------Potencia-----------");
+	DEBUG("    -----------Potencia-----------");
 	while(!stop(x0)){
 		x0 = B*x0;
 		auto norm = norma(x0);
@@ -24,7 +27,11 @@ EigenValue potencia (const Matriz& B, Vector x0, StopPolicy stop){
 
 	auto autov = x0*(B*x0);
 	autov /= x0*x0;
-	// DEBUG_VAR(autov);
+	DEBUG_VAR(autov);
+	#ifdef TEST
+		DEBUG_VAR(B*x0);
+		DEBUG_VAR(x0);
+	#endif
 	return {autov, x0};
 }
 
