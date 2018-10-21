@@ -12,6 +12,8 @@
 
 using namespace std;
 
+const size_t SEED = 42;
+
 const Options defaultOptions = {
     trainFilename : "data/imdb_tokenized.csv",
     testFilename : "data/imdb_tokenized.csv",
@@ -81,6 +83,7 @@ bool readEntries(const Options& opts, entry::Vocabulary& vocabulary,
 
     if (readTraining) {
         trainEntries = entry::vectorize(vocabulary, trainTokenized);
+        std::srand(SEED);
         std::random_shuffle(trainEntries.begin(), trainEntries.end());
         if (opts.maxTrainEntries > 0)
             trainEntries.resize(
@@ -88,6 +91,7 @@ bool readEntries(const Options& opts, entry::Vocabulary& vocabulary,
     }
     if (readTest) {
         testEntries = entry::vectorize(vocabulary, testTokenized);
+        std::srand(SEED);
         std::random_shuffle(testEntries.begin(), testEntries.end());
         if (opts.maxTestEntries > 0)
             testEntries.resize(
