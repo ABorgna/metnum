@@ -64,7 +64,7 @@ bool readEntries(const Options& opts, entry::Vocabulary& vocabulary,
                 cerr << "Could not open the training file" << endl;
                 return false;
             }
-            entry::read_entries(trainFile.stream(), trainTokenized);
+            entry::read_entries(trainFile.stream(), trainTokenized, entry::ENTRY_TRAIN);
             trainFile.close();
         }
 
@@ -74,7 +74,7 @@ bool readEntries(const Options& opts, entry::Vocabulary& vocabulary,
                 cerr << "Could not open the testing file" << endl;
                 return false;
             }
-            entry::read_entries(testFile.stream(), testTokenized);
+            entry::read_entries(testFile.stream(), testTokenized, entry::ENTRY_TEST);
             testFile.close();
         }
     }
@@ -225,6 +225,15 @@ int main(int argc, char* argv[]) {
         DEBUG("---------------- Reading model cache ------------");
         DEBUG("Loading from " << cacheFilename(options));
         validCache = fromCache(options, model);
+
+        if(validCache) {
+            DEBUG("Storing the cache again");
+            auto cacheFile = Output(cacheFilename(options) + ".diff");
+            cacheFile.stream() << fullCmd << endl;
+            model->saveCache(cacheFile.stream());
+            cacheFile.close();
+            DEBUG("Stored in " << cacheFilename(options) + ".diff");
+        }
     }
 
     /*************** Read the entries ********************/
