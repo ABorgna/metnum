@@ -169,6 +169,17 @@ std::istream& operator>>(std::istream& is, SparseVector& v) {
     readNamedTuple(is, "SparseVector", tup);
     std::tie(v.sz, v.elems) = tup;
 
-    // TODO: validar la data
+    // Validate the data
+    long long last = -1;
+    for(auto p : v.elems) {
+        if((long long)p.first <= last or p.first >= v.sz) {
+          // Invalid data
+          v.sz = 0;
+          v.elems = {};
+          break;
+        }
+        last = p.first;
+    }
+
     return is;
 }
