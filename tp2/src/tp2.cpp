@@ -105,6 +105,10 @@ bool fromCache(const Options& opts, const Model<SparseVector>*& model) {
         return false;
     }
 
+    // Drop the first line (the calling command)
+    cacheFile.stream().ignore(std::numeric_limits<std::streamsize>::max(),
+                              '\n');
+
     bool res = false;
     try {
         switch (opts.method) {
@@ -205,6 +209,8 @@ void testModel(const Options& opts, const Model<SparseVector>* model,
 int main(int argc, char* argv[]) {
     const string cmd = argv[0];
     Options options;
+    string fullCmd = string(argv[0]);
+    for (int i = 1; i < argc; i++) fullCmd += " " + string(argv[i]);
 
     if (not parseArguments(argc, argv, defaultOptions, options)) {
         printHelp(cmd, defaultOptions);
@@ -262,6 +268,7 @@ int main(int argc, char* argv[]) {
                 DEBUG("Could not open the cache file: "
                       << cacheFilename(options));
             }
+            cacheFile.stream() << fullCmd << endl;
             model->saveCache(cacheFile.stream());
             cacheFile.close();
             DEBUG("Stored in " << cacheFilename(options));
