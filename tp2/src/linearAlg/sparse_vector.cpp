@@ -159,26 +159,16 @@ Vector& operator-=(Vector& v1, const SparseVector& v2) {
 }
 
 std::ostream& operator<<(std::ostream& os, const SparseVector& v) {
-    std::pair<size_t, SparseVector::Container> p = {v.sz, v.elems};
-    return os << "SparseVector" << p;
+    std::tuple<size_t, SparseVector::Container> tup = {v.sz, v.elems};
+    writeNamedTuple(os, "SparseVector", tup);
+    return os;
 }
 
 std::istream& operator>>(std::istream& is, SparseVector& v) {
-    const char* name = "SparseVector";
-    const size_t nameLen = strlen(name);
-    std::string s(nameLen+1, ' ');
-    is.get(&s[0], nameLen+1, '(');
-    s.pop_back();
-    if (s != name) {
-        v.sz = 0;
-        v.elems.resize(0);
-        return is;
-    }
+    std::tuple<size_t, SparseVector::Container> tup;
+    readNamedTuple(is, "SparseVector", tup);
+    std::tie(v.sz, v.elems) = tup;
 
-    std::pair<size_t, SparseVector::Container> p;
-    is >> p;
-    std::tie(v.sz, v.elems) = p;
-
-    //
+    // TODO: validar la data
     return is;
 }

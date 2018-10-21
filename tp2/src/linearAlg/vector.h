@@ -4,6 +4,8 @@
 #include <iostream>
 #include <vector>
 
+#include "../serialization.h"
+
 typedef std::vector<double> Vector;
 
 double accumulate2(std::function<double(double, double)> f, double init,

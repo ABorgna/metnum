@@ -5,6 +5,9 @@
 #include "potencia.h"
 #include "../debug.h"
 
+// Default constructor
+PCA::PCA(){};
+
 PCA::PCA(const entry::SpEntries& train, int alpha):alpha(alpha){
 	DEBUG("-----------Principal Component Analysis-----------");
 	// 1. Obtengo la matriz X

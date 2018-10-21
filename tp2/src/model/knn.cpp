@@ -49,6 +49,10 @@ bool dumbKnn(const entry::Entries<V>& entries, const entry::Entry<W>& test,
 
 /*********** Inverted Index Knn ******************/
 
+// Default constructor
+template <typename V, typename W>
+InvertedIndexKNN<V, W>::InvertedIndexKNN() : entries(), vocabSize(0){};
+
 template <typename V, typename W>
 InvertedIndexKNN<V, W>::InvertedIndexKNN(const entry::Entries<V>&& entries)
     : entries(std::move(entries)), vocabSize(entries[0].bag_of_words.size()) {
@@ -115,16 +119,51 @@ bool InvertedIndexKNN<V, W>::knn(const entry::Entry<W>& testEntry,
     return decideFromQueue(neighQueue);
 }
 
+// We use the same tag no matter the instantiation of V.
+// This is not optimal, but meh.
+template <typename TrainVector, typename TestVector>
+std::ostream& operator<<(std::ostream& os,
+                         const InvertedIndexKNN<TrainVector, TestVector>& knn) {
+    std::tuple<entry::Entries<TrainVector>, int, std::vector<std::vector<int>>>
+        tup = {knn.entries, knn.vocabSize, knn.invertedIndex};
+    writeNamedTuple(os, "InvertedIndexKNN", tup);
+    return os;
+}
+
+template <typename TrainVector, typename TestVector>
+std::istream& operator>>(std::istream& is,
+                         InvertedIndexKNN<TrainVector, TestVector>& knn) {
+    std::tuple<entry::Entries<TrainVector>, int, std::vector<std::vector<int>>>
+        tup;
+    readNamedTuple(is, "InvertedIndexKNN", tup);
+    std::tie(knn.entries, knn.vocabSize, knn.invertedIndex) = {
+        std::get<0>(tup), std::get<1>(tup), std::get<2>(tup)};
+    return is;
+}
+
 // Explicit instantiations for the exported functions
 template bool dumbKnn<SparseVector, SparseVector>(
     const entry::Entries<SparseVector>&, const entry::Entry<SparseVector>&,
     int);
-template bool dumbKnn<SparseVector, Vector>(
-    const entry::Entries<SparseVector>&, const entry::Entry<Vector>&,
-    int);
+template bool dumbKnn<SparseVector, Vector>(const entry::Entries<SparseVector>&,
+                                            const entry::Entry<Vector>&, int);
 template bool dumbKnn<Vector, Vector>(const entry::Entries<Vector>&,
                                       const entry::Entry<Vector>&, int);
 
 template class InvertedIndexKNN<SparseVector, SparseVector>;
 template class InvertedIndexKNN<Vector, SparseVector>;
 template class InvertedIndexKNN<Vector, Vector>;
+
+template std::ostream& operator<<(
+    std::ostream& os, const InvertedIndexKNN<SparseVector, SparseVector>& knn);
+template std::ostream& operator<<(
+    std::ostream& os, const InvertedIndexKNN<Vector, SparseVector>& knn);
+template std::ostream& operator<<(std::ostream& os,
+                                  const InvertedIndexKNN<Vector, Vector>& knn);
+
+template std::istream& operator>>(
+    std::istream& is, InvertedIndexKNN<SparseVector, SparseVector>& knn);
+template std::istream& operator>>(std::istream& is,
+                                  InvertedIndexKNN<Vector, SparseVector>& knn);
+template std::istream& operator>>(std::istream& is,
+                                  InvertedIndexKNN<Vector, Vector>& knn);
