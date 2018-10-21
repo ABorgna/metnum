@@ -55,7 +55,10 @@ InvertedIndexKNN<V, W>::InvertedIndexKNN() : entries(), vocabSize(0){};
 
 template <typename V, typename W>
 InvertedIndexKNN<V, W>::InvertedIndexKNN(const entry::Entries<V>&& entries)
-    : entries(std::move(entries)), vocabSize(entries[0].bag_of_words.size()) {
+    : entries(entries) {
+    if (entries.size() > 0) {
+        vocabSize = entries[0].bag_of_words.size();
+    }
     precomputeInvIndex();
 };
 
@@ -125,7 +128,7 @@ template <typename TrainVector, typename TestVector>
 std::ostream& operator<<(std::ostream& os,
                          const InvertedIndexKNN<TrainVector, TestVector>& knn) {
     std::tuple<entry::Entries<TrainVector>, int, std::vector<std::vector<int>>>
-        tup (knn.entries, knn.vocabSize, knn.invertedIndex);
+        tup(knn.entries, knn.vocabSize, knn.invertedIndex);
     writeNamedTuple(os, "InvertedIndexKNN", tup);
     return os;
 }
