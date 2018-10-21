@@ -105,15 +105,15 @@ bool parseArguments(int argc, char* argv[], const Options& defaults,
         {"quiet", no_argument, &opt.debug, 0},
         {"no-test", no_argument, &opt.dontTest, 1},
         /* These options receive a parameter. */
-        {"help", required_argument, nullptr, 'h'},
-        {"cache", required_argument, nullptr, 'C'},
+        {"help", no_argument, nullptr, 'h'},
         {"classif-file", required_argument, nullptr, 'c'},
         {"vocabulary", required_argument, nullptr, 'p'},
         {"minVocabFreq", required_argument, nullptr, 1},
         {"maxVocabFreq", required_argument, nullptr, 2},
         {"train-entries", required_argument, nullptr, 3},
         {"test-entries", required_argument, nullptr, 4},
-        {"no-cache", required_argument, nullptr, 5},
+        {"cache", required_argument, nullptr, 'C'},
+        {"no-cache", no_argument, nullptr, 5},
         {0, 0, 0, 0}};
 
     while (true) {
