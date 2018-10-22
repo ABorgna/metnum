@@ -1,5 +1,6 @@
 exp/gen
 __pycache__
+cache
 
 # Prerequisites
 *.d

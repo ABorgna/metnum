@@ -30,7 +30,7 @@ EigenValue potencia (const Matriz& B, Vector x0, StopPolicy stop){
 		autov /= x0*x0;
 		DEBUG_VAR(autov);
 		auto t1 = autov*x0, t2 = B*x0;
-		DEBUG_VAR(distancia(t1, t2, 2));
+		DEBUG_VAR(distanciaN(t1, t2, 2));
 	#endif
 	}
 
@@ -40,7 +40,7 @@ EigenValue potencia (const Matriz& B, Vector x0, StopPolicy stop){
 	// DEBUG_VAR(autov);
 	#ifdef TEST
 		auto t1 = autov*x0, t2 = B*x0;
-		DEBUG_VAR(distancia(t1, t2, 2));
+		DEBUG_VAR(distanciaN(t1, t2, 2));
 	#endif
 	return {autov, x0};
 }

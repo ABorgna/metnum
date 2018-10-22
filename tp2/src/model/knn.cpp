@@ -40,7 +40,7 @@ bool dumbKnn(const entry::Entries<V>& entries, const entry::Entry<W>& test,
 
     // Get the nearest k polarities
     for (const auto& e : entries) {
-        double dist = distancia(e.bag_of_words, test.bag_of_words, 1);
+        double dist = distanciaN(e.bag_of_words, test.bag_of_words, 1);
         pushIfBetter(queue, k, dist, e.is_positive);
     }
 
@@ -55,7 +55,10 @@ InvertedIndexKNN<V, W>::InvertedIndexKNN() : entries(), vocabSize(0){};
 
 template <typename V, typename W>
 InvertedIndexKNN<V, W>::InvertedIndexKNN(const entry::Entries<V>&& entries)
-    : entries(std::move(entries)), vocabSize(entries[0].bag_of_words.size()) {
+    : entries(entries) {
+    if (entries.size() > 0) {
+        vocabSize = entries[0].bag_of_words.size();
+    }
     precomputeInvIndex();
 };
 
@@ -103,7 +106,7 @@ bool InvertedIndexKNN<V, W>::knn(const entry::Entry<W>& testEntry,
         std::tie(entryId, word, posInInvArray) = entriesQueue.top();
 
         const auto& entry = entries[entryId];
-        double dist = distancia(entry.bag_of_words, testEntry.bag_of_words, 1);
+        double dist = distanciaN(entry.bag_of_words, testEntry.bag_of_words, 1);
         pushIfBetter(neighQueue, k, dist, entry.is_positive);
 
         while (not entriesQueue.empty() and
@@ -125,7 +128,7 @@ template <typename TrainVector, typename TestVector>
 std::ostream& operator<<(std::ostream& os,
                          const InvertedIndexKNN<TrainVector, TestVector>& knn) {
     std::tuple<entry::Entries<TrainVector>, int, std::vector<std::vector<int>>>
-        tup (knn.entries, knn.vocabSize, knn.invertedIndex);
+        tup(knn.entries, knn.vocabSize, knn.invertedIndex);
     writeNamedTuple(os, "InvertedIndexKNN", tup);
     return os;
 }
@@ -137,6 +140,12 @@ std::istream& operator>>(std::istream& is,
         tup;
     readNamedTuple(is, "InvertedIndexKNN", tup);
     std::tie(knn.entries, knn.vocabSize, knn.invertedIndex) = tup;
+
+    // Invalid data
+    if (knn.vocabSize <= 0) {
+        throw std::invalid_argument("Error while parsing InvertedIndexKNN");
+    }
+
     return is;
 }
 

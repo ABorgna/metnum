@@ -12,7 +12,7 @@ class Model {
     virtual ~Model();
 
     // Store the trained model in a cache file
-    virtual void saveCache(std::ostream&) const;
+    virtual void saveCache(std::ostream&) const = 0;
 
     // Analize an entry and decide its polarity, using kNN(k).
     virtual bool analize(const entry::Entry<TestVector>&) const = 0;

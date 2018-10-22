@@ -38,7 +38,7 @@ template <typename TrainVector, typename TestVector>
 class InvertedIndexKNN {
    private:
     entry::Entries<TrainVector> entries;
-    int vocabSize;
+    int vocabSize = 0;
     std::vector<std::vector<int>> invertedIndex;
 
     void precomputeInvIndex();
