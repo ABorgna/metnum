@@ -13,7 +13,8 @@ def ejecutar_y_escribir_resultado_variando_alpha(exp_args):
                         "-m": exp_args["METHOD_NUMBER"],
                         "--train-entries": exp_args["NUMBER_OF_TRAINING_ENTRIES"],
                         "--test-entries": exp_args["NUMBER_OF_TESTING_ENTRIES"],
-                        "-a": alpha}
+                        "-a": alpha,
+                        "--quiet": ""}
         output = ejecutar_con_args(program_args)
         print(parsear_output(output))
         print()
