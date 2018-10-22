@@ -12,10 +12,10 @@ class Model {
     virtual ~Model();
 
     // Store the trained model in a cache file
-    virtual void saveCache(std::ostream&) const;
+    virtual void saveCache(std::ostream&) const = 0;
 
     // Analize an entry and decide its polarity, using kNN(k).
-    virtual bool analize(const entry::Entry<TestVector>&) const = 0;
+    virtual bool analyze(const entry::Entry<TestVector>&) const = 0;
 };
 
 template <typename TrainVector, typename TestVector>
@@ -34,7 +34,7 @@ class ModelKNNtmp : public Model<TestVector> {
     // Store the trained model in a cache file
     void saveCache(std::ostream&) const override;
 
-    bool analize(const entry::Entry<TestVector>&) const override;
+    bool analyze(const entry::Entry<TestVector>&) const override;
 };
 
 typedef ModelKNNtmp<SparseVector, SparseVector> ModelKNN;
@@ -55,7 +55,7 @@ class ModelKNNInvtmp : public Model<TestVector> {
     // Store the trained model in a cache file
     void saveCache(std::ostream&) const override;
 
-    bool analize(const entry::Entry<TestVector>&) const override;
+    bool analyze(const entry::Entry<TestVector>&) const override;
 };
 
 typedef ModelKNNInvtmp<SparseVector, SparseVector> ModelKNNInv;
@@ -76,5 +76,5 @@ class ModelPCA : public Model<SparseVector> {
     // Store the trained model in a cache file
     void saveCache(std::ostream&) const override;
 
-    bool analize(const entry::SpEntry&) const override;
+    bool analyze(const entry::SpEntry&) const override;
 };

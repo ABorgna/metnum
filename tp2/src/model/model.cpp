@@ -24,7 +24,7 @@ void ModelKNNtmp<Tr, Te>::saveCache(std::ostream& os) const {
 }
 
 template <typename Tr, typename Te>
-bool ModelKNNtmp<Tr, Te>::analize(const entry::Entry<Te>& test) const {
+bool ModelKNNtmp<Tr, Te>::analyze(const entry::Entry<Te>& test) const {
     return dumbKnn<Tr, Te>(trainEntries, test, k);
 }
 
@@ -52,7 +52,7 @@ void ModelKNNInvtmp<Tr, Te>::saveCache(std::ostream& os) const {
 }
 
 template <typename Tr, typename Te>
-bool ModelKNNInvtmp<Tr, Te>::analize(const entry::Entry<Te>& test) const {
+bool ModelKNNInvtmp<Tr, Te>::analyze(const entry::Entry<Te>& test) const {
     return invKnn.knn(test, k);
 }
 
@@ -78,8 +78,8 @@ void ModelPCA<T>::saveCache(std::ostream& os) const {
 }
 
 template <typename T>
-bool ModelPCA<T>::analize(const entry::SpEntry& test) const {
-    return analyzer.analize(PCTrans.tc(test));
+bool ModelPCA<T>::analyze(const entry::SpEntry& test) const {
+    return analyzer.analyze(PCTrans.tc(test));
 }
 
 // Compilo ambos casos

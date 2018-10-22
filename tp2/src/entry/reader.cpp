@@ -49,16 +49,11 @@ void read_entries(std::istream& file, TokenizedEntries& train_entries,
         read_entry(line, train_entries, test_entries, type);
     }
 
-    if (&train_entries == &test_entries) {
-        DEBUG(train_entries.size() << " entries read.");
-    } else {
-        DEBUG(train_entries.size() << " train entries read.");
-        DEBUG(test_entries.size() << " test entries read.");
-    }
+    DEBUG(train_entries.size() << " entries read.");
 }
 
 void read_entries(std::istream& file, TokenizedEntries& entries) {
-    read_entries(file, entries, entries);
+    read_entries(file, entries, ENTRY_ALL);
 }
 
 void read_entries(std::istream& file, TokenizedEntries& entries,
