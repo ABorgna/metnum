@@ -32,7 +32,7 @@ const Options defaultOptions = {
     maxTestEntries : -1,
 
     method : PCAKNN,
-    k : 3,
+    k : 20,
     alpha : 10,
 
     // Print all the info by default (TODO: set this to false later?)
