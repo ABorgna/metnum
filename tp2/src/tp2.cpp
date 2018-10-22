@@ -271,9 +271,10 @@ Stats testModel(const Options& opts, const Model<SparseVector>* model,
 }
 
 void analyzeStats(const Options& opts, const Stats& s){
-    const double accuracy = (double)s.trueP / (s.trueP + s.falseP);
+    const double accuracy = (double)(s.trueP + s.trueN) / s.total;
+    const double precision = (double)s.trueP / (s.trueP + s.falseP);
     const double recall = (double)s.trueP / (s.trueP + s.falseN);
-    const double f1 = 2 * accuracy * recall / (accuracy + recall);
+    const double f1 = 2 * precision * recall / (precision + recall);
 
     // TODO: Output statistics about the model instead of this
     auto outFile = Output(opts.outFilename);
@@ -288,6 +289,7 @@ void analyzeStats(const Options& opts, const Stats& s){
     outStream << "trueN: " << s.trueN << endl;
     outStream << "falseN: " << s.falseN << endl;
     outStream << "accuracy: " << accuracy << endl;
+    outStream << "precision: " << precision << endl;
     outStream << "recall: " << recall << endl;
     outStream << "f1: " << f1 << endl;
     outFile.close();
