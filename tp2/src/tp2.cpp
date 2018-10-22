@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <exception>
 #include <iostream>
+#include <queue>
 #include <thread>
 
 #include "arguments.h"
@@ -188,6 +189,8 @@ void testModel(const Options& opts, const Model<SparseVector>* model,
         int falseN;
     };
 
+    const bool writeClassif = opts.classifFilename != "";
+
     // Number of threads to utilize
     size_t nThreads;
     if (opts.nThreads > 0) {
@@ -199,34 +202,43 @@ void testModel(const Options& opts, const Model<SparseVector>* model,
     }
     DEBUG("Running on " << nThreads << " threads.");
 
-    auto analizeSome = [&testEntries, &model](size_t from, size_t to,
-                                              Stats* s) {
+    auto analizeSome = [&testEntries, &model, writeClassif](
+                           size_t from, size_t to, Stats* outStats,
+                           std::queue<bool>* classifications) {
+        Stats s{0, 0, 0, 0, 0};
         // Get the nearest k polarities
         for (size_t i = from; i < to; i++) {
             const auto& entry = testEntries[i];
             bool expected = entry.is_positive;
             bool result = model->analize(entry);
 
-            s->total++;
+            if (writeClassif)
+                classifications->push(result);
+
+            s.total++;
             if (expected and result)
-                s->trueP++;
+                s.trueP++;
             else if (not expected and not result)
-                s->trueN++;
+                s.trueN++;
             else if (not expected and result)
-                s->falseP++;
+                s.falseP++;
             else if (expected and not result)
-                s->falseN++;
+                s.falseN++;
         }
+        *outStats = s;
     };
 
     // Analyze the entries in multiple threads
     const size_t step = ((testEntries.size() - 1) / nThreads) + 1;
     std::vector<Stats> threadStats = std::vector<Stats>(nThreads);
+    std::vector<std::queue<bool>> threadClassif =
+        std::vector<std::queue<bool>>(nThreads);
     std::vector<std::thread> threads;
     for (size_t i = 0; i < nThreads; i++) {
         size_t from = step * i;
         size_t to = min(step * (i + 1), testEntries.size());
-        std::thread t(analizeSome, from, to, &threadStats[i]);
+        std::thread t(analizeSome, from, to, &threadStats[i],
+                      &threadClassif[i]);
         threads.push_back(std::move(t));
     }
 
@@ -247,10 +259,17 @@ void testModel(const Options& opts, const Model<SparseVector>* model,
         falseN += s.falseN;
     }
 
-    // auto classifFile = Output(opts.classifFilename);
     // Print each test result to a "classifications" file
-    // classifFile.stream() << (int)result << endl;
-    // classifFile.close();
+    if (writeClassif) {
+        auto classifFile = Output(opts.classifFilename);
+        for (auto& q : threadClassif) {
+            while (not q.empty()) {
+                classifFile.stream() << (int)q.front() << endl;
+                q.pop();
+            }
+        }
+        classifFile.close();
+    }
 
     const double accuracy = (double)trueP / (trueP + falseP);
     const double recall = (double)trueP / (trueP + falseN);
