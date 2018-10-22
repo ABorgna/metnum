@@ -4,7 +4,6 @@ RM=rm -f
 
 SRCDIR=src
 TESTDIR=test
-OBJDIR=build
 DATADIR=data
 
 INC=
@@ -20,11 +19,9 @@ OBJS=$(subst .cpp,.o,$(SRCS))
 DATASET_COMPRESSED=$(DATADIR)/data.tar.xz
 DATASET=$(DATADIR)/imdb_tokenized.csv
 
-.PHONY: all tp2 depend tests clean distclean dataset
+.PHONY: all depend tests clean distclean dataset
 
 all: tp2
-
-tp2: depend dataset $(OBJDIR)/tp2
 
 test_tp2: CPPFLAGS+=-DTEST
 test_tp2: clean tp2
@@ -37,7 +34,7 @@ $(DATASET): $(DATASET_COMPRESSED)
 	tar xf $(DATASET_COMPRESSED) -C data/
 	@touch "$@"
 
-$(OBJDIR)/tp2: $(OBJS)
+tp2: depend dataset $(OBJS)
 	$(CXX) $(LDFLAGS) $(CPPFLAGS) -o tp2 $(OBJS) $(LDLIBS)
 
 tests: tp1 test/tester.py
@@ -48,8 +45,8 @@ depend: .depend
 
 .depend: $(SRCS)
 	@$(RM) ./.depend
-	@$(CXX) $(CPPFLAGS) -MM -MG $^ | \
-		sed 's|[a-zA-Z0-9_-]*\.o|$(OBJDIR)/&|' >>./.depend;
+	@$(CXX) $(CPPFLAGS) -MM $^ | \
+		sed 's|[a-zA-Z0-9_-]*\.o: \([\a-zA-Z0-9_-]*\)\.cpp|\1.o: \1.cpp|' >> ./.depend;
 
 clean:
 	$(RM) $(OBJS)
