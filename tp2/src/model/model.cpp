@@ -62,8 +62,8 @@ template class ModelKNNInvtmp<Vector, Vector>;
 /********** PCA+KNN model ************/
 
 template <typename T>
-ModelPCA<T>::ModelPCA(entry::SpEntries&& entries, int k, int alpha)
-    : PCTrans(entries, alpha), analyzer(PCTrans.tcs(entries), k){};
+ModelPCA<T>::ModelPCA(entry::SpEntries&& entries, int k, int alpha, int nthreads)
+    : PCTrans(entries, alpha, nthreads), analyzer(PCTrans.tcs(entries), k){};
 
 template <typename T>
 ModelPCA<T>::ModelPCA(std::istream& is, int k) {

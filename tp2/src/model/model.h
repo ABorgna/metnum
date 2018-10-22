@@ -68,7 +68,7 @@ class ModelPCA : public Model<SparseVector> {
     T analyzer;
 
    public:
-    ModelPCA(entry::SpEntries&&, int k, int alpha);
+    ModelPCA(entry::SpEntries&&, int k, int alpha, int nthreads = -1);
 
     // Load the trained model from a cache file
     ModelPCA(std::istream&, int k);

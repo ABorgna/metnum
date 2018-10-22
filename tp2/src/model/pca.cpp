@@ -1,17 +1,25 @@
 #include <algorithm>
 #include <cassert>
+#include <thread>
 
 #include "../debug.h"
 #include "pca.h"
 #include "potencia.h"
 
 
+
 // Default constructor
 PCA::PCA(){};
 
-PCA::PCA(const entry::SpEntries& train, int alpha) : alpha(alpha) {
-    DEBUG_IDENT("<<< Principal Component Analysis >>>", 1);
-    // 1. Obtengo la matriz X
+PCA::PCA(const entry::SpEntries& train, int alpha, int nthreads) : alpha(alpha) {
+    if (nthreads < 0) {
+        unsigned concurentThreadsSupported =
+            std::thread::hardware_concurrency();
+        nthreads = std::max(concurentThreadsSupported, (unsigned)2);
+    }
+    DEBUG_IDENT("<<< Principal Component Analysis on " << nthreads << " threads >>>", 1);
+
+    // 1. Obtengo el vector mu
     size_t n = train.size();
     if (n == 0) {
         DEBUG("Se llamo a PCA con un dataset de entrenamiento de tamano 0");
@@ -39,48 +47,58 @@ PCA::PCA(const entry::SpEntries& train, int alpha) : alpha(alpha) {
 	// M = (D-U)t * (D-U) = Dt*D - Ut*D - Dt*U + Ut*U
 	Matriz M(m, Vector(m, 0));
 
-	// Dt*D
-	for (size_t col = 0; col < n; col++){
-		for (auto& it : train[col].bag_of_words){
-			size_t fil = it.first;
-			for (size_t k = 0; k < m; k++){
-				M[fil][k] += it.second*train[col].bag_of_words[k];
+	auto setSomeValues = [&M, &mu, &train, m](size_t from, size_t to) {
+		// Dt*D
+		for (size_t col = from; col < to; col++){
+			for (auto& it : train[col].bag_of_words){
+				size_t fil = it.first;
+				for (size_t k = 0; k < m; k++){
+					M[fil][k] += it.second*train[col].bag_of_words[k];
+				}
 			}
 		}
-	}
-    DEBUG_IDENT_PROG("<<< Dt*D obtenida >>>", 2);
 
-
-	// -Ut*D
-	for (size_t fil = 0; fil < n; fil++){
-		for (auto& it : train[fil].bag_of_words){
-			size_t col = it.first;
-			for (size_t k = 0; k < m; k++){
-				M[k][col] -= it.second*mu[k];
+		// -Ut*D
+		for (size_t fil = from; fil < to; fil++){
+			for (auto& it : train[fil].bag_of_words){
+				size_t col = it.first;
+				for (size_t k = 0; k < m; k++){
+					M[k][col] -= it.second*mu[k];
+				}
 			}
 		}
-	}
-    DEBUG_IDENT_PROG("<<< -Ut*D obtenida >>>", 2);
 
-
-	// -Dt*U
-	for (size_t col = 0; col < n; col++){
-		for (auto& it : train[col].bag_of_words){
-			size_t fil = it.first;
-			for (size_t k = 0; k < m; k++){
-				M[fil][k] -= it.second*mu[k];
+		// -Dt*U
+		for (size_t col = from; col < to; col++){
+			for (auto& it : train[col].bag_of_words){
+				size_t fil = it.first;
+				for (size_t k = 0; k < m; k++){
+					M[fil][k] -= it.second*mu[k];
+				}
 			}
 		}
-	}
-    DEBUG_IDENT_PROG("<<< -Dt*U obtenida >>>", 2);
 
+    };
+
+    // Analyze the entries in multiple threads
+    const size_t step = ((train.size() - 1) / nthreads) + 1;
+    std::vector<std::thread> threads;
+    for (size_t i = 0; i < nthreads; i++) {
+        size_t from = step * i;
+        size_t to = std::min(step * (i + 1), train.size());
+        std::thread t(setSomeValues, from, to);
+        threads.push_back(std::move(t));
+    }
+
+    // Wait for everyone
+    for (auto& t : threads) t.join();
 
 	// +Ut*U
 	for (size_t fil = 0; fil < m; fil++)
 		for (size_t col = 0; col < m; col++){
 			M[fil][col] += mu[fil]*mu[col]*(double)n;
 		}
-    DEBUG_IDENT_PROG("<<< Ut*U obtenida >>>", 2);
+    DEBUG_IDENT_PROG("<<< M obtenida >>>", 2);
 	
 	for (size_t fil = 0; fil < m; fil++)
 		for (size_t col = 0; col < m; col++){

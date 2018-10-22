@@ -11,7 +11,7 @@ class PCA {
 
    public:
     PCA();
-    PCA(const entry::SpEntries& train, int alpha);
+    PCA(const entry::SpEntries& train, int alpha, int nthreads);
     entry::DnsEntry tc(const entry::SpEntry& test) const;
     entry::DnsEntries tcs(const entry::SpEntries& tests) const;
 

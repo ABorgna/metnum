@@ -171,10 +171,10 @@ const Model<SparseVector>* makeModel(const Options& opts,
             return new ModelKNNInv(move(entries), opts.k);
         case PCAKNN:
             return new ModelPCA<ModelKNNtmp<Vector, Vector>>(
-                move(entries), opts.k, opts.alpha);
+                move(entries), opts.k, opts.alpha, opts.nThreads);
         case PCAKNN_INVERTED:
             return new ModelPCA<ModelKNNInvtmp<Vector, Vector>>(
-                move(entries), opts.k, opts.alpha);
+                move(entries), opts.k, opts.alpha, opts.nThreads);
         default:
             (throw std::runtime_error("Invalid method!"));
     }
