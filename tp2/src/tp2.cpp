@@ -11,6 +11,7 @@
 #include "entry/vector_builder.h"
 #include "files.h"
 #include "model/model.h"
+#include "timer.h"
 
 using namespace std;
 
@@ -188,7 +189,7 @@ struct Stats {
 };
 
 Stats testModel(const Options& opts, const Model<SparseVector>* model,
-               const entry::SpEntries& testEntries) {
+                const entry::SpEntries& testEntries) {
     const bool writeClassif = opts.classifFilename != "";
 
     // Number of threads to utilize
@@ -258,7 +259,7 @@ Stats testModel(const Options& opts, const Model<SparseVector>* model,
     }
 
     // Merge the statistics
-    Stats res = {0,0,0,0,0};
+    Stats res = {0, 0, 0, 0, 0};
     for (const auto& s : threadStats) {
         res.total += s.total;
         res.trueP += s.trueP;
@@ -270,7 +271,8 @@ Stats testModel(const Options& opts, const Model<SparseVector>* model,
     return res;
 }
 
-void analyzeStats(const Options& opts, const Stats& s){
+void analyzeStats(const Options& opts, const Stats& s,
+                  const TimeKeeper& timeKeeper) {
     const double accuracy = (double)(s.trueP + s.trueN) / s.total;
     const double precision = (double)s.trueP / (s.trueP + s.falseP);
     const double recall = (double)s.trueP / (s.trueP + s.falseN);
@@ -279,10 +281,12 @@ void analyzeStats(const Options& opts, const Stats& s){
     // TODO: Output statistics about the model instead of this
     auto outFile = Output(opts.outFilename);
     auto& outStream = outFile.stream();
+
     outStream << "method: " << showMethod(opts.method) << endl;
     outStream << "k: " << opts.k << endl;
     if (opts.method == PCAKNN)
         outStream << "alpha: " << opts.alpha << endl;
+
     outStream << "countEntries: " << s.total << endl;
     outStream << "trueP: " << s.trueP << endl;
     outStream << "falseP: " << s.falseP << endl;
@@ -292,12 +296,20 @@ void analyzeStats(const Options& opts, const Stats& s){
     outStream << "precision: " << precision << endl;
     outStream << "recall: " << recall << endl;
     outStream << "f1: " << f1 << endl;
+
+    for (const auto& p : timeKeeper.registry) {
+        const std::string& label = p.first;
+        const auto& millis = p.second;
+        outStream << "time-" << label << ": " << millis.count() << "ms" << endl;
+    }
+
     outFile.close();
 }
 
 int main(int argc, char* argv[]) {
-    const string cmd = argv[0];
     Options options;
+    TimeKeeper timeKeeper;
+    const string cmd = argv[0];
     string fullCmd = string(argv[0]);
     for (int i = 1; i < argc; i++) fullCmd += " " + string(argv[i]);
 
@@ -313,7 +325,9 @@ int main(int argc, char* argv[]) {
     if (options.cachePath != "") {
         DEBUG("---------------- Reading model cache ------------");
         DEBUG("Loading from " << cacheFilename(options));
+        timeKeeper.start("loadCache");
         validCache = fromCache(options, model);
+        timeKeeper.stop();
     }
 
     /*************** Read the entries ********************/
@@ -325,8 +339,10 @@ int main(int argc, char* argv[]) {
 
     const bool doTrain = not validCache;
     const bool doTest = not options.dontTest;
+    timeKeeper.start("loadData");
     bool res = readEntries(options, vocabulary, trainEntries, testEntries,
                            doTrain, doTest);
+    timeKeeper.stop();
     if (not res)
         return -2;
 
@@ -348,7 +364,9 @@ int main(int argc, char* argv[]) {
     if (doTrain) {
         /*************** Train the model ********************/
         DEBUG("---------------- Training ----------------");
+        timeKeeper.start("training");
         model = makeModel(options, move(trainEntries));
+        timeKeeper.stop();
 
         if (options.cachePath != "") {
             DEBUG("---------------- Storing cache ------------");
@@ -359,7 +377,9 @@ int main(int argc, char* argv[]) {
             }
             cacheFile.stream() << VERSION << endl;
             cacheFile.stream() << fullCmd << endl;
+            timeKeeper.start("saveCache");
             model->saveCache(cacheFile.stream());
+            timeKeeper.stop();
             cacheFile.close();
             DEBUG("Stored in " << cacheFilename(options));
         }
@@ -368,8 +388,10 @@ int main(int argc, char* argv[]) {
     /*************** Test the model ********************/
     if (doTest) {
         DEBUG("---------------- Testing -----------------");
+        timeKeeper.start("testing");
         auto stats = testModel(options, model, testEntries);
-        analyzeStats(options, stats);
+        timeKeeper.stop();
+        analyzeStats(options, stats, timeKeeper);
     }
 
     delete model;
