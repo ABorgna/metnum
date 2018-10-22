@@ -202,7 +202,7 @@ Stats testModel(const Options& opts, const Model<SparseVector>* model,
     }
     DEBUG("Running on " << nThreads << " threads.");
 
-    auto analizeSome = [&testEntries, &model, writeClassif](
+    auto analyzeSome = [&testEntries, &model, writeClassif](
                            size_t from, size_t to, Stats* outStats,
                            std::queue<bool>* classifications) {
         Stats s{0, 0, 0, 0, 0};
@@ -210,7 +210,7 @@ Stats testModel(const Options& opts, const Model<SparseVector>* model,
         for (size_t i = from; i < to; i++) {
             const auto& entry = testEntries[i];
             bool expected = entry.is_positive;
-            bool result = model->analize(entry);
+            bool result = model->analyze(entry);
 
             if (writeClassif)
                 classifications->push(result);
@@ -237,7 +237,7 @@ Stats testModel(const Options& opts, const Model<SparseVector>* model,
     for (size_t i = 0; i < nThreads; i++) {
         size_t from = step * i;
         size_t to = min(step * (i + 1), testEntries.size());
-        std::thread t(analizeSome, from, to, &threadStats[i],
+        std::thread t(analyzeSome, from, to, &threadStats[i],
                       &threadClassif[i]);
         threads.push_back(std::move(t));
     }
