@@ -1,8 +1,8 @@
 #include <string.h>
 #include <algorithm>
 #include <exception>
-#include <thread>
 #include <iostream>
+#include <thread>
 
 #include "arguments.h"
 #include "debug.h"
@@ -37,6 +37,7 @@ const Options defaultOptions = {
     // Print all the info by default (TODO: set this to false later?)
     debug : true,
     dontTest : false,
+    nThreads : -1,
 };
 
 bool readEntries(const Options& opts, entry::Vocabulary& vocabulary,
@@ -187,11 +188,19 @@ void testModel(const Options& opts, const Model<SparseVector>* model,
         int falseN;
     };
 
-    unsigned concurentThreadsSupported = std::thread::hardware_concurrency();
-    size_t nThreads = std::max(concurentThreadsSupported, (unsigned)2);
+    // Number of threads to utilize
+    size_t nThreads;
+    if (opts.nThreads > 0) {
+        nThreads = opts.nThreads;
+    } else {
+        unsigned concurentThreadsSupported =
+            std::thread::hardware_concurrency();
+        nThreads = std::max(concurentThreadsSupported, (unsigned)2);
+    }
     DEBUG("Running on " << nThreads << " threads.");
 
-    auto analizeSome = [&testEntries, &model](size_t from, size_t to, Stats* s) {
+    auto analizeSome = [&testEntries, &model](size_t from, size_t to,
+                                              Stats* s) {
         // Get the nearest k polarities
         for (size_t i = from; i < to; i++) {
             const auto& entry = testEntries[i];
@@ -216,7 +225,7 @@ void testModel(const Options& opts, const Model<SparseVector>* model,
     std::vector<std::thread> threads;
     for (size_t i = 0; i < nThreads; i++) {
         size_t from = step * i;
-        size_t to = min(step * (i+1), testEntries.size());
+        size_t to = min(step * (i + 1), testEntries.size());
         std::thread t(analizeSome, from, to, &threadStats[i]);
         threads.push_back(std::move(t));
     }
@@ -230,7 +239,7 @@ void testModel(const Options& opts, const Model<SparseVector>* model,
     int falseP = 0;
     int trueN = 0;
     int falseN = 0;
-    for(const auto& s : threadStats) {
+    for (const auto& s : threadStats) {
         total += s.total;
         trueP += s.trueP;
         falseP += s.falseP;

@@ -34,6 +34,7 @@ struct Options {
 
     int debug;
     int dontTest;
+    int nThreads;
 };
 
 void printHelp(const std::string& cmd, const Options& defaultOptions);

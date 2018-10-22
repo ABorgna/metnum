@@ -27,6 +27,9 @@ void printHelp(const string& cmd, const Options& defaults) {
          << "    -h, --help     Show this help message." << endl
          << "    -v, --verbose  Print debug info to stderr." << endl
          << "        --quiet    Do not print debug info." << endl
+         << "    -j <threads>   Number of threads to utilize. (Default: # of "
+            "cores)"
+         << endl
          << endl
          << "  MODEL" << endl
          << "    -m #           Method:" << endl
@@ -98,7 +101,7 @@ bool parseArguments(int argc, char* argv[], const Options& defaults,
     const string cmd = argv[0];
     opt = defaults;
 
-    const char* const short_opts = "hvm:t:Qq:p:o:c:C:a:k:";
+    const char* const short_opts = "hvm:t:Qq:p:o:c:C:a:k:j:";
     const option long_opts[] = {
         /* These options set a flag. */
         {"verbose", no_argument, &opt.debug, 1},
@@ -206,6 +209,10 @@ bool parseArguments(int argc, char* argv[], const Options& defaults,
             case 'C':
                 opt.cachePath = optarg;
                 break;
+            case 'j': {
+                int tmp = stoi(optarg);
+                opt.nThreads = tmp;
+            } break;
             case '?':
                 if (optopt == 't' || optopt == 'q' || optopt == 'o' ||
                     optopt == 'c') {
