@@ -83,7 +83,7 @@ PCA::PCA(const entry::SpEntries& train, int alpha, int nthreads) : alpha(alpha) 
     // Analyze the entries in multiple threads
     const size_t step = ((train.size() - 1) / nthreads) + 1;
     std::vector<std::thread> threads;
-    for (size_t i = 0; i < nthreads; i++) {
+    for (size_t i = 0; i < (size_t)nthreads; i++) {
         size_t from = step * i;
         size_t to = std::min(step * (i + 1), train.size());
         std::thread t(setSomeValues, from, to);
@@ -139,7 +139,7 @@ PCA::PCA(const entry::SpEntries& train, int alpha, int nthreads) : alpha(alpha) 
 	DEBUG_IDENT_PROG("<<< Eigen obtenidos >>>", 2);
 	// 4. Me guardo eso en algún lugar
 	CB = Matriz(alpha);
-	for(size_t f = 0; f < alpha; f++){
+	for(size_t f = 0; f < (size_t)alpha; f++){
 		CB[f] = move(eigen[f].second);
 	}
 	DEBUG_IDENT_PROG("<<< CB obtenida >>>", 2);
