@@ -10,7 +10,7 @@ DATADIR=data
 INC=
 INC_PARAMS=$(foreach d,$(INC),-I$d)
 
-CPPFLAGS=$(INC_PARAMS) -g -Wall -Wextra -O2 -std=c++14
+CPPFLAGS=$(INC_PARAMS) -g -Wall -Wextra -O2 -std=c++14 -pthread
 LDFLAGS=
 LDLIBS=
 

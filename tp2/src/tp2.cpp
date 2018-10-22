@@ -1,6 +1,7 @@
 #include <string.h>
 #include <algorithm>
 #include <exception>
+#include <thread>
 #include <iostream>
 
 #include "arguments.h"
@@ -178,31 +179,69 @@ const Model<SparseVector>* makeModel(const Options& opts,
 
 void testModel(const Options& opts, const Model<SparseVector>* model,
                const entry::SpEntries& testEntries) {
+    struct Stats {
+        int total;
+        int trueP;
+        int falseP;
+        int trueN;
+        int falseN;
+    };
+
+    unsigned concurentThreadsSupported = std::thread::hardware_concurrency();
+    size_t nThreads = std::max(concurentThreadsSupported, (unsigned)2);
+    DEBUG("Running on " << nThreads << " threads.");
+
+    auto analizeSome = [&testEntries, &model](size_t from, size_t to, Stats* s) {
+        // Get the nearest k polarities
+        for (size_t i = from; i < to; i++) {
+            const auto& entry = testEntries[i];
+            bool expected = entry.is_positive;
+            bool result = model->analize(entry);
+
+            s->total++;
+            if (expected and result)
+                s->trueP++;
+            else if (not expected and not result)
+                s->trueN++;
+            else if (not expected and result)
+                s->falseP++;
+            else if (expected and not result)
+                s->falseN++;
+        }
+    };
+
+    // Analyze the entries in multiple threads
+    const size_t step = ((testEntries.size() - 1) / nThreads) + 1;
+    std::vector<Stats> threadStats = std::vector<Stats>(nThreads);
+    std::vector<std::thread> threads;
+    for (size_t i = 0; i < nThreads; i++) {
+        size_t from = step * i;
+        size_t to = min(step * (i+1), testEntries.size());
+        std::thread t(analizeSome, from, to, &threadStats[i]);
+        threads.push_back(std::move(t));
+    }
+
+    // Wait for everyone
+    for (auto& t : threads) t.join();
+
+    // Merge the statistics
     int total = 0;
     int trueP = 0;
     int falseP = 0;
     int trueN = 0;
     int falseN = 0;
-
-    auto classifFile = Output(opts.classifFilename);
-    for (const auto& entry : testEntries) {
-        bool expected = entry.is_positive;
-        bool result = model->analize(entry);
-
-        total++;
-        if (expected and result)
-            trueP++;
-        else if (not expected and not result)
-            trueN++;
-        else if (not expected and result)
-            falseP++;
-        else if (expected and not result)
-            falseN++;
-
-        // Print each test result to a "classifications" file
-        classifFile.stream() << (int)result << endl;
+    for(const auto& s : threadStats) {
+        total += s.total;
+        trueP += s.trueP;
+        falseP += s.falseP;
+        trueN += s.trueN;
+        falseN += s.falseN;
     }
-    classifFile.close();
+
+    // auto classifFile = Output(opts.classifFilename);
+    // Print each test result to a "classifications" file
+    // classifFile.stream() << (int)result << endl;
+    // classifFile.close();
 
     const double accuracy = (double)trueP / (trueP + falseP);
     const double recall = (double)trueP / (trueP + falseN);
