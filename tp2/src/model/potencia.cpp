@@ -22,6 +22,14 @@ EigenValue potencia (const Matriz& B, Vector x0, StopPolicy stop){
 
 	auto autov = x0*(B*x0);
 	// autov /= x0*x0; // Lo dejo por si las moscas, pero ||x0|| = 1
+	#ifdef TEST
+	{
+		DEBUG_IDENT("TESTING", 2);
+		if (distanciaN(B*x0, autov*x0, 2) > 1e-10){
+			DEBUG_IDENT("Big error on power method: " << distanciaN(B*x0, autov*x0, 2), 2);
+		}
+	}
+	#endif // TEST
 	return {autov, x0};
 }
 

@@ -45,9 +45,11 @@ PCA::PCA(const entry::SpEntries& train, int alpha, int nthreads) : alpha(alpha) 
 	// 2. Obtengo la de covarianza
 	// fil(i, D) = train[i].bag_of_words, fil(i, U) = mu
 	// M = (D-U)t * (D-U) = Dt*D - Ut*D - Dt*U + Ut*U
+	std::vector<Matriz> Mv(nthreads, Matriz(m, Vector(m, 0)));
 	Matriz M(m, Vector(m, 0));
 
-	auto setSomeValues = [&M, &mu, &train, m](size_t from, size_t to) {
+	auto setSomeValues = [&mu, &train, m](size_t from, size_t to, Matriz* Mptr) {
+		Matriz& M = *Mptr;
 		// Dt*D
 		for (size_t col = from; col < to; col++){
 			for (auto& it : train[col].bag_of_words){
@@ -77,6 +79,7 @@ PCA::PCA(const entry::SpEntries& train, int alpha, int nthreads) : alpha(alpha) 
 				}
 			}
 		}
+		return;
 
     };
 
@@ -86,12 +89,18 @@ PCA::PCA(const entry::SpEntries& train, int alpha, int nthreads) : alpha(alpha) 
     for (size_t i = 0; i < (size_t)nthreads; i++) {
         size_t from = step * i;
         size_t to = std::min(step * (i + 1), train.size());
-        std::thread t(setSomeValues, from, to);
+        std::thread t(setSomeValues, from, to, &Mv[i]);
         threads.push_back(std::move(t));
     }
 
     // Wait for everyone
     for (auto& t : threads) t.join();
+    // Reduce results
+    for (size_t fil = 0; fil < m; fil++)
+		for (size_t col = 0; col < m; col++)
+    		for (size_t i = 0; i < (size_t)nthreads; i++){
+				M[fil][col] += Mv[i][fil][col];
+	}
 
 	// +Ut*U
 	for (size_t fil = 0; fil < m; fil++)
@@ -116,7 +125,7 @@ PCA::PCA(const entry::SpEntries& train, int alpha, int nthreads) : alpha(alpha) 
     	    return train[fil].bag_of_words[col] - mu[col];
     	};
 
-		const double eps = 1e-10;
+		const double eps = 1e-15;
 		for (size_t i = 0; i < m; i++) for (size_t j = i; j < m; j++){
 			for (size_t k = 0; k < n; k++)
 				M2[i][j] += X(k, i)*X(k, j);
@@ -125,8 +134,11 @@ PCA::PCA(const entry::SpEntries& train, int alpha, int nthreads) : alpha(alpha) 
 
 			// assert(fabs(M[i][j] - M2[i][j]) < eps);
 			// assert(fabs(M[j][i] - M2[j][i]) < eps);
-			if (fabs(M[j][i] - M2[j][i]) > eps)
-				DEBUG_IDENT("Big error: " << fabs(M[j][i] - M2[j][i]), 2);
+			if (fabs(M[j][i] - M2[j][i]) > eps){
+				DEBUG_IDENT("Big error on PCA fast Matrix calc: " << fabs(M[j][i] - M2[j][i]), 2);
+				DEBUG_VAR(M[j][i]);
+				DEBUG_VAR(M2[j][i]);
+			}
 		}
 
 

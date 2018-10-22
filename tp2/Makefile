@@ -26,6 +26,10 @@ all: tp2
 
 tp2: depend dataset $(OBJDIR)/tp2
 
+test_tp2: CPPFLAGS+=-DTEST
+test_tp2: clean tp2
+	$(RM) $(OBJS)
+
 dataset: $(DATASET)
 
 $(DATASET): $(DATASET_COMPRESSED)
