@@ -242,7 +242,7 @@ size_t trainingCacheKey(const Options& o) {
            std::hash<std::string>{}(o.vocabFilename) ^
            std::hash<double>{}(o.minVocabFreq) ^
            std::hash<double>{}(o.maxVocabFreq) ^
-           std::hash<double>{}(o.maxTestEntries) ^
+           std::hash<double>{}(o.maxTrainEntries) ^
            std::hash<size_t>{}((size_t)o.method) ^ std::hash<int>{}(o.alpha);
 }
 
