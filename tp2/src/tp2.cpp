@@ -271,16 +271,12 @@ Stats testModel(const Options& opts, const Model<SparseVector>* model,
     return res;
 }
 
-void analyzeStats(const Options& opts, const Stats& s,
-                  const TimeKeeper& timeKeeper) {
+void analyzeStats(std::ostream& outStream, const Options& opts,
+                  const Stats& s) {
     const double accuracy = (double)(s.trueP + s.trueN) / s.total;
     const double precision = (double)s.trueP / (s.trueP + s.falseP);
     const double recall = (double)s.trueP / (s.trueP + s.falseN);
     const double f1 = 2 * precision * recall / (precision + recall);
-
-    // TODO: Output statistics about the model instead of this
-    auto outFile = Output(opts.outFilename);
-    auto& outStream = outFile.stream();
 
     outStream << "method: " << showMethod(opts.method) << endl;
     outStream << "k: " << opts.k << endl;
@@ -296,14 +292,14 @@ void analyzeStats(const Options& opts, const Stats& s,
     outStream << "precision: " << precision << endl;
     outStream << "recall: " << recall << endl;
     outStream << "f1: " << f1 << endl;
+}
 
+void showTimes(std::ostream& outStream, const TimeKeeper& timeKeeper) {
     for (const auto& p : timeKeeper.registry) {
         const std::string& label = p.first;
         const auto& millis = p.second;
         outStream << "time-" << label << ": " << millis.count() << "ms" << endl;
     }
-
-    outFile.close();
 }
 
 int main(int argc, char* argv[]) {
@@ -386,13 +382,21 @@ int main(int argc, char* argv[]) {
     }
 
     /*************** Test the model ********************/
+    Stats stats = {0,0,0,0,0};
     if (doTest) {
         DEBUG("---------------- Testing -----------------");
         timeKeeper.start("testing");
-        auto stats = testModel(options, model, testEntries);
+        stats = testModel(options, model, testEntries);
         timeKeeper.stop();
-        analyzeStats(options, stats, timeKeeper);
     }
+
+    DEBUG("---------------- Results -----------------");
+    auto outFile = Output(options.outFilename);
+    auto& outStream = outFile.stream();
+    if (doTest)
+        analyzeStats(outStream, options, stats);
+    showTimes(outStream, timeKeeper);
+    outFile.close();
 
     delete model;
 
