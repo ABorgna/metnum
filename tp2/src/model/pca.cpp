@@ -5,11 +5,12 @@
 #include "pca.h"
 #include "potencia.h"
 
+
 // Default constructor
 PCA::PCA(){};
 
 PCA::PCA(const entry::SpEntries& train, int alpha) : alpha(alpha) {
-    DEBUG("-----------Principal Component Analysis-----------");
+    DEBUG_IDENT("<<< Principal Component Analysis >>>", 1);
     // 1. Obtengo la matriz X
     size_t n = train.size();
     if (n == 0) {
@@ -31,12 +32,8 @@ PCA::PCA(const entry::SpEntries& train, int alpha) : alpha(alpha) {
         }
     }
     for (auto& m : mu) m /= n;
-    // Como la matriz X puede ser gigante, la genero dinámicamente
-    auto X = [&](int fil, int col) {
-        return train[fil].bag_of_words[col] - mu[col];
-    };
 
-    DEBUG("-----------X obtenida-----------");
+    DEBUG_IDENT_PROG("<<< mu obtenida >>>", 2);
 	// 2. Obtengo la de covarianza
 	// fil(i, D) = train[i].bag_of_words, fil(i, U) = mu
 	// M = (D-U)t * (D-U) = Dt*D - Ut*D - Dt*U + Ut*U
@@ -51,6 +48,8 @@ PCA::PCA(const entry::SpEntries& train, int alpha) : alpha(alpha) {
 			}
 		}
 	}
+    DEBUG_IDENT_PROG("<<< Dt*D obtenida >>>", 2);
+
 
 	// -Ut*D
 	for (size_t fil = 0; fil < n; fil++){
@@ -61,6 +60,8 @@ PCA::PCA(const entry::SpEntries& train, int alpha) : alpha(alpha) {
 			}
 		}
 	}
+    DEBUG_IDENT_PROG("<<< -Ut*D obtenida >>>", 2);
+
 
 	// -Dt*U
 	for (size_t col = 0; col < n; col++){
@@ -71,38 +72,61 @@ PCA::PCA(const entry::SpEntries& train, int alpha) : alpha(alpha) {
 			}
 		}
 	}
+    DEBUG_IDENT_PROG("<<< -Dt*U obtenida >>>", 2);
+
 
 	// +Ut*U
 	for (size_t fil = 0; fil < m; fil++)
 		for (size_t col = 0; col < m; col++){
 			M[fil][col] += mu[fil]*mu[col]*(double)n;
 		}
+    DEBUG_IDENT_PROG("<<< Ut*U obtenida >>>", 2);
 	
 	for (size_t fil = 0; fil < m; fil++)
 		for (size_t col = 0; col < m; col++){
 			M[fil][col] /= n-1.0;
+	}
+
+	#ifdef TEST
+	// Calculo la matriz de forma tonta y veo que los valores obtenidos sean
+	// similares
+	{	
+		DEBUG_IDENT("TESTING", 2);
+		Matriz M2(m, Vector(m, 0));
+		// Como la matriz X puede ser gigante, la genero dinámicamente
+	    auto X = [&](int fil, int col) {
+    	    return train[fil].bag_of_words[col] - mu[col];
+    	};
+
+		const double eps = 1e-10;
+		for (size_t i = 0; i < m; i++) for (size_t j = i; j < m; j++){
+			for (size_t k = 0; k < n; k++)
+				M2[i][j] += X(k, i)*X(k, j);
+			M2[i][j] /= n-1.0;
+			M2[j][i] = M2[i][j];
+
+			// assert(fabs(M[i][j] - M2[i][j]) < eps);
+			// assert(fabs(M[j][i] - M2[j][i]) < eps);
+			if (fabs(M[j][i] - M2[j][i]) > eps)
+				DEBUG_IDENT("Big error: " << fabs(M[j][i] - M2[j][i]), 2);
 		}
 
 
-	// for (size_t i = 0; i < m; i++) for (size_t j = i; j < m; j++){
-	// 	// DEBUG_VAR(i);
-	// 	// DEBUG_VAR(j);
-	// 	for (size_t k = 0; k < n; k++)
-	// 		M[i][j] += X(k, i)*X(k, j);
-	// 	M[i][j] /= n-1.0;
-	// 	M[j][i] = M[i][j];
-	// }
+	}
+	#endif // TEST
 
-	DEBUG("-----------M obtenida-----------");
+	DEBUG_IDENT_PROG("<<< M obtenida >>>", 2);
 	// 3. Obtengo sus alpha autovalores (con el metodo de la potencia)
 	auto eigen = eigenvalues(move(M), alpha);
-	DEBUG("-----------Eigen obtenidos-----------");
+	DEBUG_IDENT_PROG("<<< Eigen obtenidos >>>", 2);
 	// 4. Me guardo eso en algún lugar
 	CB = Matriz(alpha);
 	for(size_t f = 0; f < alpha; f++){
 		CB[f] = move(eigen[f].second);
 	}
-	DEBUG("-----------CB obtenida-----------");
+	DEBUG_IDENT_PROG("<<< CB obtenida >>>", 2);
+    DEBUG_IDENT("<<< Principal Component Analysis Ended >>>", 1);
+
 
 }
 

@@ -28,7 +28,8 @@ double distVec(const V& v1, const W& v2, int n) {
         return pow(fabs(t1 - t2), (double)n);
     };
     double res = accumulate2(f, 0, v1, v2);
-    return pow(res, -n);
+    return res;
+    // return pow(res, 1.0/(double)n);
 }
 
 // Distancias
