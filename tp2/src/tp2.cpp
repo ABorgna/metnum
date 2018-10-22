@@ -179,16 +179,16 @@ const Model<SparseVector>* makeModel(const Options& opts,
     }
 }
 
-void testModel(const Options& opts, const Model<SparseVector>* model,
-               const entry::SpEntries& testEntries) {
-    struct Stats {
-        int total;
-        int trueP;
-        int falseP;
-        int trueN;
-        int falseN;
-    };
+struct Stats {
+    int total;
+    int trueP;
+    int falseP;
+    int trueN;
+    int falseN;
+};
 
+Stats testModel(const Options& opts, const Model<SparseVector>* model,
+               const entry::SpEntries& testEntries) {
     const bool writeClassif = opts.classifFilename != "";
 
     // Number of threads to utilize
@@ -245,20 +245,6 @@ void testModel(const Options& opts, const Model<SparseVector>* model,
     // Wait for everyone
     for (auto& t : threads) t.join();
 
-    // Merge the statistics
-    int total = 0;
-    int trueP = 0;
-    int falseP = 0;
-    int trueN = 0;
-    int falseN = 0;
-    for (const auto& s : threadStats) {
-        total += s.total;
-        trueP += s.trueP;
-        falseP += s.falseP;
-        trueN += s.trueN;
-        falseN += s.falseN;
-    }
-
     // Print each test result to a "classifications" file
     if (writeClassif) {
         auto classifFile = Output(opts.classifFilename);
@@ -271,8 +257,22 @@ void testModel(const Options& opts, const Model<SparseVector>* model,
         classifFile.close();
     }
 
-    const double accuracy = (double)trueP / (trueP + falseP);
-    const double recall = (double)trueP / (trueP + falseN);
+    // Merge the statistics
+    Stats res = {0,0,0,0,0};
+    for (const auto& s : threadStats) {
+        res.total += s.total;
+        res.trueP += s.trueP;
+        res.falseP += s.falseP;
+        res.trueN += s.trueN;
+        res.falseN += s.falseN;
+    }
+
+    return res;
+}
+
+void analyzeStats(const Options& opts, const Stats& s){
+    const double accuracy = (double)s.trueP / (s.trueP + s.falseP);
+    const double recall = (double)s.trueP / (s.trueP + s.falseN);
 
     // TODO: Output statistics about the model instead of this
     auto outFile = Output(opts.outFilename);
@@ -281,11 +281,11 @@ void testModel(const Options& opts, const Model<SparseVector>* model,
     outStream << "k: " << opts.k << endl;
     if (opts.method == PCAKNN)
         outStream << "alpha: " << opts.alpha << endl;
-    outStream << "countEntries: " << total << endl;
-    outStream << "trueP: " << trueP << endl;
-    outStream << "falseP: " << falseP << endl;
-    outStream << "trueN: " << trueN << endl;
-    outStream << "falseN: " << falseN << endl;
+    outStream << "countEntries: " << s.total << endl;
+    outStream << "trueP: " << s.trueP << endl;
+    outStream << "falseP: " << s.falseP << endl;
+    outStream << "trueN: " << s.trueN << endl;
+    outStream << "falseN: " << s.falseN << endl;
     outStream << "accuracy: " << accuracy << endl;
     outStream << "recall: " << recall << endl;
     outFile.close();
@@ -364,7 +364,8 @@ int main(int argc, char* argv[]) {
     /*************** Test the model ********************/
     if (doTest) {
         DEBUG("---------------- Testing -----------------");
-        testModel(options, model, testEntries);
+        auto stats = testModel(options, model, testEntries);
+        analyzeStats(options, stats);
     }
 
     delete model;
