@@ -77,7 +77,7 @@ void printHelp(const string& cmd, const Options& defaults) {
          << "                   Test at most n entries." << endl
          << endl
          << "  VOCABULARY" << endl
-         << "    -p, --vocabulary <file>"
+         << "    -p, --vocabulary <file>" << endl
          << "                   File with the vocabulary." << endl
          << "                   (Default: '" << defaults.vocabFilename << "')"
          << endl
