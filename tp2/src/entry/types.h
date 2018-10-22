@@ -35,6 +35,11 @@ using SpEntries = Entries<SparseVector>;
 using DnsEntry = Entry<Vector>;
 using DnsEntries = Entries<Vector>;
 
+// Super ad-hoc auxiliary function
+// Gets the sum of each word for the entry set
+template <typename V>
+Vector sumEntries(const Entries<V>&);
+
 // Token del vocabulario, con su frecuencia en el corpus.
 struct VocabToken {
     int token;

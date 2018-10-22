@@ -35,7 +35,7 @@ bool decideFromQueue(NeighQueue& queue) {
 
 template <typename V, typename W>
 bool dumbKnn(const entry::Entries<V>& entries, const entry::Entry<W>& test,
-             int k) {
+             int k, const Vector&) {
     NeighQueue queue;
 
     // Get the nearest k polarities
@@ -58,6 +58,7 @@ InvertedIndexKNN<V, W>::InvertedIndexKNN(const entry::Entries<V>&& entries)
     : entries(entries) {
     if (entries.size() > 0) {
         vocabSize = entries[0].bag_of_words.size();
+        sumVocab = entry::sumEntries(entries);
     }
     precomputeInvIndex();
 };
@@ -151,12 +152,14 @@ std::istream& operator>>(std::istream& is,
 
 // Explicit instantiations for the exported functions
 template bool dumbKnn<SparseVector, SparseVector>(
-    const entry::Entries<SparseVector>&, const entry::Entry<SparseVector>&,
-    int);
+    const entry::Entries<SparseVector>&, const entry::Entry<SparseVector>&, int,
+    const Vector&);
 template bool dumbKnn<SparseVector, Vector>(const entry::Entries<SparseVector>&,
-                                            const entry::Entry<Vector>&, int);
+                                            const entry::Entry<Vector>&, int,
+                                            const Vector&);
 template bool dumbKnn<Vector, Vector>(const entry::Entries<Vector>&,
-                                      const entry::Entry<Vector>&, int);
+                                      const entry::Entry<Vector>&, int,
+                                      const Vector&);
 
 template class InvertedIndexKNN<SparseVector, SparseVector>;
 template class InvertedIndexKNN<Vector, SparseVector>;

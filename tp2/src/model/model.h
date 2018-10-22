@@ -28,6 +28,7 @@ template <typename TrainVector, typename TestVector>
 class ModelKNNtmp : public Model<TestVector> {
    private:
     entry::Entries<TrainVector> trainEntries;
+    Vector sumVocab;
     int k;  // Number of neighbours to use with kNN
 
    public:

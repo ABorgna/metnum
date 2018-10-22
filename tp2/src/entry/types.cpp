@@ -6,6 +6,18 @@ bool operator<(const VocabToken& x, const VocabToken& y) {
     return x.token < y.token;
 }
 
+// Super ad-hoc auxiliary function
+template <typename V>
+Vector sumEntries(const Entries<V>& es) {
+    Vector res;
+    for(const auto& e : es)
+      res += e.bag_of_words;
+    return res;
+}
+
+template Vector sumEntries(const Entries<Vector>&);
+template Vector sumEntries(const Entries<SparseVector>&);
+
 }  // namespace entry
 
 // We use the same tag no matter the instantiation of V.

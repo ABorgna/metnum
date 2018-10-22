@@ -11,7 +11,9 @@ ModelKNNtmp<Tr, Te>::ModelKNNtmp(){};
 
 template <typename Tr, typename Te>
 ModelKNNtmp<Tr, Te>::ModelKNNtmp(entry::Entries<Tr>&& entries, int k)
-    : trainEntries(move(entries)), k(k){};
+    : trainEntries(entries), k(k) {
+    sumVocab = entry::sumEntries(trainEntries);
+};
 
 template <typename Tr, typename Te>
 ModelKNNtmp<Tr, Te>::ModelKNNtmp(std::istream& is, int k) : k(k) {
@@ -30,7 +32,7 @@ void ModelKNNtmp<Tr, Te>::saveCache(std::ostream& os) const {
 
 template <typename Tr, typename Te>
 bool ModelKNNtmp<Tr, Te>::analyze(const entry::Entry<Te>& test) const {
-    return dumbKnn<Tr, Te>(trainEntries, test, k);
+    return dumbKnn<Tr, Te>(trainEntries, test, k, sumVocab);
 }
 
 template class ModelKNNtmp<SparseVector, SparseVector>;
@@ -72,7 +74,8 @@ template class ModelKNNInvtmp<Vector, Vector>;
 /********** PCA+KNN model ************/
 
 template <typename T>
-ModelPCA<T>::ModelPCA(entry::SpEntries&& entries, int k, int alpha, int nthreads)
+ModelPCA<T>::ModelPCA(entry::SpEntries&& entries, int k, int alpha,
+                      int nthreads)
     : PCTrans(entries, alpha, nthreads), analyzer(PCTrans.tcs(entries), k){};
 
 template <typename T>
