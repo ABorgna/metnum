@@ -11,6 +11,12 @@ class Model {
    public:
     virtual ~Model();
 
+    // Indicates if this model should be cached.
+    //
+    // This should return false when it is cheap to retrain the model
+    // and we can avoid storing the cache.
+    virtual bool shouldCache() const = 0;
+
     // Store the trained model in a cache file
     virtual void saveCache(std::ostream&) const = 0;
 
@@ -33,6 +39,7 @@ class ModelKNNtmp : public Model<TestVector> {
 
     // Store the trained model in a cache file
     void saveCache(std::ostream&) const override;
+    bool shouldCache() const override;
 
     bool analyze(const entry::Entry<TestVector>&) const override;
 };
@@ -54,6 +61,7 @@ class ModelKNNInvtmp : public Model<TestVector> {
 
     // Store the trained model in a cache file
     void saveCache(std::ostream&) const override;
+    bool shouldCache() const override;
 
     bool analyze(const entry::Entry<TestVector>&) const override;
 };
@@ -75,6 +83,7 @@ class ModelPCA : public Model<SparseVector> {
 
     // Store the trained model in a cache file
     void saveCache(std::ostream&) const override;
+    bool shouldCache() const override;
 
     bool analyze(const entry::SpEntry&) const override;
 };

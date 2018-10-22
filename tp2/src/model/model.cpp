@@ -19,6 +19,11 @@ ModelKNNtmp<Tr, Te>::ModelKNNtmp(std::istream& is, int k) : k(k) {
 }
 
 template <typename Tr, typename Te>
+bool ModelKNNtmp<Tr, Te>::shouldCache() const {
+    return false;
+}
+
+template <typename Tr, typename Te>
 void ModelKNNtmp<Tr, Te>::saveCache(std::ostream& os) const {
     os << trainEntries << std::endl;
 }
@@ -47,6 +52,11 @@ ModelKNNInvtmp<Tr, Te>::ModelKNNInvtmp(std::istream& is, int k) : k(k) {
 }
 
 template <typename Tr, typename Te>
+bool ModelKNNInvtmp<Tr, Te>::shouldCache() const {
+    return false;
+}
+
+template <typename Tr, typename Te>
 void ModelKNNInvtmp<Tr, Te>::saveCache(std::ostream& os) const {
     os << invKnn << std::endl;
 }
@@ -69,6 +79,11 @@ template <typename T>
 ModelPCA<T>::ModelPCA(std::istream& is, int k) {
     is >> PCTrans;
     analyzer = T(is, k);
+}
+
+template <typename T>
+bool ModelPCA<T>::shouldCache() const {
+    return true;
 }
 
 template <typename T>

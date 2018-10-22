@@ -364,7 +364,7 @@ int main(int argc, char* argv[]) {
         model = makeModel(options, move(trainEntries));
         timeKeeper.stop();
 
-        if (options.cachePath != "") {
+        if (options.cachePath != "" and model->shouldCache()) {
             DEBUG("---------------- Storing cache ------------");
             auto cacheFile = Output(cacheFilename(options));
             if (cacheFile.fail()) {
