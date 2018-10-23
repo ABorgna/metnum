@@ -4,11 +4,12 @@
 #include <algorithm>
 
 double accumulate2(std::function<double(double, double)> f, double init,
-                   const Vector& v1, const Vector& v2) {
+                   const Vector& v1, const Vector& v2,
+                   std::function<double(double, double)> op) {
     double res = init;
     size_t n = std::min(v1.size(), v2.size());
     for (size_t i = 0; i < n; i++) {
-        res += f(v1[i], v2[i]);
+        res = op(res, f(v1[i], v2[i]));
     }
     return res;
 }
