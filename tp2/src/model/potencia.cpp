@@ -2,6 +2,7 @@
 
 #include <ctime>
 #include "../debug.h"
+#include "../analysis.h"
 
 Vector randomVector(int n){
 	std::srand(std::time(nullptr));
@@ -30,6 +31,8 @@ EigenValue potencia (const Matriz& B, Vector x0, StopPolicy stop){
 		}
 	}
 	#endif // TEST
+	GET_STREAM("potencia", "autov: " << autov << std::endl
+		<< "autovec: " << x0);
 	return {autov, x0};
 }
 

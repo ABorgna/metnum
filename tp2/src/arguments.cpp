@@ -1,4 +1,5 @@
 #include "arguments.h"
+#include "analysis.h"
 
 #include <getopt.h>
 #include <iostream>
@@ -27,6 +28,7 @@ void printHelp(const string& cmd, const Options& defaults) {
          << "    -h, --help     Show this help message." << endl
          << "    -v, --verbose  Print debug info to stderr." << endl
          << "        --quiet    Do not print debug info." << endl
+         << "        --analyze  Save analysis on the analyze/ folder." << endl
          << "    -j <threads>   Number of threads to utilize. (Default: # of "
             "cores)"
          << endl
@@ -106,6 +108,7 @@ bool parseArguments(int argc, char* argv[], const Options& defaults,
         /* These options set a flag. */
         {"verbose", no_argument, &opt.debug, 1},
         {"quiet", no_argument, &opt.debug, 0},
+        {"analyze", no_argument, &analyze, 1},
         {"no-test", no_argument, &opt.dontTest, 1},
         /* These options receive a parameter. */
         {"help", no_argument, nullptr, 'h'},
