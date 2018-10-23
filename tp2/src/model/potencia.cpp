@@ -25,8 +25,8 @@ EigenValue potencia (const Matriz& B, Vector x0, StopPolicy stop){
 	#ifdef TEST
 	{
 		DEBUG_IDENT("TESTING", 2);
-		if (distanciaN(B*x0, autov*x0, 2) > 1e-10){
-			DEBUG_IDENT("Big error on power method: " << distanciaN(B*x0, autov*x0, 2), 2);
+		if (distanciaN(B*x0, autov*x0, normP(2)) > 1e-10){
+			DEBUG_IDENT("Big error on power method: " << distanciaN(B*x0, autov*x0, normP(2)), 2);
 		}
 	}
 	#endif // TEST
@@ -57,7 +57,7 @@ TrivialStopper::TrivialStopper(int ms, int iter, double eps)
 :eps(eps), dur(ms), start(std::chrono::system_clock::now()), iter(iter), iter_cnt(0){}
 
 bool TrivialStopper::operator()(const Vector& vk){
-	if (eps > 0 and iter_cnt and distanciaN(lastvk, vk, 2) < eps)
+	if (eps > 0 and iter_cnt and distanciaN(lastvk, vk, normP(2)) < eps)
 		return true;
 	lastvk = vk;
 	iter_cnt++;

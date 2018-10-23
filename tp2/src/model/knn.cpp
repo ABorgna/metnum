@@ -40,7 +40,7 @@ bool dumbKnn(const entry::Entries<V>& entries, const entry::Entry<W>& test,
 
     // Get the nearest k polarities
     for (const auto& e : entries) {
-        double dist = distanciaN(e.bag_of_words, test.bag_of_words, 1);
+        double dist = distanciaN(e.bag_of_words, test.bag_of_words, normP(1));
         pushIfBetter(queue, k, dist, e.is_positive);
     }
 
@@ -107,7 +107,8 @@ bool InvertedIndexKNN<V, W>::knn(const entry::Entry<W>& testEntry,
         std::tie(entryId, word, posInInvArray) = entriesQueue.top();
 
         const auto& entry = entries[entryId];
-        double dist = distanciaN(entry.bag_of_words, testEntry.bag_of_words, 1);
+        double dist =
+            distanciaN(entry.bag_of_words, testEntry.bag_of_words, normP(1));
         pushIfBetter(neighQueue, k, dist, entry.is_positive);
 
         while (not entriesQueue.empty() and
