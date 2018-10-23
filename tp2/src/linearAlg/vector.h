@@ -16,3 +16,7 @@ void traverseVector(const Vector& v, std::function<void(size_t, double)> f);
 double operator*(const Vector&, const Vector&);
 
 Vector operator*(double e, const Vector& v);
+
+Vector operator*(const Vector& v, double e);
+
+Vector operator+(const Vector& v1, const Vector& v2);

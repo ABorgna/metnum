@@ -54,3 +54,40 @@ Vector operator*(const Matriz& M, const Vector& v) {
     }
     return ans;
 }
+
+Matriz operator*(const Matriz& M1, const Matriz& M2){
+    assert(M1[0].size() == M2.size());
+    Matriz ans(M1.size(), Vector(M2[0].size()));
+
+    for(size_t i = 0; i < ans.size(); i++){
+        for (size_t j = 0; j < ans[i].size(); j++){
+            for (size_t k = 0; k < M2.size(); k++){
+                ans[i][j] += M1[i][k]*M2[k][j];
+            }
+        }
+    }
+    return ans;
+}
+
+Matriz Id(int n){
+    Matriz ans(n, Vector(n, 0));
+
+    for (size_t i = 0; i < n; i++)
+        ans[i][i] = 1;
+
+    return ans;
+}
+
+Matriz logexp(const Matriz& M, int exp){
+    assert(M.size() == M[0].size());
+    if (exp == 0)
+        return Id(M.size());
+
+    Matriz rec(logexp(M, exp >> 1));
+
+    if (exp & 1){
+        return M*rec*rec;
+    }else{
+        return rec*rec;
+    }
+}

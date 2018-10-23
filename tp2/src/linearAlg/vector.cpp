@@ -32,3 +32,16 @@ Vector operator*(double e, const Vector& v){
                    [=](double vi) { return vi*e;});
     return ans;
 }
+
+Vector operator*(const Vector& v, double e){
+    return e*v;
+}
+
+Vector operator+(const Vector& v1, const Vector& v2){
+    assert(v1.size() == v2.size());
+    Vector ans(v1.size());
+    for (size_t i = 0; i < v1.size(); i++){
+        ans[i] = v1[i] + v2[i];
+    }
+    return ans;
+}
