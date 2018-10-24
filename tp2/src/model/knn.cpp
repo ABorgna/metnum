@@ -35,12 +35,16 @@ bool decideFromQueue(NeighQueue& queue) {
 
 template <typename V, typename W>
 bool dumbKnn(const entry::Entries<V>& entries, const entry::Entry<W>& test,
-             int k, const Vector&) {
+             int k, Norm norm, const Vector& sumEntries) {
     NeighQueue queue;
 
     // Get the nearest k polarities
     for (const auto& e : entries) {
-        double dist = distanciaN(e.bag_of_words, test.bag_of_words, normP(1));
+        double dist;
+        if (norm == NORM_CHI2)
+            dist = distanciaChi2(e.bag_of_words, test.bag_of_words, sumEntries);
+        else
+            dist = distanciaN(e.bag_of_words, test.bag_of_words, norm);
         pushIfBetter(queue, k, dist, e.is_positive);
     }
 
@@ -81,8 +85,8 @@ void InvertedIndexKNN<V, W>::precomputeInvIndex() {
 
 // TODO: Document this better if we actually use it
 template <typename V, typename W>
-bool InvertedIndexKNN<V, W>::knn(const entry::Entry<W>& testEntry,
-                                 int k) const {
+bool InvertedIndexKNN<V, W>::knn(const entry::Entry<W>& testEntry, int k,
+                                 Norm norm) const {
     // Queue with (num entry, word number, entry position for number in the
     // inverted array)
     typedef std::tuple<int, int, size_t> QueueItem;
@@ -107,8 +111,12 @@ bool InvertedIndexKNN<V, W>::knn(const entry::Entry<W>& testEntry,
         std::tie(entryId, word, posInInvArray) = entriesQueue.top();
 
         const auto& entry = entries[entryId];
-        double dist =
-            distanciaN(entry.bag_of_words, testEntry.bag_of_words, normP(1));
+        double dist;
+        if (norm == NORM_CHI2)
+            dist = distanciaChi2(entry.bag_of_words, testEntry.bag_of_words,
+                                 sumVocab);
+        else
+            dist = distanciaN(entry.bag_of_words, testEntry.bag_of_words, norm);
         pushIfBetter(neighQueue, k, dist, entry.is_positive);
 
         while (not entriesQueue.empty() and
@@ -129,8 +137,9 @@ bool InvertedIndexKNN<V, W>::knn(const entry::Entry<W>& testEntry,
 template <typename TrainVector, typename TestVector>
 std::ostream& operator<<(std::ostream& os,
                          const InvertedIndexKNN<TrainVector, TestVector>& knn) {
-    std::tuple<entry::Entries<TrainVector>, int, std::vector<std::vector<int>>>
-        tup(knn.entries, knn.vocabSize, knn.invertedIndex);
+    std::tuple<entry::Entries<TrainVector>, int, std::vector<std::vector<int>>,
+               Vector>
+        tup(knn.entries, knn.vocabSize, knn.invertedIndex, knn.sumVocab);
     writeNamedTuple(os, "InvertedIndexKNN", tup);
     return os;
 }
@@ -138,10 +147,11 @@ std::ostream& operator<<(std::ostream& os,
 template <typename TrainVector, typename TestVector>
 std::istream& operator>>(std::istream& is,
                          InvertedIndexKNN<TrainVector, TestVector>& knn) {
-    std::tuple<entry::Entries<TrainVector>, int, std::vector<std::vector<int>>>
+    std::tuple<entry::Entries<TrainVector>, int, std::vector<std::vector<int>>,
+               Vector>
         tup;
     readNamedTuple(is, "InvertedIndexKNN", tup);
-    std::tie(knn.entries, knn.vocabSize, knn.invertedIndex) = tup;
+    std::tie(knn.entries, knn.vocabSize, knn.invertedIndex, knn.sumVocab) = tup;
 
     // Invalid data
     if (knn.vocabSize <= 0) {
@@ -154,12 +164,12 @@ std::istream& operator>>(std::istream& is,
 // Explicit instantiations for the exported functions
 template bool dumbKnn<SparseVector, SparseVector>(
     const entry::Entries<SparseVector>&, const entry::Entry<SparseVector>&, int,
-    const Vector&);
+    Norm, const Vector&);
 template bool dumbKnn<SparseVector, Vector>(const entry::Entries<SparseVector>&,
                                             const entry::Entry<Vector>&, int,
-                                            const Vector&);
+                                            Norm, const Vector&);
 template bool dumbKnn<Vector, Vector>(const entry::Entries<Vector>&,
-                                      const entry::Entry<Vector>&, int,
+                                      const entry::Entry<Vector>&, int, Norm,
                                       const Vector&);
 
 template class InvertedIndexKNN<SparseVector, SparseVector>;

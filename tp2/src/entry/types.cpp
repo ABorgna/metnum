@@ -9,9 +9,11 @@ bool operator<(const VocabToken& x, const VocabToken& y) {
 // Super ad-hoc auxiliary function
 template <typename V>
 Vector sumEntries(const Entries<V>& es) {
-    Vector res;
-    for(const auto& e : es)
+    if(es.size() == 0) return Vector();
+    Vector res(es[0].bag_of_words.size());
+    for(const auto& e : es) {
       res += e.bag_of_words;
+    }
     return res;
 }
 

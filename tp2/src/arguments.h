@@ -2,6 +2,8 @@
 
 #include <string>
 
+#include "linearAlg/linearAlg.h"
+
 enum Method {
     KNN,
     KNN_INVERTED,
@@ -31,6 +33,7 @@ struct Options {
     Method method;
     int k;      // kNN hyper-parameter
     int alpha;  // PCA hyper-parameter
+    Norm norm;  // Norm for the distances used in the kNN
 
     int debug;
     int dontTest;

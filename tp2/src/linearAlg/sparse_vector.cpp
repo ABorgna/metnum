@@ -69,7 +69,7 @@ SparseVector::const_iterator SparseVector::end() const noexcept {
 }
 
 // Zip two vectors together and reduce the result.
-double accumulate2(std::function<double(double, double)> f, double init,
+double accumulate2(std::function<double(size_t, double, double)> f, double init,
                    const SparseVector& v1, const SparseVector& v2,
                    std::function<double(double, double)> op) {
     auto it1 = v1.begin();
@@ -77,49 +77,46 @@ double accumulate2(std::function<double(double, double)> f, double init,
     double res = init;
 
     while (it1 != v1.end() and it2 != v2.end()) {
-        if (it1->first < it2->first) {
-            res = op(res, f((it1++)->second, 0));
-        } else if (it1->first > it2->first) {
-            res = op(res, f(0, (it2++)->second));
+        size_t index = std::min(it1->first, it2->first);
+        if (index < it2->first) {
+            res = op(res, f(index, (it1++)->second, 0));
+        } else if (index < it1->first) {
+            res = op(res, f(index, 0, (it2++)->second));
         } else {
-            res = op(res, f((it1++)->second, (it2++)->second));
+            res = op(res, f(index, (it1++)->second, (it2++)->second));
         }
     }
     for (; it1 != v1.end(); it1++) {
-        res = op(res, f(it1->second, 0));
+        res = op(res, f(it1->first, it1->second, 0));
     }
     for (; it2 != v2.end(); it2++) {
-        res = op(res, f(0, it2->second));
+        res = op(res, f(it2->first, 0, it2->second));
     }
     return res;
 }
 
 // Zip two vectors together and reduce the result.
-double accumulate2(std::function<double(double, double)> f, double init,
+double accumulate2(std::function<double(size_t, double, double)> f, double init,
                    const SparseVector& v1, const Vector& v2,
                    std::function<double(double, double)> op) {
     auto it1 = v1.begin();
     double res = init;
 
     for (size_t i = 0; i < v2.size(); i++) {
-        if (it1 == v1.end()) {
-            res = op(res, f(0, v2[i]));
-            continue;
-        }
-        if (it1->first == i) {
-            res = op(res, f((it1++)->second, v2[i]));
+        if (it1 == v1.end() or it1->first > i) {
+            res = op(res, f(i, 0, v2[i]));
         } else {
-            res = op(res, f(0, v2[i]));
+            res = op(res, f(i, (it1++)->second, v2[i]));
         }
     }
     return res;
 }
 
-double accumulate2(std::function<double(double, double)> f, double init,
+double accumulate2(std::function<double(size_t, double, double)> f, double init,
                    const Vector& v1, const SparseVector& v2,
                    std::function<double(double, double)> op) {
-    return accumulate2([&f](double x, double y) { return f(y, x); }, init, v2,
-                       v1, op);
+    auto flipped = [&f](size_t i, double x, double y) { return f(i, y, x); };
+    return accumulate2(flipped, init, v2, v1, op);
 }
 
 void traverseVector(const SparseVector& v,

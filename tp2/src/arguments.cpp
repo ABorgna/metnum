@@ -2,6 +2,7 @@
 #include "analysis.h"
 
 #include <getopt.h>
+#include <algorithm>
 #include <iostream>
 
 using namespace std;
@@ -44,6 +45,11 @@ void printHelp(const string& cmd, const Options& defaults) {
          << defaults.k << ")" << endl
          << "    -a #           Alpha hyper-parameter for PCA (Default: "
          << defaults.alpha << ")" << endl
+         << "    -n, --norm <norm>" << endl
+         << "                   Norm used in the kNN:" << endl
+         << "                     #: p-norm (default: 1)" << endl
+         << "                     INF: L∞-norm" << endl
+         << "                     CHI2: Chi-squared norm" << endl
          << "    -Q, --no-test  Only run the training step. Save the model "
             "using -c."
          << endl
@@ -103,7 +109,7 @@ bool parseArguments(int argc, char* argv[], const Options& defaults,
     const string cmd = argv[0];
     opt = defaults;
 
-    const char* const short_opts = "hvm:t:Qq:p:o:c:C:a:k:j:";
+    const char* const short_opts = "hvm:t:Qq:p:o:c:C:a:k:j:n:";
     const option long_opts[] = {
         /* These options set a flag. */
         {"verbose", no_argument, &opt.debug, 1},
@@ -120,6 +126,7 @@ bool parseArguments(int argc, char* argv[], const Options& defaults,
         {"test-entries", required_argument, nullptr, 4},
         {"cache", required_argument, nullptr, 'C'},
         {"no-cache", no_argument, nullptr, 5},
+        {"norm", required_argument, nullptr, 'n'},
         {0, 0, 0, 0}};
 
     while (true) {
@@ -215,6 +222,25 @@ bool parseArguments(int argc, char* argv[], const Options& defaults,
             case 'j': {
                 int tmp = stoi(optarg);
                 opt.nThreads = tmp;
+            } break;
+            case 'n': {
+                // norm
+                auto s = std::string(optarg);
+                std::transform(s.begin(), s.end(), s.begin(),
+                               [](unsigned char c) { return std::tolower(c); });
+                if (s == "chi2") {
+                    opt.norm = NORM_CHI2;
+                } else if (s == "inf") {
+                    opt.norm = NORM_INF;
+                } else {
+                    int num = stoi(optarg);
+                    if (num > 0) {
+                        opt.norm = normP(num);
+                    } else {
+                        cerr << "Invalid norm value " << optarg << endl;
+                        return false;
+                    }
+                }
             } break;
             case '?':
                 if (optopt == 't' || optopt == 'q' || optopt == 'o' ||
