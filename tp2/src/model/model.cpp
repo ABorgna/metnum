@@ -10,13 +10,14 @@ template <typename Tr, typename Te>
 ModelKNNtmp<Tr, Te>::ModelKNNtmp(){};
 
 template <typename Tr, typename Te>
-ModelKNNtmp<Tr, Te>::ModelKNNtmp(entry::Entries<Tr>&& entries, int k)
-    : trainEntries(entries), k(k) {
+ModelKNNtmp<Tr, Te>::ModelKNNtmp(entry::Entries<Tr>&& entries, int k, Norm norm)
+    : trainEntries(entries), k(k), norm(norm) {
     sumVocab = entry::sumEntries(trainEntries);
 };
 
 template <typename Tr, typename Te>
-ModelKNNtmp<Tr, Te>::ModelKNNtmp(std::istream& is, int k) : k(k) {
+ModelKNNtmp<Tr, Te>::ModelKNNtmp(std::istream& is, int k, Norm norm)
+    : k(k), norm(norm) {
     is >> trainEntries;
 }
 
@@ -45,11 +46,13 @@ template <typename Tr, typename Te>
 ModelKNNInvtmp<Tr, Te>::ModelKNNInvtmp(){};
 
 template <typename Tr, typename Te>
-ModelKNNInvtmp<Tr, Te>::ModelKNNInvtmp(entry::Entries<Tr>&& entries, int k)
-    : invKnn(move(entries)), k(k){};
+ModelKNNInvtmp<Tr, Te>::ModelKNNInvtmp(entry::Entries<Tr>&& entries, int k,
+                                       Norm norm)
+    : invKnn(move(entries)), k(k), norm(norm){};
 
 template <typename Tr, typename Te>
-ModelKNNInvtmp<Tr, Te>::ModelKNNInvtmp(std::istream& is, int k) : k(k) {
+ModelKNNInvtmp<Tr, Te>::ModelKNNInvtmp(std::istream& is, int k, Norm norm)
+    : k(k), norm(norm) {
     is >> invKnn;
 }
 
@@ -74,14 +77,15 @@ template class ModelKNNInvtmp<Vector, Vector>;
 /********** PCA+KNN model ************/
 
 template <typename T>
-ModelPCA<T>::ModelPCA(entry::SpEntries&& entries, int k, int alpha,
+ModelPCA<T>::ModelPCA(entry::SpEntries&& entries, int k, int alpha, Norm norm,
                       int nthreads)
-    : PCTrans(entries, alpha, nthreads), analyzer(PCTrans.tcs(entries), k){};
+    : PCTrans(entries, alpha, nthreads),
+      analyzer(PCTrans.tcs(entries), k, norm){};
 
 template <typename T>
-ModelPCA<T>::ModelPCA(std::istream& is, int k) {
+ModelPCA<T>::ModelPCA(std::istream& is, int k, Norm norm) {
     is >> PCTrans;
-    analyzer = T(is, k);
+    analyzer = T(is, k, norm);
 }
 
 template <typename T>

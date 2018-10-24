@@ -35,6 +35,7 @@ const Options defaultOptions = {
     method : PCAKNN,
     k : 20,
     alpha : 10,
+    norm : normP(1),
 
     // Print all the info by default (TODO: set this to false later?)
     debug : true,
@@ -135,21 +136,21 @@ bool fromCache(const Options& opts, const Model<SparseVector>*& model) {
     try {
         switch (opts.method) {
             case KNN:
-                model = new ModelKNN(stream, opts.k);
+                model = new ModelKNN(stream, opts.k, opts.norm);
                 res = true;
                 break;
             case KNN_INVERTED:
-                model = new ModelKNNInv(stream, opts.k);
+                model = new ModelKNNInv(stream, opts.k, opts.norm);
                 res = true;
                 break;
             case PCAKNN:
-                model =
-                    new ModelPCA<ModelKNNtmp<Vector, Vector>>(stream, opts.k);
+                model = new ModelPCA<ModelKNNtmp<Vector, Vector>>(
+                    stream, opts.k, opts.norm);
                 res = true;
                 break;
             case PCAKNN_INVERTED:
-                model = new ModelPCA<ModelKNNInvtmp<Vector, Vector>>(stream,
-                                                                     opts.k);
+                model = new ModelPCA<ModelKNNInvtmp<Vector, Vector>>(
+                    stream, opts.k, opts.norm);
                 res = true;
                 break;
             default:
@@ -166,15 +167,15 @@ const Model<SparseVector>* makeModel(const Options& opts,
                                      entry::SpEntries&& entries) {
     switch (opts.method) {
         case KNN:
-            return new ModelKNN(move(entries), opts.k);
+            return new ModelKNN(move(entries), opts.k, opts.norm);
         case KNN_INVERTED:
-            return new ModelKNNInv(move(entries), opts.k);
+            return new ModelKNNInv(move(entries), opts.k, opts.norm);
         case PCAKNN:
             return new ModelPCA<ModelKNNtmp<Vector, Vector>>(
-                move(entries), opts.k, opts.alpha, opts.nThreads);
+                move(entries), opts.k, opts.alpha, opts.norm, opts.nThreads);
         case PCAKNN_INVERTED:
             return new ModelPCA<ModelKNNInvtmp<Vector, Vector>>(
-                move(entries), opts.k, opts.alpha, opts.nThreads);
+                move(entries), opts.k, opts.alpha, opts.norm, opts.nThreads);
         default:
             (throw std::runtime_error("Invalid method!"));
     }
@@ -382,7 +383,7 @@ int main(int argc, char* argv[]) {
     }
 
     /*************** Test the model ********************/
-    Stats stats = {0,0,0,0,0};
+    Stats stats = {0, 0, 0, 0, 0};
     if (doTest) {
         DEBUG("---------------- Testing -----------------");
         timeKeeper.start("testing");
