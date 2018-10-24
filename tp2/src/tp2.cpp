@@ -17,7 +17,7 @@ using namespace std;
 
 const size_t SEED = 42;
 // Used to invalidate the models cache
-const size_t VERSION = 1;
+const size_t VERSION = 2;
 
 const Options defaultOptions = {
     trainFilename : "data/imdb_tokenized.csv",
@@ -123,8 +123,8 @@ bool fromCache(const Options& opts, const Model<SparseVector>*& model) {
     size_t version;
     stream >> version;
     if (version < VERSION) {
-        DEBUG("Old cache version "
-              << version << ",ignoring. (Current: " << VERSION << ")");
+        DEBUG("Ignoring old cache file. (File version: "
+              << version << ", Current: " << VERSION << ")");
         return false;
     }
     stream.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
