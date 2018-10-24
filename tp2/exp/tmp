@@ -1,4 +1,0 @@
-Ejecutando ahora 
-../tp2 -q ../data/imdb_tokenized.csv --vocabulary ../data/vocab.csv -m 2 -a 6.444444444444445 -t ../data/imdb_tokenized.csv --test-entries 20 --train-entries 20
-Ejecutando ahora 
-../tp2 --train-entries 20 -t ../data/imdb_tokenized.csv --test-entries 20 -m 2 --vocabulary ../data/vocab.csv -q ../data/imdb_tokenized.csv -a 6.444444444444445
