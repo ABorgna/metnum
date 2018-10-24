@@ -280,6 +280,7 @@ void analyzeStats(std::ostream& outStream, const Options& opts,
     const double f1 = 2 * precision * recall / (precision + recall);
 
     outStream << "method: " << showMethod(opts.method) << endl;
+    outStream << "norm: " << showNorm(opts.norm) << endl;
     outStream << "k: " << opts.k << endl;
     if (opts.method == PCAKNN)
         outStream << "alpha: " << opts.alpha << endl;

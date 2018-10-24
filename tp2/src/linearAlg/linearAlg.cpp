@@ -4,6 +4,20 @@
 #include <algorithm>
 #include <cassert>
 
+std::string showNorm(Norm norm) {
+    switch (norm) {
+        case (NORM_CHI2):
+            return "Chi-square";
+        case (NORM_INF):
+            return "L-inf";
+        default:
+            if ((int)norm > 0)
+                return "L" + std::to_string((int)norm);
+            else
+                return "Unknown norm";
+    }
+}
+
 double norma(const Vector& v, int n) {
     double res = 0;
     for_each(v.begin(), v.end(), [&res, n](double x) { res += pow(x, n); });

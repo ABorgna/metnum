@@ -12,10 +12,12 @@ typedef std::vector<Vector> Matriz;  // vector de filas
 enum Norm {
     NORM_CHI2 = -1,
     NORM_INF = 0,
-    NORM_P = 0,  // NORM_P + p
+    NORM_P = 0,  // NORM_P = p
 };
 
 inline Norm normP(int n) { return (Norm)(NORM_P + n); };
+
+std::string showNorm(Norm);
 
 // Normas (L2 si no se especifica)
 double norma(const Vector&, int = 2);
