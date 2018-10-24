@@ -226,18 +226,20 @@ bool parseArguments(int argc, char* argv[], const Options& defaults,
             case 'n': {
                 // norm
                 auto s = std::string(optarg);
-                int num = stoi(optarg);
                 std::transform(s.begin(), s.end(), s.begin(),
                                [](unsigned char c) { return std::tolower(c); });
                 if (s == "chi2") {
                     opt.norm = NORM_CHI2;
                 } else if (s == "inf") {
                     opt.norm = NORM_INF;
-                } else if (num > 0) {
-                    opt.norm = normP(num);
                 } else {
-                    cerr << "Invalid norm value " << optarg << endl;
-                    return false;
+                    int num = stoi(optarg);
+                    if (num > 0) {
+                        opt.norm = normP(num);
+                    } else {
+                        cerr << "Invalid norm value " << optarg << endl;
+                        return false;
+                    }
                 }
             } break;
             case '?':

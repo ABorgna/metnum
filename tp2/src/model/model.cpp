@@ -19,6 +19,7 @@ template <typename Tr, typename Te>
 ModelKNNtmp<Tr, Te>::ModelKNNtmp(std::istream& is, int k, Norm norm)
     : k(k), norm(norm) {
     is >> trainEntries;
+    is >> sumVocab;
 }
 
 template <typename Tr, typename Te>
@@ -29,11 +30,12 @@ bool ModelKNNtmp<Tr, Te>::shouldCache() const {
 template <typename Tr, typename Te>
 void ModelKNNtmp<Tr, Te>::saveCache(std::ostream& os) const {
     os << trainEntries << std::endl;
+    os << sumVocab << std::endl;
 }
 
 template <typename Tr, typename Te>
 bool ModelKNNtmp<Tr, Te>::analyze(const entry::Entry<Te>& test) const {
-    return dumbKnn<Tr, Te>(trainEntries, test, k, sumVocab);
+    return dumbKnn<Tr, Te>(trainEntries, test, k, norm, sumVocab);
 }
 
 template class ModelKNNtmp<SparseVector, SparseVector>;
@@ -68,7 +70,7 @@ void ModelKNNInvtmp<Tr, Te>::saveCache(std::ostream& os) const {
 
 template <typename Tr, typename Te>
 bool ModelKNNInvtmp<Tr, Te>::analyze(const entry::Entry<Te>& test) const {
-    return invKnn.knn(test, k);
+    return invKnn.knn(test, k, norm);
 }
 
 template class ModelKNNInvtmp<SparseVector, SparseVector>;
