@@ -22,18 +22,15 @@ template <typename V, typename W>
 double distanciaN(const V& v1, const W& v2, Norm norm) {
     double res;
     switch (norm) {
-        case NORM_CHI2:
-            res = 1;
-            break;
         case NORM_INF: {
-            auto f = [](double t1, double t2) { return fabs(t1 - t2); };
+            auto f = [](size_t, double t1, double t2) { return fabs(t1 - t2); };
             res = accumulate2(f, 0, v1, v2, [](double a, double b) {
                 return std::max(a, b);
             });
         } break;
         default: {  // p-norm
             assert((int)norm > 0);
-            auto f = [norm](double t1, double t2) {
+            auto f = [norm](size_t, double t1, double t2) {
                 return pow(fabs(t1 - t2), (double)norm);
             };
             res = accumulate2(f, 0, v1, v2);
@@ -47,6 +44,25 @@ template double distanciaN(const SparseVector& v1, const Vector& v2, Norm norm);
 template double distanciaN(const Vector& v1, const SparseVector& v2, Norm norm);
 template double distanciaN(const SparseVector& v1, const SparseVector& v2,
                            Norm norm);
+
+// Auxiliar para calcular la distancia entre vectores (densos o ralos).
+template <typename V, typename W>
+double distanciaChi2(const V& v1, const W& v2, const Vector& sums) {
+    assert(sums.size() == v1.size());
+    auto f = [sums](size_t index, double t1, double t2) {
+        return (t1 - t2) * (t1 - t2) / sums[index];
+    };
+    return accumulate2(f, 0, v1, v2);
+}
+
+template double distanciaChi2(const Vector& v1, const Vector& v2,
+                              const Vector& sums);
+template double distanciaChi2(const SparseVector& v1, const Vector& v2,
+                              const Vector& sums);
+template double distanciaChi2(const Vector& v1, const SparseVector& v2,
+                              const Vector& sums);
+template double distanciaChi2(const SparseVector& v1, const SparseVector& v2,
+                              const Vector& sums);
 
 Vector operator*(const Matriz& M, const Vector& v) {
     assert(M.size() > 0);

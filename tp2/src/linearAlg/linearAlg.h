@@ -21,9 +21,13 @@ inline Norm normP(int n) { return (Norm)(NORM_P + n); };
 double norma(const Vector&, int = 2);
 double norma(const SparseVector&, int = 2);
 
-// Distancia norma N a la N
+// Distancia vectorial norma N a la N
 template <typename V, typename W>
 double distanciaN(const V&, const W&, Norm = normP(2));
+
+// Distancia vectorial chi cuadrado
+template <typename V, typename W>
+double distanciaChi2(const V&, const W&, const Vector& sumEntries);
 
 Vector operator*(const Matriz& M, const Vector& V);
 
