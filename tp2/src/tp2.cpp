@@ -17,7 +17,7 @@ using namespace std;
 
 const size_t SEED = 42;
 // Used to invalidate the models cache
-const size_t VERSION = 1;
+const size_t VERSION = 2;
 
 const Options defaultOptions = {
     trainFilename : "data/imdb_tokenized.csv",
@@ -35,6 +35,7 @@ const Options defaultOptions = {
     method : PCAKNN,
     k : 20,
     alpha : 10,
+    norm : normP(1),
 
     // Print all the info by default (TODO: set this to false later?)
     debug : true,
@@ -122,8 +123,8 @@ bool fromCache(const Options& opts, const Model<SparseVector>*& model) {
     size_t version;
     stream >> version;
     if (version < VERSION) {
-        DEBUG("Old cache version "
-              << version << ",ignoring. (Current: " << VERSION << ")");
+        DEBUG("Ignoring old cache file. (File version: "
+              << version << ", Current: " << VERSION << ")");
         return false;
     }
     stream.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
@@ -135,21 +136,21 @@ bool fromCache(const Options& opts, const Model<SparseVector>*& model) {
     try {
         switch (opts.method) {
             case KNN:
-                model = new ModelKNN(stream, opts.k);
+                model = new ModelKNN(stream, opts.k, opts.norm);
                 res = true;
                 break;
             case KNN_INVERTED:
-                model = new ModelKNNInv(stream, opts.k);
+                model = new ModelKNNInv(stream, opts.k, opts.norm);
                 res = true;
                 break;
             case PCAKNN:
-                model =
-                    new ModelPCA<ModelKNNtmp<Vector, Vector>>(stream, opts.k);
+                model = new ModelPCA<ModelKNNtmp<Vector, Vector>>(
+                    stream, opts.k, opts.norm);
                 res = true;
                 break;
             case PCAKNN_INVERTED:
-                model = new ModelPCA<ModelKNNInvtmp<Vector, Vector>>(stream,
-                                                                     opts.k);
+                model = new ModelPCA<ModelKNNInvtmp<Vector, Vector>>(
+                    stream, opts.k, opts.norm);
                 res = true;
                 break;
             default:
@@ -166,15 +167,15 @@ const Model<SparseVector>* makeModel(const Options& opts,
                                      entry::SpEntries&& entries) {
     switch (opts.method) {
         case KNN:
-            return new ModelKNN(move(entries), opts.k);
+            return new ModelKNN(move(entries), opts.k, opts.norm);
         case KNN_INVERTED:
-            return new ModelKNNInv(move(entries), opts.k);
+            return new ModelKNNInv(move(entries), opts.k, opts.norm);
         case PCAKNN:
             return new ModelPCA<ModelKNNtmp<Vector, Vector>>(
-                move(entries), opts.k, opts.alpha, opts.nThreads);
+                move(entries), opts.k, opts.alpha, opts.norm, opts.nThreads);
         case PCAKNN_INVERTED:
             return new ModelPCA<ModelKNNInvtmp<Vector, Vector>>(
-                move(entries), opts.k, opts.alpha, opts.nThreads);
+                move(entries), opts.k, opts.alpha, opts.norm, opts.nThreads);
         default:
             (throw std::runtime_error("Invalid method!"));
     }
@@ -279,6 +280,7 @@ void analyzeStats(std::ostream& outStream, const Options& opts,
     const double f1 = 2 * precision * recall / (precision + recall);
 
     outStream << "method: " << showMethod(opts.method) << endl;
+    outStream << "norm: " << showNorm(opts.norm) << endl;
     outStream << "k: " << opts.k << endl;
     if (opts.method == PCAKNN)
         outStream << "alpha: " << opts.alpha << endl;
@@ -382,7 +384,7 @@ int main(int argc, char* argv[]) {
     }
 
     /*************** Test the model ********************/
-    Stats stats = {0,0,0,0,0};
+    Stats stats = {0, 0, 0, 0, 0};
     if (doTest) {
         DEBUG("---------------- Testing -----------------");
         timeKeeper.start("testing");

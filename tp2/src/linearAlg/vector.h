@@ -9,9 +9,9 @@
 typedef std::vector<double> Vector;
 
 double accumulate2(
-    std::function<double(double, double)> f, double init, const Vector&,
+    std::function<double(size_t, double, double)> f, double init, const Vector&,
     const Vector&,
-    std::function<double(double, double)> op = std::plus<double>{});
+    std::function<double(double, double)> acum = std::plus<double>{});
 
 void traverseVector(const Vector& v, std::function<void(size_t, double)> f);
 

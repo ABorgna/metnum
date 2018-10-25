@@ -30,13 +30,14 @@ class ModelKNNtmp : public Model<TestVector> {
     entry::Entries<TrainVector> trainEntries;
     Vector sumVocab;
     int k;  // Number of neighbours to use with kNN
+    Norm norm;
 
    public:
     ModelKNNtmp();
-    ModelKNNtmp(entry::Entries<TrainVector>&&, int k);
+    ModelKNNtmp(entry::Entries<TrainVector>&&, int k, Norm);
 
     // Load the trained model from a cache file
-    ModelKNNtmp(std::istream&, int k);
+    ModelKNNtmp(std::istream&, int k, Norm);
 
     // Store the trained model in a cache file
     void saveCache(std::ostream&) const override;
@@ -52,13 +53,14 @@ class ModelKNNInvtmp : public Model<TestVector> {
    private:
     InvertedIndexKNN<TrainVector, TestVector> invKnn;
     int k;  // Number of neighbours to use with kNN
+    Norm norm;
 
    public:
     ModelKNNInvtmp();
-    ModelKNNInvtmp(entry::Entries<TrainVector>&&, int k);
+    ModelKNNInvtmp(entry::Entries<TrainVector>&&, int k, Norm);
 
     // Load the trained model from a cache file
-    ModelKNNInvtmp(std::istream&, int k);
+    ModelKNNInvtmp(std::istream&, int k, Norm);
 
     // Store the trained model in a cache file
     void saveCache(std::ostream&) const override;
@@ -77,10 +79,10 @@ class ModelPCA : public Model<SparseVector> {
     T analyzer;
 
    public:
-    ModelPCA(entry::SpEntries&&, int k, int alpha, int nthreads = -1);
+    ModelPCA(entry::SpEntries&&, int k, int alpha, Norm, int nthreads = -1);
 
     // Load the trained model from a cache file
-    ModelPCA(std::istream&, int k);
+    ModelPCA(std::istream&, int k, Norm);
 
     // Store the trained model in a cache file
     void saveCache(std::ostream&) const override;
