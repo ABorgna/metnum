@@ -12,7 +12,7 @@ def ejecutar_y_escribir_resultado_variando_alpha(exp_args):
     min_k = exp_args["MIN_K"]
     max_k = exp_args["MAX_K"]
 
-    resultado = open("./tiempos_variando_alpha_k"+str(min_alpha)+"_"+str(max_alpha)+"_"+str(min_k)+"_"+str(max_k)+".csv", "w")
+    resultado = open("./res/tiempos_variando_alpha_k"+str(min_alpha)+"_"+str(max_alpha)+"_"+str(min_k)+"_"+str(max_k)+".csv", "w")
     resultado.write("accuracy,alpha,k,testing entries,recall,falseP,falseN,trueN,trueP,tiempo\n") # header
     
     for k in list(numpy.linspace(min_k, max_k, exp_args["CANT_K"]))[1:-1]:
@@ -42,18 +42,18 @@ def ejecutar_y_escribir_resultado_variando_alpha(exp_args):
 
 
 
-exp_args = {"CANT_ALPHA": 50,
+exp_args = {"CANT_ALPHA": 10,
             "MIN_ALPHA": 1,
-            "MAX_ALPHA": 1000,
-            "CANT_K": 50,
+            "MAX_ALPHA": 50,
+            "CANT_K": 10,
             "MIN_K": 1,
             "MAX_K": 100,
             "VOCAB_FILE": "../data/vocab.csv",
             "TRAINING_FILE": "../data/imdb_tokenized.csv",
             "TESTING_FILE": "../data/imdb_tokenized.csv",
             "METHOD_NUMBER": 2,
-            "NUMBER_OF_TRAINING_ENTRIES": 25000,
-            "NUMBER_OF_TESTING_ENTRIES": 25000}
+            "NUMBER_OF_TRAINING_ENTRIES": 10000,
+            "NUMBER_OF_TESTING_ENTRIES": 2500}
 
 print("Ejecutando ahora ")
 ejecutar_y_escribir_resultado_variando_alpha(exp_args)
