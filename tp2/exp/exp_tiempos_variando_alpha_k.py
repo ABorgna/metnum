@@ -21,6 +21,7 @@ def ejecutar_y_escribir_resultado_variando_alpha(exp_args):
                             "-t": exp_args["TRAINING_FILE"],
                             "-q": exp_args["TESTING_FILE"],
                             "-m": exp_args["METHOD_NUMBER"],
+                            "--maxVocabFreq" : 0.1,
                             "-k" : k,
                             "--train-entries": exp_args["NUMBER_OF_TRAINING_ENTRIES"],
                             "--test-entries": exp_args["NUMBER_OF_TESTING_ENTRIES"],
