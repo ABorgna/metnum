@@ -1,12 +1,8 @@
-import exp_variando_k_alpha_invertedknn
-import exp_tiempos_variando_alpha_k
+import exp_pca_n_vs_sin_pca.py
 
 try:
-    exp_tiempos_variando_alpha_k()
+    exp_pca_n_vs_sin_pca.py()
 except:
-    print("ERROR: exp_tiempos_variando_alpha_k")
+    print("ERROR: exp_pca_n_vs_sin_pca")
 
-try:
-    exp_variando_k_alpha_invertedknn()
-except:
-    print("ERROR: exp_variando_k_alpha_invertedknn")
+print("---------------------------------------------")
