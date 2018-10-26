@@ -23,6 +23,8 @@ def ejecutar_y_escribir_resultado_variando_alpha(exp_args):
                             "-q": exp_args["TESTING_FILE"],
                             "-m": exp_args["METHOD_NUMBER"],
                             "-k" : k,
+                            "--cache": exp_args["CACHE_FOLDER"],
+                            "--maxVocabFreq" : 0.1,
                             "--train-entries": exp_args["NUMBER_OF_TRAINING_ENTRIES"],
                             "--test-entries": exp_args["NUMBER_OF_TESTING_ENTRIES"],
                             #"-o" : "./res_variando_alpha"+str(min_alpha)+"_"+str(max_alpha)+".csv",
@@ -47,8 +49,9 @@ exp_args = {"CANT_ALPHA": 15,
             "TRAINING_FILE": "../data/imdb_tokenized.csv",
             "TESTING_FILE": "../data/imdb_tokenized.csv",
             "METHOD_NUMBER": 3,
-            "NUMBER_OF_TRAINING_ENTRIES": 5000,
-            "NUMBER_OF_TESTING_ENTRIES": 5000}
+            "CACHE_FOLDER": "../cache/",
+            "NUMBER_OF_TRAINING_ENTRIES": 10000,
+            "NUMBER_OF_TESTING_ENTRIES": 25000}
 
 print("Ejecutando ahora ")
 ejecutar_y_escribir_resultado_variando_alpha(exp_args)
