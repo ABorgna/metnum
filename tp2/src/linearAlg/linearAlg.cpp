@@ -6,6 +6,8 @@
 
 std::string showNorm(Norm norm) {
     switch (norm) {
+        case (NORM_RANDOM):
+            return "Random";
         case (NORM_CHI2):
             return "Chi-square";
         case (NORM_INF):
@@ -31,7 +33,6 @@ double norma(const SparseVector& v, int n) {
     return pow(res, 1.0 / ((double)n));
 }
 
-// Auxiliar para calcular la distancia entre vectores (densos o ralos).
 template <typename V, typename W>
 double distanciaN(const V& v1, const W& v2, Norm norm) {
     double res;
@@ -59,7 +60,6 @@ template double distanciaN(const Vector& v1, const SparseVector& v2, Norm norm);
 template double distanciaN(const SparseVector& v1, const SparseVector& v2,
                            Norm norm);
 
-// Auxiliar para calcular la distancia entre vectores (densos o ralos).
 template <typename V, typename W>
 double distanciaChi2(const V& v1, const W& v2, const Vector& sums) {
     assert(sums.size() == v1.size());
@@ -77,6 +77,16 @@ template double distanciaChi2(const Vector& v1, const SparseVector& v2,
                               const Vector& sums);
 template double distanciaChi2(const SparseVector& v1, const SparseVector& v2,
                               const Vector& sums);
+
+template <typename V, typename W>
+double distanciaRandom(const V&, const W&) {
+    return (double)rand() + 1;
+}
+
+template double distanciaRandom(const Vector& v1, const Vector& v2);
+template double distanciaRandom(const SparseVector& v1, const Vector& v2);
+template double distanciaRandom(const Vector& v1, const SparseVector& v2);
+template double distanciaRandom(const SparseVector& v1, const SparseVector& v2);
 
 Vector operator*(const Matriz& M, const Vector& v) {
     assert(M.size() > 0);
