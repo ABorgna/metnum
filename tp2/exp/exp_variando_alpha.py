@@ -3,6 +3,7 @@ import time
 from exp_base import *
 
 def escribir_resultados_en_archivo(res, resultado):
+    tiempo_ns = res["time-testing"][:res["time-testing"].find("ms")]
     resultado.write("{},{},{},{}\n".format(res["accuracy"], res["alpha"], res["k"],res["countEntries"]))
 
 def ejecutar_y_escribir_resultado_variando_alpha(exp_args):
@@ -18,6 +19,7 @@ def ejecutar_y_escribir_resultado_variando_alpha(exp_args):
                         "-t": exp_args["TRAINING_FILE"],
                         "-q": exp_args["TESTING_FILE"],
                         "-m": exp_args["METHOD_NUMBER"],
+                        "--maxVocabFreq" : 0.1,
                         "--train-entries": exp_args["NUMBER_OF_TRAINING_ENTRIES"],
                         "--test-entries": exp_args["NUMBER_OF_TESTING_ENTRIES"],
                         #"-o" : "./res_variando_alpha"+str(min_alpha)+"_"+str(max_alpha)+".csv",
@@ -33,15 +35,15 @@ def ejecutar_y_escribir_resultado_variando_alpha(exp_args):
 
 
 
-exp_args = {"CANT_ALPHA": 100,
+exp_args = {"CANT_ALPHA": 30,
             "MIN_ALPHA": 1,
-            "MAX_ALPHA": 50,
+            "MAX_ALPHA": 100,
             "VOCAB_FILE": "../data/vocab.csv",
             "TRAINING_FILE": "../data/imdb_tokenized.csv",
             "TESTING_FILE": "../data/imdb_tokenized.csv",
             "METHOD_NUMBER": 2,
-            "NUMBER_OF_TRAINING_ENTRIES": 5000,
-            "NUMBER_OF_TESTING_ENTRIES": 5000}
+            "NUMBER_OF_TRAINING_ENTRIES": 7500,
+            "NUMBER_OF_TESTING_ENTRIES": 10000}
 
 print("Ejecutando ahora ")
 ejecutar_y_escribir_resultado_variando_alpha(exp_args)

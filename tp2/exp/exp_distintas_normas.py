@@ -4,6 +4,7 @@ from exp_base import *
 
 
 def escribir_resultados_en_archivo(res, resultado, tiempo_ns, norma):
+    tiempo_ns = res["time-testing"][:res["time-testing"].find("ms")]
     resultado.write("{},{},{},{},{},{},{},{},{},{},{}\n".format(res["accuracy"], res["alpha"], res["k"],res["countEntries"], res["recall"], res["falseP"], res["falseN"], res["trueN"], res["trueP"],tiempo_ns, norma))
 
 def ejecutar_y_escribir_resultado_variando_norma(exp_args):
@@ -88,8 +89,8 @@ exp_args = {"VOCAB_FILE": "../data/vocab.csv",
             "TRAINING_FILE": "../data/imdb_tokenized.csv",
             "TESTING_FILE": "../data/imdb_tokenized.csv",
             "METHOD_NUMBER": 2,
-            "NUMBER_OF_TRAINING_ENTRIES": 2500,
-            "NUMBER_OF_TESTING_ENTRIES": 250}
+            "NUMBER_OF_TRAINING_ENTRIES": 10000,
+            "NUMBER_OF_TESTING_ENTRIES": 25000}
 
 print("Ejecutando ahora ")
 ejecutar_y_escribir_resultado_variando_norma(exp_args)
