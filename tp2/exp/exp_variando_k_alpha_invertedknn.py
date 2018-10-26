@@ -2,8 +2,9 @@ import numpy
 import time
 from exp_base import *
 
-def escribir_resultados_en_archivo(res, resultado, tiempo_ns):
-    resultado.write("{},{},{},{},{},{},{},{},{},{}\n".format(res["accuracy"], res["alpha"], res["k"],res["countEntries"], res["recall"], res["falseP"], res["falseN"], res["trueN"], res["trueP"],tiempo_ns))
+def escribir_resultados_en_archivo(res, resultado, alpha):
+    tiempo_ns = res["time-testing"][:res["time-testing"].find("ms")]
+    resultado.write("{},{},{},{},{},{},{},{},{},{}\n".format(res["accuracy"], alpha, res["k"],res["countEntries"], res["recall"], res["falseP"], res["falseN"], res["trueN"], res["trueP"],tiempo_ns))
 
 def ejecutar_y_escribir_resultado_variando_alpha(exp_args):
     min_alpha = exp_args["MIN_ALPHA"]
@@ -28,32 +29,26 @@ def ejecutar_y_escribir_resultado_variando_alpha(exp_args):
                             "-a": alpha,
                 "--quiet": ""}
 
-            tiempo_inicial = time.time()
-
             output = ejecutar_con_args(program_args)
-            tiempo_final = time.time()
-
-            tiempo_ns = tiempo_final - tiempo_inicial
-            #escribir_resultados_en_archivo(input_name, cant_nodos, nro_intento, tiempo_ns, t_args, t_file)
-            res = (parsear_output(output)) 
-            escribir_resultados_en_archivo(res, resultado, tiempo_ns)
+            res = parsear_output(output)
+            escribir_resultados_en_archivo(res, resultado, alpha)
         print(res["accuracy"])
     resultado.close()
 
 
 
-exp_args = {"CANT_ALPHA": 5,
-            "MIN_ALPHA": 10,
-            "MAX_ALPHA": 50,
-            "CANT_K": 10,
+exp_args = {"CANT_ALPHA": 15,
+            "MIN_ALPHA": 1,
+            "MAX_ALPHA": 200,
+            "CANT_K": 15,
             "MIN_K": 1,
-            "MAX_K": 50,
+            "MAX_K": 100,
             "VOCAB_FILE": "../data/vocab.csv",
             "TRAINING_FILE": "../data/imdb_tokenized.csv",
             "TESTING_FILE": "../data/imdb_tokenized.csv",
             "METHOD_NUMBER": 3,
-            "NUMBER_OF_TRAINING_ENTRIES": 2000,
-            "NUMBER_OF_TESTING_ENTRIES": 2000}
+            "NUMBER_OF_TRAINING_ENTRIES": 5000,
+            "NUMBER_OF_TESTING_ENTRIES": 5000}
 
 print("Ejecutando ahora ")
 ejecutar_y_escribir_resultado_variando_alpha(exp_args)

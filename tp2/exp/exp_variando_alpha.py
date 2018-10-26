@@ -33,15 +33,15 @@ def ejecutar_y_escribir_resultado_variando_alpha(exp_args):
 
 
 
-exp_args = {"CANT_ALPHA": 10,
+exp_args = {"CANT_ALPHA": 100,
             "MIN_ALPHA": 1,
             "MAX_ALPHA": 50,
             "VOCAB_FILE": "../data/vocab.csv",
             "TRAINING_FILE": "../data/imdb_tokenized.csv",
             "TESTING_FILE": "../data/imdb_tokenized.csv",
             "METHOD_NUMBER": 2,
-            "NUMBER_OF_TRAINING_ENTRIES": 20,
-            "NUMBER_OF_TESTING_ENTRIES": 20}
+            "NUMBER_OF_TRAINING_ENTRIES": 5000,
+            "NUMBER_OF_TESTING_ENTRIES": 5000}
 
 print("Ejecutando ahora ")
 ejecutar_y_escribir_resultado_variando_alpha(exp_args)
