@@ -6,6 +6,7 @@
 #include <thread>
 
 #include "arguments.h"
+#include "model/potencia.h"
 #include "debug.h"
 #include "entry/reader.h"
 #include "entry/vector_builder.h"
@@ -20,12 +21,12 @@ const size_t SEED = 42;
 const size_t VERSION = 2;
 
 const Options defaultOptions = {
-    trainFilename : "data/imdb_tokenized.csv",
-    testFilename : "data/imdb_tokenized.csv",
+    trainFilename : "../data/imdb_tokenized.csv",
+    testFilename : "../data/imdb_tokenized.csv",
     outFilename : "-",
     cachePath : "cache",
     classifFilename : "",
-    vocabFilename : "data/vocab.csv",
+    vocabFilename : "../data/vocab.csv",
     minVocabFreq : 0.01,
     maxVocabFreq : 0.99,
 
@@ -305,6 +306,11 @@ void showTimes(std::ostream& outStream, const TimeKeeper& timeKeeper) {
 }
 
 int main(int argc, char* argv[]) {
+<<<<<<< HEAD
+
+    const string cmd = argv[0];
+=======
+>>>>>>> 3dc5a479076c4a77c56c6c5f79af5c42d2bd3abd
     Options options;
     TimeKeeper timeKeeper;
     const string cmd = argv[0];

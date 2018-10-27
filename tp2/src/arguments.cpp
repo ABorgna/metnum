@@ -162,7 +162,7 @@ bool parseArguments(int argc, char* argv[], const Options& defaults,
             } break;
             case 3: {
                 // Max train entries
-                int n = stoi(optarg);
+                int n = std::stoi(optarg);
                 // Negative means no limit
                 if (n < 0)
                     n = -1;

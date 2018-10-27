@@ -22,7 +22,3 @@ def tomar_tiempo_ejecucion_con_args(args):
     ejecutar_con_args(args)
     after = time.time_ns()
     return after - before
-
-
-
-

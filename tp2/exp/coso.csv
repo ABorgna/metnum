@@ -1,0 +1,10 @@
+method: PCA+KNN
+k: 3
+alpha: 610
+countEntries: 200
+trueP: 0
+falseP: 0
+trueN: 200
+falseN: 0
+accuracy: nan
+recall: nan
