@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <exception>
 #include <iostream>
+#include <queue>
 #include <thread>
 
 #include "arguments.h"
@@ -11,12 +12,13 @@
 #include "entry/vector_builder.h"
 #include "files.h"
 #include "model/model.h"
+#include "timer.h"
 
 using namespace std;
 
 const size_t SEED = 42;
 // Used to invalidate the models cache
-const size_t VERSION = 1;
+const size_t VERSION = 2;
 
 const Options defaultOptions = {
     trainFilename : "../data/imdb_tokenized.csv",
@@ -32,8 +34,9 @@ const Options defaultOptions = {
     maxTestEntries : -1,
 
     method : PCAKNN,
-    k : 3,
+    k : 20,
     alpha : 10,
+    norm : normP(1),
 
     // Print all the info by default (TODO: set this to false later?)
     debug : true,
@@ -121,8 +124,8 @@ bool fromCache(const Options& opts, const Model<SparseVector>*& model) {
     size_t version;
     stream >> version;
     if (version < VERSION) {
-        DEBUG("Old cache version "
-              << version << ",ignoring. (Current: " << VERSION << ")");
+        DEBUG("Ignoring old cache file. (File version: "
+              << version << ", Current: " << VERSION << ")");
         return false;
     }
     stream.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
@@ -134,21 +137,21 @@ bool fromCache(const Options& opts, const Model<SparseVector>*& model) {
     try {
         switch (opts.method) {
             case KNN:
-                model = new ModelKNN(stream, opts.k);
+                model = new ModelKNN(stream, opts.k, opts.norm);
                 res = true;
                 break;
             case KNN_INVERTED:
-                model = new ModelKNNInv(stream, opts.k);
+                model = new ModelKNNInv(stream, opts.k, opts.norm);
                 res = true;
                 break;
             case PCAKNN:
-                model =
-                    new ModelPCA<ModelKNNtmp<Vector, Vector>>(stream, opts.k);
+                model = new ModelPCA<ModelKNNtmp<Vector, Vector>>(
+                    stream, opts.k, opts.norm);
                 res = true;
                 break;
             case PCAKNN_INVERTED:
-                model = new ModelPCA<ModelKNNInvtmp<Vector, Vector>>(stream,
-                                                                     opts.k);
+                model = new ModelPCA<ModelKNNInvtmp<Vector, Vector>>(
+                    stream, opts.k, opts.norm);
                 res = true;
                 break;
             default:
@@ -165,29 +168,31 @@ const Model<SparseVector>* makeModel(const Options& opts,
                                      entry::SpEntries&& entries) {
     switch (opts.method) {
         case KNN:
-            return new ModelKNN(move(entries), opts.k);
+            return new ModelKNN(move(entries), opts.k, opts.norm);
         case KNN_INVERTED:
-            return new ModelKNNInv(move(entries), opts.k);
+            return new ModelKNNInv(move(entries), opts.k, opts.norm);
         case PCAKNN:
             return new ModelPCA<ModelKNNtmp<Vector, Vector>>(
-                move(entries), opts.k, opts.alpha);
+                move(entries), opts.k, opts.alpha, opts.norm, opts.nThreads);
         case PCAKNN_INVERTED:
             return new ModelPCA<ModelKNNInvtmp<Vector, Vector>>(
-                move(entries), opts.k, opts.alpha);
+                move(entries), opts.k, opts.alpha, opts.norm, opts.nThreads);
         default:
             (throw std::runtime_error("Invalid method!"));
     }
 }
 
-void testModel(const Options& opts, const Model<SparseVector>* model,
-               const entry::SpEntries& testEntries) {
-    struct Stats {
-        int total;
-        int trueP;
-        int falseP;
-        int trueN;
-        int falseN;
-    };
+struct Stats {
+    int total;
+    int trueP;
+    int falseP;
+    int trueN;
+    int falseN;
+};
+
+Stats testModel(const Options& opts, const Model<SparseVector>* model,
+                const entry::SpEntries& testEntries) {
+    const bool writeClassif = opts.classifFilename != "";
 
     // Number of threads to utilize
     size_t nThreads;
@@ -200,83 +205,115 @@ void testModel(const Options& opts, const Model<SparseVector>* model,
     }
     DEBUG("Running on " << nThreads << " threads.");
 
-    auto analizeSome = [&testEntries, &model](size_t from, size_t to,
-                                              Stats* s) {
+    auto analyzeSome = [&testEntries, &model, writeClassif](
+                           size_t from, size_t to, Stats* outStats,
+                           std::queue<bool>* classifications) {
+        Stats s{0, 0, 0, 0, 0};
         // Get the nearest k polarities
         for (size_t i = from; i < to; i++) {
             const auto& entry = testEntries[i];
             bool expected = entry.is_positive;
-            bool result = model->analize(entry);
+            bool result = model->analyze(entry);
 
-            s->total++;
+            if (writeClassif)
+                classifications->push(result);
+
+            s.total++;
             if (expected and result)
-                s->trueP++;
+                s.trueP++;
             else if (not expected and not result)
-                s->trueN++;
+                s.trueN++;
             else if (not expected and result)
-                s->falseP++;
+                s.falseP++;
             else if (expected and not result)
-                s->falseN++;
+                s.falseN++;
         }
+        *outStats = s;
     };
 
     // Analyze the entries in multiple threads
     const size_t step = ((testEntries.size() - 1) / nThreads) + 1;
     std::vector<Stats> threadStats = std::vector<Stats>(nThreads);
+    std::vector<std::queue<bool>> threadClassif =
+        std::vector<std::queue<bool>>(nThreads);
     std::vector<std::thread> threads;
     for (size_t i = 0; i < nThreads; i++) {
         size_t from = step * i;
         size_t to = min(step * (i + 1), testEntries.size());
-        std::thread t(analizeSome, from, to, &threadStats[i]);
+        std::thread t(analyzeSome, from, to, &threadStats[i],
+                      &threadClassif[i]);
         threads.push_back(std::move(t));
     }
 
     // Wait for everyone
     for (auto& t : threads) t.join();
 
-    // Merge the statistics
-    int total = 0;
-    int trueP = 0;
-    int falseP = 0;
-    int trueN = 0;
-    int falseN = 0;
-    for (const auto& s : threadStats) {
-        total += s.total;
-        trueP += s.trueP;
-        falseP += s.falseP;
-        trueN += s.trueN;
-        falseN += s.falseN;
+    // Print each test result to a "classifications" file
+    if (writeClassif) {
+        auto classifFile = Output(opts.classifFilename);
+        for (auto& q : threadClassif) {
+            while (not q.empty()) {
+                classifFile.stream() << (int)q.front() << endl;
+                q.pop();
+            }
+        }
+        classifFile.close();
     }
 
-    // auto classifFile = Output(opts.classifFilename);
-    // Print each test result to a "classifications" file
-    // classifFile.stream() << (int)result << endl;
-    // classifFile.close();
+    // Merge the statistics
+    Stats res = {0, 0, 0, 0, 0};
+    for (const auto& s : threadStats) {
+        res.total += s.total;
+        res.trueP += s.trueP;
+        res.falseP += s.falseP;
+        res.trueN += s.trueN;
+        res.falseN += s.falseN;
+    }
 
-    const double accuracy = (double)trueP / (trueP + falseP);
-    const double recall = (double)trueP / (trueP + falseN);
+    return res;
+}
 
-    // TODO: Output statistics about the model instead of this
-    auto outFile = Output(opts.outFilename);
-    auto& outStream = outFile.stream();
+void analyzeStats(std::ostream& outStream, const Options& opts,
+                  const Stats& s) {
+    const double accuracy = (double)(s.trueP + s.trueN) / s.total;
+    const double precision = (double)s.trueP / (s.trueP + s.falseP);
+    const double recall = (double)s.trueP / (s.trueP + s.falseN);
+    const double f1 = 2 * precision * recall / (precision + recall);
+
     outStream << "method: " << showMethod(opts.method) << endl;
+    outStream << "norm: " << showNorm(opts.norm) << endl;
     outStream << "k: " << opts.k << endl;
-    if (opts.method == PCAKNN)
+    if (opts.method == PCAKNN || opts.method == PCAKNN_INVERTED)
         outStream << "alpha: " << opts.alpha << endl;
-    outStream << "countEntries: " << total << endl;
-    outStream << "trueP: " << trueP << endl;
-    outStream << "falseP: " << falseP << endl;
-    outStream << "trueN: " << trueN << endl;
-    outStream << "falseN: " << falseN << endl;
+
+    outStream << "countEntries: " << s.total << endl;
+    outStream << "trueP: " << s.trueP << endl;
+    outStream << "falseP: " << s.falseP << endl;
+    outStream << "trueN: " << s.trueN << endl;
+    outStream << "falseN: " << s.falseN << endl;
     outStream << "accuracy: " << accuracy << endl;
+    outStream << "precision: " << precision << endl;
     outStream << "recall: " << recall << endl;
-    outFile.close();
+    outStream << "f1: " << f1 << endl;
+}
+
+void showTimes(std::ostream& outStream, const TimeKeeper& timeKeeper) {
+    for (const auto& p : timeKeeper.registry) {
+        const std::string& label = p.first;
+        const auto& millis = p.second;
+        outStream << "time-" << label << ": " << millis.count() << "ms" << endl;
+    }
 }
 
 int main(int argc, char* argv[]) {
+<<<<<<< HEAD
 
     const string cmd = argv[0];
+=======
+>>>>>>> 3dc5a479076c4a77c56c6c5f79af5c42d2bd3abd
     Options options;
+    TimeKeeper timeKeeper;
+    const string cmd = argv[0];
     string fullCmd = string(argv[0]);
     for (int i = 1; i < argc; i++) fullCmd += " " + string(argv[i]);
 
@@ -292,7 +329,9 @@ int main(int argc, char* argv[]) {
     if (options.cachePath != "") {
         DEBUG("---------------- Reading model cache ------------");
         DEBUG("Loading from " << cacheFilename(options));
+        timeKeeper.start("loadCache");
         validCache = fromCache(options, model);
+        timeKeeper.stop();
     }
 
     /*************** Read the entries ********************/
@@ -304,8 +343,10 @@ int main(int argc, char* argv[]) {
 
     const bool doTrain = not validCache;
     const bool doTest = not options.dontTest;
+    timeKeeper.start("loadData");
     bool res = readEntries(options, vocabulary, trainEntries, testEntries,
                            doTrain, doTest);
+    timeKeeper.stop();
     if (not res)
         return -2;
 
@@ -327,9 +368,11 @@ int main(int argc, char* argv[]) {
     if (doTrain) {
         /*************** Train the model ********************/
         DEBUG("---------------- Training ----------------");
+        timeKeeper.start("training");
         model = makeModel(options, move(trainEntries));
+        timeKeeper.stop();
 
-        if (options.cachePath != "") {
+        if (options.cachePath != "" and model->shouldCache()) {
             DEBUG("---------------- Storing cache ------------");
             auto cacheFile = Output(cacheFilename(options));
             if (cacheFile.fail()) {
@@ -338,17 +381,30 @@ int main(int argc, char* argv[]) {
             }
             cacheFile.stream() << VERSION << endl;
             cacheFile.stream() << fullCmd << endl;
+            timeKeeper.start("saveCache");
             model->saveCache(cacheFile.stream());
+            timeKeeper.stop();
             cacheFile.close();
             DEBUG("Stored in " << cacheFilename(options));
         }
     }
 
     /*************** Test the model ********************/
+    Stats stats = {0, 0, 0, 0, 0};
     if (doTest) {
         DEBUG("---------------- Testing -----------------");
-        testModel(options, model, testEntries);
+        timeKeeper.start("testing");
+        stats = testModel(options, model, testEntries);
+        timeKeeper.stop();
     }
+
+    DEBUG("---------------- Results -----------------");
+    auto outFile = Output(options.outFilename);
+    auto& outStream = outFile.stream();
+    if (doTest)
+        analyzeStats(outStream, options, stats);
+    showTimes(outStream, timeKeeper);
+    outFile.close();
 
     delete model;
 

@@ -5,8 +5,7 @@ import subprocess
 import time
 
 def parsear_output(output):
-    sep = "---------------- Testing -----------------"
-    output = output[output.find(sep) + len(sep) + 1:-1].split("\n") # ['param: val', ..., 'param: val']
+    output = output.strip().split("\n")                                     # ['param: val', ..., 'param: val']
     output = [elem.split(": ") for elem in output]                  # [['param','val'], ..., ['param', 'val]]
     output = dict(output)                                           # {'param': val', ..., 'param': val}
     return output

@@ -11,30 +11,39 @@ class Model {
    public:
     virtual ~Model();
 
+    // Indicates if this model should be cached.
+    //
+    // This should return false when it is cheap to retrain the model
+    // and we can avoid storing the cache.
+    virtual bool shouldCache() const = 0;
+
     // Store the trained model in a cache file
     virtual void saveCache(std::ostream&) const = 0;
 
     // Analize an entry and decide its polarity, using kNN(k).
-    virtual bool analize(const entry::Entry<TestVector>&) const = 0;
+    virtual bool analyze(const entry::Entry<TestVector>&) const = 0;
 };
 
 template <typename TrainVector, typename TestVector>
 class ModelKNNtmp : public Model<TestVector> {
    private:
     entry::Entries<TrainVector> trainEntries;
+    Vector sumVocab;
     int k;  // Number of neighbours to use with kNN
+    Norm norm;
 
    public:
     ModelKNNtmp();
-    ModelKNNtmp(entry::Entries<TrainVector>&&, int k);
+    ModelKNNtmp(entry::Entries<TrainVector>&&, int k, Norm);
 
     // Load the trained model from a cache file
-    ModelKNNtmp(std::istream&, int k);
+    ModelKNNtmp(std::istream&, int k, Norm);
 
     // Store the trained model in a cache file
     void saveCache(std::ostream&) const override;
+    bool shouldCache() const override;
 
-    bool analize(const entry::Entry<TestVector>&) const override;
+    bool analyze(const entry::Entry<TestVector>&) const override;
 };
 
 typedef ModelKNNtmp<SparseVector, SparseVector> ModelKNN;
@@ -44,18 +53,20 @@ class ModelKNNInvtmp : public Model<TestVector> {
    private:
     InvertedIndexKNN<TrainVector, TestVector> invKnn;
     int k;  // Number of neighbours to use with kNN
+    Norm norm;
 
    public:
     ModelKNNInvtmp();
-    ModelKNNInvtmp(entry::Entries<TrainVector>&&, int k);
+    ModelKNNInvtmp(entry::Entries<TrainVector>&&, int k, Norm);
 
     // Load the trained model from a cache file
-    ModelKNNInvtmp(std::istream&, int k);
+    ModelKNNInvtmp(std::istream&, int k, Norm);
 
     // Store the trained model in a cache file
     void saveCache(std::ostream&) const override;
+    bool shouldCache() const override;
 
-    bool analize(const entry::Entry<TestVector>&) const override;
+    bool analyze(const entry::Entry<TestVector>&) const override;
 };
 
 typedef ModelKNNInvtmp<SparseVector, SparseVector> ModelKNNInv;
@@ -68,13 +79,14 @@ class ModelPCA : public Model<SparseVector> {
     T analyzer;
 
    public:
-    ModelPCA(entry::SpEntries&&, int k, int alpha);
+    ModelPCA(entry::SpEntries&&, int k, int alpha, Norm, int nthreads = -1);
 
     // Load the trained model from a cache file
-    ModelPCA(std::istream&, int k);
+    ModelPCA(std::istream&, int k, Norm);
 
     // Store the trained model in a cache file
     void saveCache(std::ostream&) const override;
+    bool shouldCache() const override;
 
-    bool analize(const entry::SpEntry&) const override;
+    bool analyze(const entry::SpEntry&) const override;
 };

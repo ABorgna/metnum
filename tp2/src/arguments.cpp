@@ -1,6 +1,8 @@
 #include "arguments.h"
+#include "analysis.h"
 
 #include <getopt.h>
+#include <algorithm>
 #include <iostream>
 
 using namespace std;
@@ -27,6 +29,7 @@ void printHelp(const string& cmd, const Options& defaults) {
          << "    -h, --help     Show this help message." << endl
          << "    -v, --verbose  Print debug info to stderr." << endl
          << "        --quiet    Do not print debug info." << endl
+         << "        --analyze  Save analysis on the analyze/ folder." << endl
          << "    -j <threads>   Number of threads to utilize. (Default: # of "
             "cores)"
          << endl
@@ -42,6 +45,12 @@ void printHelp(const string& cmd, const Options& defaults) {
          << defaults.k << ")" << endl
          << "    -a #           Alpha hyper-parameter for PCA (Default: "
          << defaults.alpha << ")" << endl
+         << "    -n, --norm <norm>" << endl
+         << "                   Norm used in the kNN:" << endl
+         << "                     #: p-norm (default: 1)" << endl
+         << "                     INF: L∞-norm" << endl
+         << "                     CHI2: Chi-squared norm" << endl
+         << "                     RANDOM: Random norm (yay!)" << endl
          << "    -Q, --no-test  Only run the training step. Save the model "
             "using -c."
          << endl
@@ -77,7 +86,7 @@ void printHelp(const string& cmd, const Options& defaults) {
          << "                   Test at most n entries." << endl
          << endl
          << "  VOCABULARY" << endl
-         << "    -p, --vocabulary <file>"
+         << "    -p, --vocabulary <file>" << endl
          << "                   File with the vocabulary." << endl
          << "                   (Default: '" << defaults.vocabFilename << "')"
          << endl
@@ -101,11 +110,12 @@ bool parseArguments(int argc, char* argv[], const Options& defaults,
     const string cmd = argv[0];
     opt = defaults;
 
-    const char* const short_opts = "hvm:t:Qq:p:o:c:C:a:k:j:";
+    const char* const short_opts = "hvm:t:Qq:p:o:c:C:a:k:j:n:";
     const option long_opts[] = {
         /* These options set a flag. */
         {"verbose", no_argument, &opt.debug, 1},
         {"quiet", no_argument, &opt.debug, 0},
+        {"analyze", no_argument, &analyze, 1},
         {"no-test", no_argument, &opt.dontTest, 1},
         /* These options receive a parameter. */
         {"help", no_argument, nullptr, 'h'},
@@ -117,6 +127,7 @@ bool parseArguments(int argc, char* argv[], const Options& defaults,
         {"test-entries", required_argument, nullptr, 4},
         {"cache", required_argument, nullptr, 'C'},
         {"no-cache", no_argument, nullptr, 5},
+        {"norm", required_argument, nullptr, 'n'},
         {0, 0, 0, 0}};
 
     while (true) {
@@ -213,6 +224,27 @@ bool parseArguments(int argc, char* argv[], const Options& defaults,
                 int tmp = stoi(optarg);
                 opt.nThreads = tmp;
             } break;
+            case 'n': {
+                // norm
+                auto s = std::string(optarg);
+                std::transform(s.begin(), s.end(), s.begin(),
+                               [](unsigned char c) { return std::tolower(c); });
+                if (s == "random") {
+                    opt.norm = NORM_RANDOM;
+                } else if (s == "chi2") {
+                    opt.norm = NORM_CHI2;
+                } else if (s == "inf") {
+                    opt.norm = NORM_INF;
+                } else {
+                    int num = stoi(optarg);
+                    if (num > 0) {
+                        opt.norm = normP(num);
+                    } else {
+                        cerr << "Invalid norm value " << optarg << endl;
+                        return false;
+                    }
+                }
+            } break;
             case '?':
                 if (optopt == 't' || optopt == 'q' || optopt == 'o' ||
                     optopt == 'c') {
@@ -242,7 +274,7 @@ size_t trainingCacheKey(const Options& o) {
            std::hash<std::string>{}(o.vocabFilename) ^
            std::hash<double>{}(o.minVocabFreq) ^
            std::hash<double>{}(o.maxVocabFreq) ^
-           std::hash<double>{}(o.maxTestEntries) ^
+           std::hash<double>{}(o.maxTrainEntries) ^
            std::hash<size_t>{}((size_t)o.method) ^ std::hash<int>{}(o.alpha);
 }
 

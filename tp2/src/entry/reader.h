@@ -14,16 +14,10 @@ enum EntryType {
 };
 
 /**
- *  Parsea el archivo de reviews tokenizadas.
- *  El archivo en cuestión no debe tener una línea vacía al final.
- **/
-void read_entries(std::istream& file, TokenizedEntries&);
-
-/**
  *  Parsea el archivo de reviews tokenizadas, filtrando por el tipo de entry.
  *  El archivo en cuestión no debe tener una línea vacía al final.
  **/
-void read_entries(std::istream& file, TokenizedEntries&, EntryType);
+void read_entries(std::istream& file, TokenizedEntries&, EntryType = ENTRY_ALL);
 
 /**
  *  Parsea el archivo de reviews tokenizadas,
@@ -41,19 +35,9 @@ Vocabulary read_vocabulary(std::istream& file);
 Vocabulary read_vocabulary(std::istream& file, const VocabFilter&);
 
 /*
- * Filtro de vocabulario frecuente.
- */
-VocabFilter filterFrequent(double p);
-
-/*
- * Filtro de vocabulario infrecuente.
- */
-VocabFilter filterInfrequent(double p);
-
-/*
  * Filtro de vocabulario frecuente e infrecuente.
  */
-VocabFilter filterPassBand(double minP, double maxP);
+VocabFilter filterPassBand(double minP = 0, double maxP = 1);
 
 }  // namespace entry
 #endif  // READER__H

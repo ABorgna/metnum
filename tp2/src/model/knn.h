@@ -8,7 +8,8 @@
 // The dumbest possible implementation for knn
 template <typename TrainVector, typename TestVector>
 bool dumbKnn(const entry::Entries<TrainVector>& entries,
-             const entry::Entry<TestVector>& test, int k);
+             const entry::Entry<TestVector>& test, int k, Norm,
+             const Vector& sumVocab);
 
 /* Inverted index KNN.
  *
@@ -40,16 +41,18 @@ class InvertedIndexKNN {
     entry::Entries<TrainVector> entries;
     int vocabSize = 0;
     std::vector<std::vector<int>> invertedIndex;
+    Vector sumVocab;
 
     void precomputeInvIndex();
 
    public:
     InvertedIndexKNN();
     InvertedIndexKNN(const entry::Entries<TrainVector>&&);
-    bool knn(const entry::Entry<TestVector>& test, int k) const;
 
-    friend std::ostream& operator<< <>(
+    bool knn(const entry::Entry<TestVector>& test, int k, Norm) const;
+
+    friend std::ostream& operator<<<>(
         std::ostream&, const InvertedIndexKNN<TrainVector, TestVector>&);
-    friend std::istream& operator>> <>(
-        std::istream&, InvertedIndexKNN<TrainVector, TestVector>&);
+    friend std::istream& operator>>
+        <>(std::istream&, InvertedIndexKNN<TrainVector, TestVector>&);
 };

@@ -52,10 +52,6 @@ void read_entries(std::istream& file, TokenizedEntries& train_entries,
     DEBUG(train_entries.size() << " entries read.");
 }
 
-void read_entries(std::istream& file, TokenizedEntries& entries) {
-    read_entries(file, entries, ENTRY_ALL);
-}
-
 void read_entries(std::istream& file, TokenizedEntries& entries,
                   EntryType type) {
     read_entries(file, entries, entries, type);
@@ -105,14 +101,6 @@ Vocabulary read_vocabulary(std::istream& file, const VocabFilter& filter) {
 Vocabulary read_vocabulary(std::istream& file) {
     auto vocabulary = read_vocabulary(file, [](auto) { return false; });
     return vocabulary;
-}
-
-VocabFilter filterFrequent(double p) {
-    return [p](const VocabToken& t) { return t.frequency > p; };
-}
-
-VocabFilter filterInfrequent(double p) {
-    return [p](const VocabToken& t) { return t.frequency < p; };
 }
 
 VocabFilter filterPassBand(double minP, double maxP) {
