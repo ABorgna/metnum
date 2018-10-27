@@ -282,7 +282,7 @@ void analyzeStats(std::ostream& outStream, const Options& opts,
     outStream << "method: " << showMethod(opts.method) << endl;
     outStream << "norm: " << showNorm(opts.norm) << endl;
     outStream << "k: " << opts.k << endl;
-    if (opts.method == PCAKNN)
+    if (opts.method == PCAKNN || opts.method == PCAKNN_INVERTED)
         outStream << "alpha: " << opts.alpha << endl;
 
     outStream << "countEntries: " << s.total << endl;

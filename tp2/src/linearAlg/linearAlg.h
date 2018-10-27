@@ -10,6 +10,7 @@ typedef std::vector<Vector> Matriz;  // vector de filas
 
 // Vector norms
 enum Norm {
+    NORM_RANDOM = -2, // This may break everything
     NORM_CHI2 = -1,
     NORM_INF = 0,
     NORM_P = 0,  // NORM_P = p
@@ -30,6 +31,11 @@ double distanciaN(const V&, const W&, Norm = normP(2));
 // Distancia vectorial chi cuadrado
 template <typename V, typename W>
 double distanciaChi2(const V&, const W&, const Vector& sumEntries);
+
+// Distancia vectorial random
+// (no es una distancia)
+template <typename V, typename W>
+double distanciaRandom(const V&, const W&);
 
 Vector operator*(const Matriz& M, const Vector& V);
 

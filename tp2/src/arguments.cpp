@@ -50,6 +50,7 @@ void printHelp(const string& cmd, const Options& defaults) {
          << "                     #: p-norm (default: 1)" << endl
          << "                     INF: L∞-norm" << endl
          << "                     CHI2: Chi-squared norm" << endl
+         << "                     RANDOM: Random norm (yay!)" << endl
          << "    -Q, --no-test  Only run the training step. Save the model "
             "using -c."
          << endl
@@ -228,7 +229,9 @@ bool parseArguments(int argc, char* argv[], const Options& defaults,
                 auto s = std::string(optarg);
                 std::transform(s.begin(), s.end(), s.begin(),
                                [](unsigned char c) { return std::tolower(c); });
-                if (s == "chi2") {
+                if (s == "random") {
+                    opt.norm = NORM_RANDOM;
+                } else if (s == "chi2") {
                     opt.norm = NORM_CHI2;
                 } else if (s == "inf") {
                     opt.norm = NORM_INF;
