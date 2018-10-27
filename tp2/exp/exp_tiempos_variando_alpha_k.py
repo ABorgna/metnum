@@ -8,8 +8,8 @@ def escribir_resultados_en_archivo(res, resultado):
     resultado.write("{},{},{},{},{},{},{},{},{},{}\n".format(res["accuracy"], res["alpha"], res["k"],res["countEntries"], res["recall"], res["falseP"], res["falseN"], res["trueN"], res["trueP"],tiempo_ns))
 
 def ejecutar_y_escribir_resultado_variando_alpha(exp_args):
-    min_alpha = exp_args["MIN_ALPHA"]
-    max_alpha = exp_args["MAX_ALPHA"]
+    min_alpha = 1
+    max_alpha = 15
     min_k = exp_args["MIN_K"]
     max_k = exp_args["MAX_K"]
 
@@ -17,7 +17,7 @@ def ejecutar_y_escribir_resultado_variando_alpha(exp_args):
     resultado.write("accuracy,alpha,k,testing entries,recall,falseP,falseN,trueN,trueP,tiempo\n") # header
     
     for k in list(numpy.linspace(min_k, max_k, exp_args["CANT_K"]))[1:-1]:
-        for alpha in list(numpy.linspace(min_alpha, max_alpha, exp_args["CANT_ALPHA"]))[1:-1]:
+        for alpha in list(numpy.linspace(min_alpha, max_alpha, 15))[1:-1]:
             program_args = {"--vocabulary": exp_args["VOCAB_FILE"],
                             "-t": exp_args["TRAINING_FILE"],
                             "-q": exp_args["TESTING_FILE"],
@@ -40,6 +40,7 @@ def ejecutar_y_escribir_resultado_variando_alpha(exp_args):
 
 
 exp_args = {"ALPHA": 15,
+            
             "CANT_K": 15,
             "MIN_K": 1,
             "MAX_K": 100,
