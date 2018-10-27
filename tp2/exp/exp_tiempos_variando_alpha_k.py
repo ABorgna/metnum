@@ -39,9 +39,7 @@ def ejecutar_y_escribir_resultado_variando_alpha(exp_args):
 
 
 
-exp_args = {"CANT_ALPHA": 15,
-            "MIN_ALPHA": 1,
-            "MAX_ALPHA": 200,
+exp_args = {"ALPHA": 15,
             "CANT_K": 15,
             "MIN_K": 1,
             "MAX_K": 100,
