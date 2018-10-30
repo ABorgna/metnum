@@ -5,7 +5,7 @@ from exp_base import *
 
 def escribir_resultados_en_archivo(res, resultado):
     tiempo_ns = res["time-testing"][:res["time-testing"].find("ms")]
-    resultado.write("{},{},{},{},{},{},{},{},{},{}\n".format(res["accuracy"], res["alpha"], res["k"],res["countEntries"], res["recall"], res["falseP"], res["falseN"], res["trueN"], res["trueP"],tiempo_ns))
+    resultado.write("{},{},{},{},{},{},{},{},{},{},{}\n".format(res["accuracy"], res["alpha"], res["k"], res["countEntries"], res["recall"], res["falseP"], res["falseN"], res["trueN"], res["trueP"],res["precision"],tiempo_ns))
 
 def ejecutar_y_escribir_resultado_variando_alpha(exp_args):
     min_alpha = exp_args["MIN_ALPHA"]
@@ -14,7 +14,7 @@ def ejecutar_y_escribir_resultado_variando_alpha(exp_args):
     max_k = exp_args["MAX_K"]
 
     resultado = open("./tiempos_variando_alpha_k"+str(min_alpha)+"_"+str(max_alpha)+"_"+str(min_k)+"_"+str(max_k)+".csv", "w")
-    resultado.write("accuracy,alpha,k,testing entries,recall,falseP,falseN,trueN,trueP,tiempo\n") # header
+    resultado.write("accuracy,alpha,k,testing entries,recall,falseP,falseN,trueN,trueP,precisiontiempo\n") # header
     
     for k in list(numpy.linspace(min_k, max_k, exp_args["CANT_K"]))[1:-1]:
         for alpha in list(numpy.linspace(min_alpha, max_alpha, exp_args["CANT_ALPHA"]))[0:-1]:
@@ -39,9 +39,9 @@ def ejecutar_y_escribir_resultado_variando_alpha(exp_args):
 
 
 
-exp_args = {"CANT_ALPHA": 17,
+exp_args = {"CANT_ALPHA": 15,
 	    "MIN_ALPHA": 1,
-	    "MAX_ALPHA": 17,
+	    "MAX_ALPHA": 200,
             "CANT_K": 15,
             "MIN_K": 1,
             "MAX_K": 100,
