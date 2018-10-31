@@ -67,6 +67,10 @@ void printHelp(const string& cmd, const Options& defaults) {
          << "                   Use '-' for stdout." << endl
          << endl
          << "  ENTRIES" << endl
+         << "    -d <file>      File with training and testing set. Use '-' for stdin."
+         << endl
+         << "                   (Default: '" << defaults.trainFilename <<"')"
+         << endl
          << "    -t <file>      File with the training set. Use '-' for stdin."
          << endl
          << "                   (Default: '" << defaults.trainFilename << "')"
@@ -199,6 +203,10 @@ bool parseArguments(int argc, char* argv[], const Options& defaults,
                 if (tmp > 0)
                     opt.alpha = tmp;
             } break;
+            case 'd':
+                opt.trainFilename = optarg;
+                opt.testFilename = optarg;
+                break;
             case 't':
                 opt.trainFilename = optarg;
                 break;
