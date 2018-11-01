@@ -60,17 +60,26 @@ TrivialStopper::TrivialStopper(int ms, int iter, double eps)
 :eps(eps), dur(ms), start(std::chrono::system_clock::now()), iter(iter), iter_cnt(0){}
 
 bool TrivialStopper::operator()(const Vector& vk){
-	if (eps > 0 and iter_cnt and distanciaN(lastvk, vk, normP(2)) < eps)
-		return true;
+	int stop = 0; // 0 don't stop, 1 eps, 2 iter, 3 time
+	double epsk = distanciaN(lastvk, vk, normP(2));
+	if (eps > 0 and iter_cnt and epsk < eps){
+		stop = 1;
+	}
 	lastvk = vk;
 	iter_cnt++;
 	if(iter > 0 and iter_cnt > iter )
-		return true;
+		stop = 2;
 
 	if (dur > std::chrono::milliseconds(0) and std::chrono::system_clock::now()-start > dur)
-		return true;
+		stop = 3;
 
-	return false;
+	
+		GET_STREAM("potencia_conv", "STOP: " << stop << " EPS: " << epsk << " DELTA: " << 
+			std::chrono::duration_cast<std::chrono::milliseconds>
+			(std::chrono::system_clock::now()-start).count() <<
+			" ITER: " << iter_cnt);
+
+	return stop;
 }
 
 void TrivialStopper::reset(){
