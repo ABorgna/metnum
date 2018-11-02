@@ -114,7 +114,7 @@ bool parseArguments(int argc, char* argv[], const Options& defaults,
     const string cmd = argv[0];
     opt = defaults;
 
-    const char* const short_opts = "hvm:t:Qq:p:o:c:C:a:k:j:n:";
+    const char* const short_opts = "hvm:t:Qq:p:o:c:C:a:k:j:n:d:";
     const option long_opts[] = {
         /* These options set a flag. */
         {"verbose", no_argument, &opt.debug, 1},
