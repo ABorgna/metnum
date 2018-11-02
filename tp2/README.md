@@ -3,7 +3,7 @@ Métodos Numéricos (UBA) - 2do cuatrimestre 2018
 
 ## Compilación
 
-Simplemente correr `make`. Esto genera un ejecutable `./tp2`.
+Simplemente correr `make tp2`. Esto genera un ejecutable `./tp2`.
 
 ## Ejecución
 

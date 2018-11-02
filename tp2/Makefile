@@ -21,7 +21,7 @@ DATASET=$(DATADIR)/imdb_tokenized.csv
 
 .PHONY: all depend tests clean distclean dataset
 
-all: tp2
+all: dataset tp2
 
 test_tp2: CPPFLAGS+=-DTEST
 test_tp2: clean tp2
@@ -34,7 +34,7 @@ $(DATASET): $(DATASET_COMPRESSED)
 	tar xf $(DATASET_COMPRESSED) -C data/
 	@touch "$@"
 
-tp2: depend dataset $(OBJS)
+tp2: depend $(OBJS)
 	$(CXX) $(LDFLAGS) $(CPPFLAGS) -o tp2 $(OBJS) $(LDLIBS)
 
 tests: tp1 test/tester.py
