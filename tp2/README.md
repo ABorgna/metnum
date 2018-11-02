@@ -41,7 +41,7 @@ Options:
                    Directory for storing and reading the trained model cache.
         --no-cache
                    Don't use a cache for the model.
-    -c, --classif-file <file>
+    -o, --classif-file <file>
                    Output the classification results for each test case.
                    Use '-' for stdout.
 
@@ -52,7 +52,7 @@ Options:
                    (Default: 'data/imdb_tokenized.csv')
     -q <file>      File with the testing set. Use '-' for stdin.
                    (Default: 'data/imdb_tokenized.csv')
-    -o <file>      Output file with the test entries result. Use '-' for stdout.
+    -c <file>      Output file with the test entries result. Use '-' for stdout.
                    (Default: stdout)
         --train-entries n
                    Train at most n entries.
