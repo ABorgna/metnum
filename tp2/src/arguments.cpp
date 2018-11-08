@@ -52,7 +52,7 @@ void printHelp(const string& cmd, const Options& defaults) {
          << "                     CHI2: Chi-squared norm" << endl
          << "                     RANDOM: Random norm (yay!)" << endl
          << "    -Q, --no-test  Only run the training step. Save the model "
-            "using -c."
+            "using -C."
          << endl
          << "    -C, --cache <path>" << endl
          << "                   Directory for storing and reading the trained "
@@ -60,7 +60,7 @@ void printHelp(const string& cmd, const Options& defaults) {
          << endl
          << "        --no-cache" << endl
          << "                   Don't use a cache for the model." << endl
-         << "    -c, --classif-file <file>" << endl
+         << "    -o, --classif-file <file>" << endl
          << "                   Output the classification results for each "
             "test case."
          << endl
@@ -79,7 +79,7 @@ void printHelp(const string& cmd, const Options& defaults) {
          << endl
          << "                   (Default: '" << defaults.testFilename << "')"
          << endl
-         << "    -o <file>      Output file with the test entries result. Use "
+         << "    -c <file>      Output file with the test entries result. Use "
             "'-' "
             "for stdout."
          << endl
@@ -114,7 +114,7 @@ bool parseArguments(int argc, char* argv[], const Options& defaults,
     const string cmd = argv[0];
     opt = defaults;
 
-    const char* const short_opts = "hvm:t:Qq:p:o:c:C:a:k:j:n:";
+    const char* const short_opts = "hvm:t:Qq:p:o:c:C:a:k:j:n:d:";
     const option long_opts[] = {
         /* These options set a flag. */
         {"verbose", no_argument, &opt.debug, 1},
@@ -123,7 +123,7 @@ bool parseArguments(int argc, char* argv[], const Options& defaults,
         {"no-test", no_argument, &opt.dontTest, 1},
         /* These options receive a parameter. */
         {"help", no_argument, nullptr, 'h'},
-        {"classif-file", required_argument, nullptr, 'c'},
+        {"classif-file", required_argument, nullptr, 'o'},
         {"vocabulary", required_argument, nullptr, 'p'},
         {"minVocabFreq", required_argument, nullptr, 1},
         {"maxVocabFreq", required_argument, nullptr, 2},
@@ -219,10 +219,10 @@ bool parseArguments(int argc, char* argv[], const Options& defaults,
             case 'p':
                 opt.vocabFilename = optarg;
                 break;
-            case 'o':
+            case 'c':
                 opt.outFilename = optarg;
                 break;
-            case 'c':
+            case 'o':
                 opt.classifFilename = optarg;
                 break;
             case 'C':
