@@ -37,6 +37,7 @@ cache
 main
 tp1
 tp2
+tp3
 
 # Makefile misc
 .depend

@@ -1,11 +1,9 @@
 #pragma once
 
 #include <string>
-
-// TODO: Define these somewhere
-extern enum RayGenerator;
-extern enum ErrorGenerator;
-extern enum LSQMethod; // SVD - QR - Something else
+#include "model/ray.h"
+#include "model/error.h"
+#include "model/lsq.h"
 
 struct Options {
     // Image input and output

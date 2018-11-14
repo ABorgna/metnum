@@ -2,7 +2,6 @@
 
 #include <ctime>
 #include "../debug.h"
-#include "../analysis.h"
 
 Vector randomVector(int n){
 	std::srand(std::time(nullptr));
@@ -31,8 +30,6 @@ EigenValue potencia (const Matriz& B, Vector x0, StopPolicy stop){
 		}
 	}
 	#endif // TEST
-	GET_STREAM("potencia", "autov: " << autov << std::endl
-		<< "autovec: " << x0);
 	return {autov, x0};
 }
 
@@ -72,12 +69,6 @@ bool TrivialStopper::operator()(const Vector& vk){
 
 	if (dur > std::chrono::milliseconds(0) and std::chrono::system_clock::now()-start > dur)
 		stop = 3;
-
-	
-		GET_STREAM("potencia_conv", "STOP: " << stop << " EPS: " << epsk << " DELTA: " << 
-			std::chrono::duration_cast<std::chrono::milliseconds>
-			(std::chrono::system_clock::now()-start).count() <<
-			" ITER: " << iter_cnt);
 
 	return stop;
 }

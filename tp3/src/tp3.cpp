@@ -24,7 +24,7 @@ const Options defaultOptions = {
     cachePath : "",
 
     // Rays
-    rayGenerator : TODO,
+    rayGenerator : RAY_HORIZONTAL,
     rayCount : 100,
     cellsPerRow : 16,
 
@@ -33,7 +33,7 @@ const Options defaultOptions = {
     errorSigma : 1.0,
 
     // LSQ solver
-    lsqMethod : SDV_METHOD,
+    lsqMethod : SVD,
 
     debug : true,
     nThreads: -1,
