@@ -21,7 +21,7 @@ void printHelp(const string& cmd, const Options& defaults) {
          << "  RAYS" << endl
          << "    -r, --ray-type #" << endl
          << "                   Type of emulated rays:" << endl
-         << "                     0: ??? TODO (default)." << endl
+         << "                     0: Axial rays (default)." << endl
          << "    -R, --ray-count #" << endl
          << "                   Number of rays "
          << " (Default:" << defaults.rayCount << ")" << endl
@@ -34,7 +34,6 @@ void printHelp(const string& cmd, const Options& defaults) {
          << "    -e, --error-method #" << endl
          << "                   Emulated error type:" << endl
          << "                     0: Gaussian (default)." << endl
-         << "                     1: Lorentzian." << endl
          << "    -E, --error #" << endl
          << "                   Standard deviation of the generated error "
          << " (Default:" << defaults.errorSigma << ")" << endl

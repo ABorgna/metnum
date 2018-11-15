@@ -9,9 +9,9 @@
 
 class Image {
    private:
-    Vector cells;
-    size_t rows;
-    size_t columns;
+    Vector _cells;
+    size_t _rows;
+    size_t _columns;
 
    public:
     Image() = default;
@@ -21,6 +21,14 @@ class Image {
 
     void write(std::string& file) const;
     void write(std::ostream& stream) const;
+
+    // Accessors
+    const Vector& cells() const;
+    size_t rows() const;
+    size_t columns() const;
 };
 
-typedef std::pair<double, double> ImgPoint;
+struct ImgPoint {
+    int x;
+    int y;
+};

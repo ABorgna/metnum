@@ -39,6 +39,7 @@ template <typename V, typename W>
 double distanciaRandom(const V&, const W&);
 
 Vector operator*(const Matriz& M, const Vector& V);
+Vector operator*(const SpMatriz& M, const Vector& V);
 
 Matriz operator*(const Matriz& M1, const Matriz& M2);
 

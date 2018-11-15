@@ -78,6 +78,8 @@ Vector operator+(const Vector&, const SparseVector&);
 Vector& operator+=(Vector&, const SparseVector&);
 Vector operator-(const Vector&, const SparseVector&);
 Vector& operator-=(Vector&, const SparseVector&);
+double operator*(const Vector&, const SparseVector&);
+double operator*(const SparseVector&, const Vector&);
 
 // Input/output operators
 std::ostream& operator<<(std::ostream&, const SparseVector&);

@@ -158,6 +158,22 @@ Vector& operator-=(Vector& v1, const SparseVector& v2) {
     return v1;
 }
 
+double operator*(const Vector& v1, const SparseVector& v2) {
+    double res = 0;
+    for (auto it = v2.begin(); it != v2.end(); it++) {
+        const size_t pos = it->first;
+        const double value = it->second;
+        if (pos >= v1.size())
+            break;
+        res += v1[pos] * value;
+    }
+    return res;
+}
+
+double operator*(const SparseVector& v1, const Vector& v2) {
+    return v2 * v1;
+}
+
 std::ostream& operator<<(std::ostream& os, const SparseVector& v) {
     std::tuple<size_t, SparseVector::Container> tup(v.sz, v.elems);
     writeNamedTuple(os, "SparseVector", tup);

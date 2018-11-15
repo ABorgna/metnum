@@ -99,6 +99,17 @@ Vector operator*(const Matriz& M, const Vector& v) {
     return ans;
 }
 
+Vector operator*(const SpMatriz& M, const Vector& v) {
+    assert(M.size() > 0);
+    assert(M[0].size() == v.size());
+    Vector ans;
+
+    for (auto& f : M) {
+        ans.push_back(f * v);
+    }
+    return ans;
+}
+
 Matriz operator*(const Matriz& M1, const Matriz& M2) {
     assert(M1[0].size() == M2.size());
     Matriz ans(M1.size(), Vector(M2[0].size()));

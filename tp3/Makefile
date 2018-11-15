@@ -8,10 +8,9 @@ SRCDIR=src
 TESTDIR=test
 DATADIR=data
 
-INC=
-INC_PARAMS=$(foreach d,$(INC),-I$d)
+INC=$(shell pkg-config --cflags --libs opencv)
 
-CPPFLAGS=$(INC_PARAMS) -g -Wall -Wextra -O2 -std=c++14 -pthread
+CPPFLAGS=$(INC) -g -Wall -Wextra -O2 -std=c++14 -pthread
 LDFLAGS=
 LDLIBS=
 

@@ -38,7 +38,7 @@ cv::Mat vectorToMat(const Vector& v, size_t rows, size_t columns) {
 }
 
 Image::Image(std::string& file, size_t rows, size_t columns)
-    : rows(rows), columns(columns) {
+    : _rows(rows), _columns(columns) {
     cv::Mat imgCv = cv::imread(file, CV_LOAD_IMAGE_GRAYSCALE);
 
     if (imgCv.empty()) {
@@ -48,11 +48,11 @@ Image::Image(std::string& file, size_t rows, size_t columns)
     cv::Mat resized;
     cv::resize(imgCv, resized, cv::Size(columns, rows));
 
-    this->cells = matToVector(resized);
+    this->_cells = matToVector(resized);
 }
 
 Image::Image(std::istream& stream, size_t rows, size_t columns)
-    : rows(rows), columns(columns) {
+    : _rows(rows), _columns(columns) {
     auto buf = streamToBuffer(stream);
     cv::Mat imgCv = cv::imdecode(buf, CV_LOAD_IMAGE_GRAYSCALE);
 
@@ -63,11 +63,11 @@ Image::Image(std::istream& stream, size_t rows, size_t columns)
     cv::Mat resized;
     cv::resize(imgCv, resized, cv::Size(columns, rows));
 
-    this->cells = matToVector(resized);
+    this->_cells = matToVector(resized);
 }
 
 Image::Image(Vector&& cells, size_t rows, size_t columns)
-    : cells(cells), rows(rows), columns(columns) {
+    : _cells(cells), _rows(rows), _columns(columns) {
     if ((size_t)(rows * columns) != cells.size()) {
         throw std::invalid_argument(
             "Trying to construct an image with an invalid number of cells!\n");
@@ -75,13 +75,25 @@ Image::Image(Vector&& cells, size_t rows, size_t columns)
 }
 
 void Image::write(std::string& file) const {
-    auto img = vectorToMat(this->cells, this->rows, this->columns);
+    auto img = vectorToMat(this->_cells, this->_rows, this->_columns);
     cv::imwrite(file, img);
 }
 
 void Image::write(std::ostream& stream) const {
-    auto img = vectorToMat(this->cells, this->rows, this->columns);
+    auto img = vectorToMat(this->_cells, this->_rows, this->_columns);
     std::vector<unsigned char> buf;
     cv::imencode("png", img, buf);
     stream.write((char*)&(buf[0]), buf.size());
+}
+
+const Vector& Image::cells() const {
+    return this->_cells;
+}
+
+size_t Image::rows() const {
+    return this->_rows;
+}
+
+size_t Image::columns() const {
+    return this->_columns;
 }
