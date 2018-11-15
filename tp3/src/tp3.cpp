@@ -106,7 +106,9 @@ int main(int argc, char* argv[]) {
     DEBUG("---------------- Writing image ------------");
 
     timeKeeper.start("writeImg");
-    Image res(move(x), opt.cellsPerRow, opt.cellsPerRow);
+    // TODO: Uncomment this.
+    //Image res(move(x), opt.cellsPerRow, opt.cellsPerRow);
+    Image res = img;
     if (opt.inputFilename == "-") {
         // We need to write binary data to stdout
         freopen(NULL, "wb", stdout);

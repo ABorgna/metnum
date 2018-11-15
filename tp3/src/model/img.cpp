@@ -20,20 +20,33 @@ std::vector<char> streamToBuffer(std::istream& stream) {
 }
 
 Vector matToVector(const cv::Mat& mat) {
-    Vector v;
+    std::vector<unsigned char> v;
     if (mat.isContinuous()) {
-        v.assign((float*)mat.datastart, (float*)mat.dataend);
+        v.assign(mat.datastart, mat.dataend);
     } else {
         for (int i = 0; i < mat.rows; ++i) {
-            v.insert(v.end(), mat.ptr<float>(i), mat.ptr<float>(i) + mat.cols);
+            v.insert(v.end(), mat.ptr(i), mat.ptr(i) + mat.cols);
         }
     }
-    return v;
+
+    Vector res(v.size());
+    for (size_t i = 0; i < v.size(); i++) {
+        res[i] = (double)v[i] / 256.0;
+    }
+    return res;
 }
 
 cv::Mat vectorToMat(const Vector& v, size_t rows, size_t columns) {
+    assert(v.size() == rows * columns);
+
+    std::vector<unsigned char> chars(v.size());
+    for (size_t i = 0; i < v.size(); i++) {
+        int x = round(v[i] * 256.0);
+        chars[i] = std::min(std::max(x, 0), 255);
+    }
+
     cv::Mat mat(rows, columns, CV_8UC1);
-    memcpy(mat.data, &(v[0]), v.size());
+    memcpy(mat.data, &(chars[0]), chars.size());
     return mat;
 }
 
@@ -49,6 +62,8 @@ Image::Image(std::string& file, size_t rows, size_t columns)
     cv::resize(imgCv, resized, cv::Size(columns, rows));
 
     this->_cells = matToVector(resized);
+
+    assert(this->_cells.size() == rows * columns);
 }
 
 Image::Image(std::istream& stream, size_t rows, size_t columns)
@@ -64,6 +79,8 @@ Image::Image(std::istream& stream, size_t rows, size_t columns)
     cv::resize(imgCv, resized, cv::Size(columns, rows));
 
     this->_cells = matToVector(resized);
+
+    assert(this->_cells.size() == rows * columns);
 }
 
 Image::Image(Vector&& cells, size_t rows, size_t columns)
@@ -86,14 +103,8 @@ void Image::write(std::ostream& stream) const {
     stream.write((char*)&(buf[0]), buf.size());
 }
 
-const Vector& Image::cells() const {
-    return this->_cells;
-}
+const Vector& Image::cells() const { return this->_cells; }
 
-size_t Image::rows() const {
-    return this->_rows;
-}
+size_t Image::rows() const { return this->_rows; }
 
-size_t Image::columns() const {
-    return this->_columns;
-}
+size_t Image::columns() const { return this->_columns; }
