@@ -1,4 +1,5 @@
 #include "ray.h"
+#include "math.h"
 
 std::string showRayGenerator(RayGenerator rg) {
     switch (rg) {
@@ -58,9 +59,66 @@ std::vector<Ray> makeRays(RayGenerator rg, int rows, int columns, int count) {
 
 /********************* Ray processing ************************************/
 
-SparseVector singleRayCells(const Ray& r, int rows, int columns) {
-    // Using Bresenham's line algorithm
-    // to plot a line in a grid.
+// Calculate the cells crossed by the ray,
+// with the exact distance traversed on each cell.
+//
+// Uses Xiaolin Wu's line algorithm for line antialiasing.
+SparseVector crossedCellsExact(const Ray& r, int rows, int columns) {
+    ImgPoint a = r.start;
+    ImgPoint b = r.end;
+    std::map<size_t, double> res;
+
+    bool steep = abs(b.y - a.y) > abs(b.x - a.x);
+    if (steep) {
+        std::swap(a.x, a.y);
+        std::swap(b.x, b.y);
+    }
+    if (a.x > b.x) {
+        std::swap(a, b);
+    }
+
+    int dx = b.x - a.x;
+    int dy = b.y - a.y;
+    double gradient = dx != 0 ? (double)dy / dx : 1;
+
+    // handle first endpoint
+    if (steep) {
+        res[a.x * columns + a.y] = 1;
+    } else {
+        res[a.y * columns + a.x] = 1;
+    }
+
+    // handle second endpoint
+    if (steep) {
+        res[b.x * columns + b.y] = 1;
+    } else {
+        res[b.y * columns + b.x] = 1;
+    }
+
+    double intery = a.y + gradient;  // first y-intersection for the main loop
+
+    // main loop
+    for (int x = a.x + 1; x < b.x; x++) {
+        int intPart = std::floor(intery);
+        int fPart = intery - intPart;
+        if (steep) {
+            res[x * columns + intPart] = 1.0 - fPart;
+            res[x * columns + (intPart + 1)] = fPart;
+        } else {
+            res[intPart * columns + x] = 1.0 - fPart;
+            res[(intPart + 1) * columns + x] = fPart;
+        }
+        intery = intery + gradient;
+    }
+
+    return SparseVector(res, rows * columns);
+}
+
+// Calculate the cells crossed by the ray,
+// assuming the distance traversed on each cell is always 1.
+//
+// Uses Bresenham's line algorithm to plot a line in a grid.
+SparseVector crossedCellsBinary(const Ray& r, int rows, int columns) {
     ImgPoint a = r.start;
     ImgPoint b = r.end;
 
@@ -74,7 +132,7 @@ SparseVector singleRayCells(const Ray& r, int rows, int columns) {
     std::map<size_t, double> res;
     while (1) {
         int cell = a.y * columns + a.x;
-        double len = 1; // TODO: Calculate distance
+        double len = 1;  // TODO: Calculate distance
         res[cell] = len;
 
         if (a.x == b.x and a.y == b.y)
@@ -94,10 +152,10 @@ SparseVector singleRayCells(const Ray& r, int rows, int columns) {
     return SparseVector(res, rows * columns);
 }
 
-SpMatriz rayCells(const std::vector<Ray>& rays, int rows, int columns){
+SpMatriz rayCells(const std::vector<Ray>& rays, int rows, int columns) {
     SpMatriz mtx;
-    for(const auto& ray : rays) {
-        mtx.push_back(singleRayCells(ray, rows, columns));
+    for (const auto& ray : rays) {
+        mtx.push_back(crossedCellsExact(ray, rows, columns));
     }
     return mtx;
 };
