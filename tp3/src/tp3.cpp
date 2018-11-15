@@ -62,14 +62,18 @@ int main(int argc, char* argv[]) {
 
     /*****************************************************************/
     DEBUG("---------------- Processing image ------------");
-    auto imgInFile = Input(opt.inputFilename);
-    auto& imgInStream = imgInFile.stream();
 
     timeKeeper.start("readImage");
-    Image img(imgInStream);
+    Image img;
+    if (opt.inputFilename == "-") {
+        // We need to read binary data from stdin
+        freopen(NULL, "rb", stdin);
+        img = Image(std::cin, opt.cellsPerRow, opt.cellsPerRow);
+        freopen(NULL, "b", stdin);
+    } else {
+        img = Image(opt.inputFilename, opt.cellsPerRow, opt.cellsPerRow);
+    }
     timeKeeper.stop();
-
-    imgInFile.close();
 
     /*****************************************************************/
     DEBUG("---------------- Creating rays and preprocessing LSQ ------------");
@@ -111,7 +115,7 @@ int main(int argc, char* argv[]) {
     auto& outStream = outFile.stream();
 
     timeKeeper.start("writeImg");
-    Image res(x, opt.cellsPerRow, opt.cellsPerRow);
+    Image res(move(x), opt.cellsPerRow, opt.cellsPerRow);
     res.write(outStream);
     timeKeeper.stop();
 

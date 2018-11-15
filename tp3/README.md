@@ -5,6 +5,8 @@ Métodos Numéricos (UBA) - 2do cuatrimestre 2018
 
 Simplemente correr `make tp3`. Esto genera un ejecutable `./tp3`.
 
+Requiere tener la librería `opencv` instalada.
+
 ## Ejecución
 
 Correr el programa seteando los parámetros buscados.
