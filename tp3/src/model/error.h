@@ -13,4 +13,6 @@ enum ErrorGenerator {
     ERROR_GEN_COUNT
 };
 
-std::string showErrorGenerator(const ErrorGenerator&);
+std::string showErrorGenerator(ErrorGenerator);
+
+Vector addNoise(ErrorGenerator, double errorSigma, const Vector&);

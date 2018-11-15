@@ -7,6 +7,7 @@
 typedef std::pair<double, Vector> EigenValue;
 
 typedef std::vector<Vector> Matriz;  // vector de filas
+typedef std::vector<SparseVector> SpMatriz;  // vector de filas
 
 // Vector norms
 enum Norm {

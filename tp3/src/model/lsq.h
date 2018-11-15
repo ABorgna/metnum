@@ -13,4 +13,4 @@ enum LSQMethod {
     LSQ_METHOD_COUNT
 };
 
-std::string showLSQMethod(const LSQMethod&);
+std::string showLSQMethod(LSQMethod);
