@@ -132,8 +132,7 @@ SparseVector crossedCellsBinary(const Ray& r, int rows, int columns) {
     std::map<size_t, double> res;
     while (1) {
         int cell = a.y * columns + a.x;
-        double len = 1;  // TODO: Calculate distance
-        res[cell] = len;
+        res[cell] = 1.0;
 
         if (a.x == b.x and a.y == b.y)
             break;
