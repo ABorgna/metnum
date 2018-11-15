@@ -7,7 +7,13 @@
 using namespace std;
 
 void printHelp(const string& cmd, const Options& defaults) {
-    cerr << "Usage: " << cmd << " -i image -o resImage [OPTIONS]" << endl
+    cerr << "Usage: " << cmd << " inputImage resImage [OPTIONS]" << endl
+         << endl
+
+         << "    inputImage     Input image file. Use '-' for stdin." << endl
+         << "    resImage       Generated image file. Use '-' for stdout."
+         << endl
+
          << endl
          << "Options:" << endl
          << "    -h, --help     Show this help message." << endl
@@ -45,15 +51,7 @@ void printHelp(const string& cmd, const Options& defaults) {
          << "                     0: SDV (default)." << endl
 
          << endl
-         << "  FILES" << endl
-         << "    -i, --in-img <file>" << endl
-         << "                   Input image file." << endl
-         << "                   Use '-' for stdout." << endl
-         << endl
-         << "    -o, --out-img <file>" << endl
-         << "                   Generated image file." << endl
-         << "                   Use '-' for stdout." << endl
-         << endl
+         << "  CACHE" << endl
          << "    -c, --cache <path>" << endl
          << "                   Directory for storing and reading the trained "
             "model cache."
@@ -68,7 +66,7 @@ bool parseArguments(int argc, char* argv[], const Options& defaults,
     const string cmd = argv[0];
     opt = defaults;
 
-    const char* const short_opts = "hvj:r:R:n:e:E:l:i:o:c:";
+    const char* const short_opts = "hvj:r:R:n:e:E:l:c:";
     const option long_opts[] = {
         /* These options set a flag. */
         {"verbose", no_argument, &opt.debug, 1},
@@ -85,8 +83,6 @@ bool parseArguments(int argc, char* argv[], const Options& defaults,
 
         {"lsq-method", required_argument, nullptr, 'l'},
 
-        {"in-img", required_argument, nullptr, 'i'},
-        {"out-img", required_argument, nullptr, 'o'},
         {"cache", required_argument, nullptr, 'c'},
         {"no-cache", no_argument, nullptr, 1},
         {0, 0, 0, 0}};
@@ -137,17 +133,11 @@ bool parseArguments(int argc, char* argv[], const Options& defaults,
                 if (lg < LSQ_METHOD_COUNT)
                     opt.lsqMethod = lg;
             } break;
-            case 'i': {
-                opt.inputFilename = optarg;
-            } break;
-            case 'o': {
-                opt.outputFilename = optarg;
-            } break;
             case 'c': {
                 opt.cachePath = optarg;
             } break;
             case '?': {
-                const std::string withOpts = "jrRneElioc";
+                const std::string withOpts = "jrRneElc";
                 bool needsArgument = false;
                 for (auto c : withOpts) needsArgument |= optopt == c;
 
@@ -167,9 +157,15 @@ bool parseArguments(int argc, char* argv[], const Options& defaults,
         }
     }
     // Check if there are any leftover arguments
-    if (argc - optind > 0) {
+    if (argc - optind != 2) {
+        cerr << "Expecting two arguments, got " << (argc - optind) << "."
+             << endl;
+        cerr << endl;
         return false;
     }
+
+    opt.inputFilename = argv[optind];
+    opt.outputFilename = argv[optind + 1];
 
     return true;
 }
