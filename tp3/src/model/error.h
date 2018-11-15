@@ -5,6 +5,7 @@
 #pragma once
 
 #include <string>
+#include "../linearAlg/linearAlg.h"
 
 enum ErrorGenerator {
     GAUSSIAN_ERROR = 0,
@@ -15,4 +16,5 @@ enum ErrorGenerator {
 
 std::string showErrorGenerator(ErrorGenerator);
 
-Vector addNoise(ErrorGenerator, double errorSigma, const Vector&);
+Vector addNoise(ErrorGenerator, double errorSigma, unsigned seed,
+                const Vector&);

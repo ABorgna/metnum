@@ -92,7 +92,8 @@ int main(int argc, char* argv[]) {
     DEBUG("---------------- Runing LSQ ------------");
 
     timeKeeper.start("addingNoise");
-    Vector results = addNoise(opt.errorGenerator, opt.errorSigma, pureResults);
+    Vector results =
+        addNoise(opt.errorGenerator, opt.errorSigma, SEED, pureResults);
     timeKeeper.stop();
 
     timeKeeper.start("lsq");
