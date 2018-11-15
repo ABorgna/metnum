@@ -22,3 +22,12 @@ std::chrono::milliseconds TimeKeeper::stop() {
 
     return result;
 }
+
+void showTimes(std::ostream& outStream, const TimeKeeper& timeKeeper) {
+    for (const auto& p : timeKeeper.registry) {
+        const std::string& label = p.first;
+        const auto& millis = p.second;
+        outStream << "time-" << label << ": " << millis.count() << "ms"
+                  << std::endl;
+    }
+}

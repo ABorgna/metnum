@@ -1,6 +1,7 @@
 #pragma once
 
 #include <chrono>
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -25,3 +26,5 @@ class TimeKeeper {
     // Stop the current recording
     std::chrono::milliseconds stop();
 };
+
+void showTimes(std::ostream& outStream, const TimeKeeper& timeKeeper);

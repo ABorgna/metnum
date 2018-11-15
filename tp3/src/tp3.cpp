@@ -39,14 +39,6 @@ const Options defaultOptions = {
     nThreads : -1,
 };
 
-void showTimes(std::ostream& outStream, const TimeKeeper& timeKeeper) {
-    for (const auto& p : timeKeeper.registry) {
-        const std::string& label = p.first;
-        const auto& millis = p.second;
-        outStream << "time-" << label << ": " << millis.count() << "ms" << endl;
-    }
-}
-
 int main(int argc, char* argv[]) {
     Options opt;
     TimeKeeper timeKeeper;
