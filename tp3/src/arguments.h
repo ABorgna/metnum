@@ -13,8 +13,8 @@ struct Options {
 
     // Rays
     RayGenerator rayGenerator;
-    int rayCount;
-    int cellsPerRow;
+    size_t rayCount;
+    size_t cellsPerRow;
 
     // Measurement error
     ErrorGenerator errorGenerator;

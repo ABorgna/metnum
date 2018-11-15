@@ -118,14 +118,10 @@ bool parseArguments(int argc, char* argv[], const Options& defaults,
                     opt.rayGenerator = rg;
             } break;
             case 'R': {
-                int tmp = stoi(optarg);
-                if (tmp > 0)
-                    opt.rayCount = tmp;
+                opt.rayCount = stoi(optarg);
             } break;
             case 'n': {
-                int tmp = stoi(optarg);
-                if (tmp > 0)
-                    opt.cellsPerRow = tmp;
+                opt.cellsPerRow = stoi(optarg);
             } break;
             case 'e': {
                 ErrorGenerator eg = (ErrorGenerator)stoi(optarg);

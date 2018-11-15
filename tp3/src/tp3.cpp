@@ -69,7 +69,7 @@ int main(int argc, char* argv[]) {
         // We need to read binary data from stdin
         freopen(NULL, "rb", stdin);
         img = Image(std::cin, opt.cellsPerRow, opt.cellsPerRow);
-        freopen(NULL, "b", stdin);
+        freopen(NULL, "r", stdin);
     } else {
         img = Image(opt.inputFilename, opt.cellsPerRow, opt.cellsPerRow);
     }
@@ -111,15 +111,18 @@ int main(int argc, char* argv[]) {
     timeKeeper.stop();
 
     DEBUG("---------------- Writing image ------------");
-    auto outFile = Output(opt.outputFilename);
-    auto& outStream = outFile.stream();
 
     timeKeeper.start("writeImg");
     Image res(move(x), opt.cellsPerRow, opt.cellsPerRow);
-    res.write(outStream);
+    if (opt.inputFilename == "-") {
+        // We need to write binary data to stdout
+        freopen(NULL, "wb", stdout);
+        res.write(std::cout);
+        freopen(NULL, "w", stdout);
+    } else {
+        res.write(opt.outputFilename);
+    }
     timeKeeper.stop();
-
-    outFile.close();
 
     /*****************************************************************/
     DEBUG("---------------- Results -----------------");

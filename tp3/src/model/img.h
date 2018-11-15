@@ -10,16 +10,17 @@
 class Image {
    private:
     Vector cells;
-    int rows;
-    int columns;
+    size_t rows;
+    size_t columns;
 
    public:
     Image() = default;
-    Image(std::string& file, int rows, int columns);
-    Image(std::istream& stream, int rows, int columns);
-    Image(Vector&& cells, int rows, int columns);
+    Image(std::string& file, size_t rows, size_t columns);
+    Image(std::istream& stream, size_t rows, size_t columns);
+    Image(Vector&& cells, size_t rows, size_t columns);
 
-    void write(std::ostream& file) const;
+    void write(std::string& file) const;
+    void write(std::ostream& stream) const;
 };
 
 typedef std::pair<double, double> ImgPoint;
