@@ -113,7 +113,6 @@ int main(int argc, char* argv[]) {
         // We need to write binary data to stdout
         freopen(NULL, "wb", stdout);
         res.write(std::cout);
-        freopen(NULL, "w", stdout);
     } else {
         res.write(opt.outputFilename);
     }
@@ -121,7 +120,7 @@ int main(int argc, char* argv[]) {
 
     /*****************************************************************/
     DEBUG("---------------- Results -----------------");
-    showTimes(std::cout, timeKeeper);
+    showTimes(std::cerr, timeKeeper);
 
     return 0;
 }

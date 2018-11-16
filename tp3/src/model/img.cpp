@@ -99,8 +99,9 @@ void Image::write(std::string& file) const {
 void Image::write(std::ostream& stream) const {
     auto img = vectorToMat(this->_cells, this->_rows, this->_columns);
     std::vector<unsigned char> buf;
-    cv::imencode("png", img, buf);
+    cv::imencode(".png", img, buf);
     stream.write((char*)&(buf[0]), buf.size());
+    stream.flush();
 }
 
 const Vector& Image::cells() const { return this->_cells; }
