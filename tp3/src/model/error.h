@@ -9,6 +9,7 @@
 
 enum ErrorGenerator {
     GAUSSIAN_ERROR = 0,
+    NO_ERROR = 1,
 
     // Dejar este siempre al final
     ERROR_GEN_COUNT

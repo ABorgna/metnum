@@ -40,6 +40,7 @@ void printHelp(const string& cmd, const Options& defaults) {
          << "    -e, --error-method #" << endl
          << "                   Emulated error type:" << endl
          << "                     0: Gaussian (default)." << endl
+         << "                     1: No added noise." << endl
          << "    -E, --error #" << endl
          << "                   Standard deviation of the generated error "
          << " (Default:" << defaults.errorSigma << ")" << endl
