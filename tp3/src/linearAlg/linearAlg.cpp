@@ -120,9 +120,10 @@ Matriz SpMult(const SpMatriz& M, const SpMatriz& Nt){
 
     for (size_t i = 0; i < M.size(); i++)
         for (size_t j = 0; j < Nt.size(); j++){
-            res[i][j] = accumulate2([](size_t idx, double a, double b)
+            res[i][j] = accumulate2([](size_t, double a, double b)
                 {return a*b;}, 0, M[i], Nt[j]);
         }
+    return res;
 }
 
 SpMatriz transpose(const SpMatriz& M){
