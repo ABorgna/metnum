@@ -13,7 +13,7 @@ IMGSCSV=$(subst .png,.csv,$(IMGS))
 
 INC=$(shell pkg-config --cflags --libs opencv)
 
-CPPFLAGS=$(INC) -g -Wall -Wextra -O2 -std=c++14 -pthread
+CPPFLAGS= -g -Wall -Wextra -O2 -std=c++14 -pthread
 LDFLAGS=
 LDLIBS=
 

@@ -1,85 +1,45 @@
 #include "img.h"
-#include <opencv2/opencv.hpp>
 #include "../linearAlg/linearAlg.h"
+#include <sstream>
+#include <fstream>
 
-std::vector<char> streamToBuffer(std::istream& stream) {
-    size_t readSz = 4096;
-    size_t readOff = 0;
-    size_t bCount = 0;
-    std::vector<char> buf(readSz);
-    while (stream.read(&(buf[0]) + readOff, readSz)) {
-        bCount += readSz;
-        readOff += readSz;
-
-        readSz = buf.size();
-        buf.resize(buf.size() + readSz);
-    }
-    bCount += stream.gcount();
-    buf.resize(bCount);
-    return buf;
-}
-
-Vector matToVector(const cv::Mat& mat) {
-    std::vector<unsigned char> v;
-    if (mat.isContinuous()) {
-        v.assign(mat.datastart, mat.dataend);
-    } else {
-        for (int i = 0; i < mat.rows; ++i) {
-            v.insert(v.end(), mat.ptr(i), mat.ptr(i) + mat.cols);
+Vector csvToVector(std::istream& stream){
+    std::string line;
+    Vector res;
+    while(getline(stream, line)){
+        std::istringstream tokenStream(line);
+        std::string token;
+        while (std::getline(tokenStream, token, ',')){
+            res.push_back(std::stoi(token));
         }
-    }
-
-    Vector res(v.size());
-    for (size_t i = 0; i < v.size(); i++) {
-        res[i] = (double)v[i] / 256.0;
     }
     return res;
 }
 
-cv::Mat vectorToMat(const Vector& v, size_t rows, size_t columns) {
-    assert(v.size() == rows * columns);
-
-    std::vector<unsigned char> chars(v.size());
-    for (size_t i = 0; i < v.size(); i++) {
-        int x = round(v[i] * 256.0);
-        chars[i] = std::min(std::max(x, 0), 255);
+void vectorToCsv(std::ostream& stream, const Vector& v, size_t rows, size_t columns){
+    for (size_t i = 0; i < rows; i++){
+        for (size_t j = 0; j < columns-1; j++){
+            stream << ' ' << v[i*columns + j] << ',';
+        }
+        stream << ' ' << v[i*(columns + 1) - 1] << std::endl;
     }
 
-    cv::Mat mat(rows, columns, CV_8UC1);
-    memcpy(mat.data, &(chars[0]), chars.size());
-    return mat;
 }
+
 
 Image::Image(std::string& file, size_t rows, size_t columns)
     : _rows(rows), _columns(columns) {
-    cv::Mat imgCv = cv::imread(file, CV_LOAD_IMAGE_GRAYSCALE);
+    std::fstream fs;
+    fs.open (file, std::fstream::in);
 
-    if (imgCv.empty()) {
-        throw std::invalid_argument("Could not read the input image.");
-    }
-
-    cv::Mat resized;
-    cv::resize(imgCv, resized, cv::Size(columns, rows));
-
-    this->_cells = matToVector(resized);
-
+    this->_cells = csvToVector(fs);
+    fs.close();
     assert(this->_cells.size() == rows * columns);
 }
 
 Image::Image(std::istream& stream, size_t rows, size_t columns)
     : _rows(rows), _columns(columns) {
-    auto buf = streamToBuffer(stream);
-    cv::Mat imgCv = cv::imdecode(buf, CV_LOAD_IMAGE_GRAYSCALE);
-
-    if (imgCv.empty()) {
-        throw std::invalid_argument("Could not read the input image.");
-    }
-
-    cv::Mat resized;
-    cv::resize(imgCv, resized, cv::Size(columns, rows));
-
-    this->_cells = matToVector(resized);
-
+    this->_cells = csvToVector(stream);
     assert(this->_cells.size() == rows * columns);
 }
 
@@ -92,16 +52,14 @@ Image::Image(Vector&& cells, size_t rows, size_t columns)
 }
 
 void Image::write(std::string& file) const {
-    auto img = vectorToMat(this->_cells, this->_rows, this->_columns);
-    cv::imwrite(file, img);
+    std::fstream fs;
+    fs.open(file, std::fstream::out);
+    write(fs);
+    fs.close();
 }
 
 void Image::write(std::ostream& stream) const {
-    auto img = vectorToMat(this->_cells, this->_rows, this->_columns);
-    std::vector<unsigned char> buf;
-    cv::imencode(".png", img, buf);
-    stream.write((char*)&(buf[0]), buf.size());
-    stream.flush();
+    vectorToCsv(stream, _cells, _rows, _columns);
 }
 
 const Vector& Image::cells() const { return this->_cells; }

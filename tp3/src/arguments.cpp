@@ -13,6 +13,8 @@ void printHelp(const string& cmd, const Options& defaults) {
          << "    inputImage     Input image file. Use '-' for stdin." << endl
          << "    resImage       Generated image file. Use '-' for stdout."
          << endl
+         << "                   csv only!!"
+         << endl
 
          << endl
          << "Options:" << endl
