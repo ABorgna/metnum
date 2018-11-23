@@ -5,6 +5,59 @@ import os
 import csv
 import pydicom
 
+
+#Useful function
+def createFileList(myDir, format='.png'):
+    fileList = []
+    for root, dirs, files in os.walk(myDir, topdown=False):
+        for name in files:
+            if name.endswith(format):
+                fullName = os.path.join(root, name)
+                fileList.append(fullName)
+    return fileList
+
+def convertImg(infile, input_folder, output_folder, extension, extension_salida = '.csv', tam = None):
+    print(infile)
+    if extension == '.dcm':
+        img_file = Image.fromarray(pydicom.read_file(infile).pixel_array)
+    else:
+        img_file = Image.open(infile)
+
+    # get original image parameters...
+    width, height = img_file.size
+    new_size = min(width, height)
+    new_size = min(new_size, tam) if tam is not None else new_size
+    format = img_file.format
+    mode = img_file.mode
+
+    # Make image Greyscale
+    if mode == 'RGBA' or mode == 'RGB':
+        img_grey = img_file.convert('L')
+    else:
+        img_grey = img_file
+
+    # Make square image.
+    img_grey = img_grey.resize((new_size, new_size), Image.ANTIALIAS)
+
+    # Save Greyscale values
+    value = np.asarray(img_grey.getdata(), dtype=np.int).reshape((img_grey.size[1], img_grey.size[0]))
+
+    if extension_salida == '.csv':
+        with open(output_folder + infile.replace(extension, "").replace(input_folder, "") + (str(tamano) if tamano is not None else "") + ".csv", 'w') as f:
+            writer = csv.writer(f)
+            for v in value:
+                writer.writerow(v)
+    else: # any other supported image file format
+        with open(output_folder + infile.replace(extension, "").replace(input_folder, "") + extension_salida, 'w') as f:
+            img_grey.save(f)
+
+def convertImgs(input_folder, output_folder, extension, extension_salida = '.csv', tam = None):
+    # load the original image
+    myFileList = createFileList(input_folder, extension)
+    for file in myFileList:
+        convertImg(file, input_folder, output_folder, extension, extension_salida, tam)
+
+
 if len(sys.argv) < 4:
     print("Correr python csv_converter.py <carpeta_imagenes> <carpeta_output> <extension_imagenes> <tamano>.")
     print("Por ejemplo: python csv_converter.py imagenes/ imagenes_convertidas/ .png 16")
@@ -22,51 +75,4 @@ print("Extension: " + extension)
 print("Carpeta salida: " + output_folder)
 print("Carpeta entrada: " + input_folder)
 
-#Useful function
-def createFileList(myDir, format='.png'):
-    fileList = []
-    for root, dirs, files in os.walk(myDir, topdown=False):
-        for name in files:
-            if name.endswith(format):
-                fullName = os.path.join(root, name)
-                fileList.append(fullName)
-    return fileList
-
-# load the original image
-myFileList = createFileList(input_folder, extension)
-
-
-for file in myFileList:
-    print(file)
-    if extension == '.dcm':
-        img_file = Image.fromarray(pydicom.read_file(file).pixel_array)
-    else:
-        img_file = Image.open(file)
-
-    # get original image parameters...
-    width, height = img_file.size
-    new_size = min(width, height)
-    new_size = min(new_size, tamano) if tamano is not None else new_size
-    format = img_file.format
-    mode = img_file.mode
-
-    # Make image Greyscale
-    if mode == 'RGBA' or mode == 'RGB':
-        img_grey = img_file.convert('L')
-    else:
-        img_grey = img_file
-
-    # Make square image.
-    img_grey = img_grey.resize((new_size, new_size), Image.ANTIALIAS)
-
-    # Save Greyscale values
-    value = np.asarray(img_grey.getdata(), dtype=np.int).reshape((img_grey.size[1], img_grey.size[0]))
-
-    if extension_salida == '.csv':
-        with open(output_folder + file.replace(extension, "").replace(input_folder, "") + (str(tamano) if tamano is not None else "") + ".csv", 'w') as f:
-            writer = csv.writer(f)
-            for v in value:
-                writer.writerow(v)
-    else: # any other supported image file format
-        with open(output_folder + file.replace(extension, "").replace(input_folder, "") + extension_salida, 'w') as f:
-            img_grey.save(f)
+convertImgs(input_folder, output_folder, extension, extension_salida, tamano)

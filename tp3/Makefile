@@ -22,7 +22,7 @@ OBJS=$(subst .cpp,.o,$(SRCS))
 
 .PHONY: all depend tests clean distclean imgs
 
-all: $(EXEC) imgs
+all: $(EXEC)
 
 $(EXEC): depend $(OBJS)
 	$(CXX) $(LDFLAGS) $(CPPFLAGS) -o $(EXEC) $(OBJS) $(LDLIBS)
