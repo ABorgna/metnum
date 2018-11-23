@@ -1,5 +1,5 @@
 #include "ray.h"
-#include "math.h"
+#include <cmath>
 
 std::string showRayGenerator(RayGenerator rg) {
     switch (rg) {
