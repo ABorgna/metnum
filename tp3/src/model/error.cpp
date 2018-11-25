@@ -5,12 +5,14 @@ std::string showErrorGenerator(ErrorGenerator eg) {
     switch (eg) {
         case GAUSSIAN_ERROR:
             return "Gaussian Error";
+        case NO_ERROR:
+            return "No Error";
         default:
             return "Unknown error distribution";
     }
 }
 
-Vector addNoise(ErrorGenerator, double errorSigma, unsigned seed,
+Vector addGaussNoise(double errorSigma, unsigned seed,
                 const Vector& v) {
     std::default_random_engine generator(seed);
     std::normal_distribution<double> distribution(0, errorSigma);
@@ -22,4 +24,16 @@ Vector addNoise(ErrorGenerator, double errorSigma, unsigned seed,
     }
 
     return res;
+}
+
+Vector addNoise(ErrorGenerator eg, double errorSigma, unsigned seed,
+                const Vector& v) {
+    switch (eg) {
+        case GAUSSIAN_ERROR:
+            return addGaussNoise(errorSigma, seed, v);
+        case NO_ERROR:
+            return v;
+        default:
+            throw "Unknown error distribution";
+    }
 }

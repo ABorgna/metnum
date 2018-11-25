@@ -17,6 +17,12 @@ Parámetros posibles:
 ```
 TODO
 ```
+
+## Experimentos
+
+La experimentación requiere la librería `Pillow`.
+Para instalarla, correr `pip install Pillow`.
+
 ## Links
 
 Otras distribuciónes de error:

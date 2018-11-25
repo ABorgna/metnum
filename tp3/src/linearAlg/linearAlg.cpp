@@ -3,6 +3,7 @@
 #include <math.h>
 #include <algorithm>
 #include <cassert>
+#include <map>
 
 std::string showNorm(Norm norm) {
     switch (norm) {
@@ -108,6 +109,35 @@ Vector operator*(const SpMatriz& M, const Vector& v) {
         ans.push_back(f * v);
     }
     return ans;
+}
+
+Matriz SpMult(const SpMatriz& M, const SpMatriz& Nt){
+    // Esta multiplicacion hace M*Nt, es más eficiente
+    assert(M.size() > 0);
+    assert(Nt.size() > 0);
+    assert(M[0].size() == Nt[0].size());
+    Matriz res(M.size(), Vector(Nt.size(), 0));
+
+    for (size_t i = 0; i < M.size(); i++)
+        for (size_t j = 0; j < Nt.size(); j++){
+            res[i][j] = accumulate2([](size_t, double a, double b)
+                {return a*b;}, 0, M[i], Nt[j]);
+        }
+    return res;
+}
+
+SpMatriz transpose(const SpMatriz& M){
+    std::vector<std::map<size_t, double>> tr(M[0].size());
+    for (size_t i = 0; i < M.size(); i++){
+        for (auto& elem : M[i]){
+            tr[elem.first][i] = elem.second;
+        }
+    }
+    SpMatriz res;
+    for (auto& m : tr){
+        res.emplace_back(m, M.size());
+    }
+    return res;
 }
 
 Matriz operator*(const Matriz& M1, const Matriz& M2) {

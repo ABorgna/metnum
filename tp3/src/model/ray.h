@@ -17,6 +17,9 @@ enum RayGenerator {
     // Rayos alineados al eje horizontal y vertical,
     // formando una grilla.
     RAY_AXIAL = 0,
+    // Rayos horizontales, entre un punto (0, y) y un punt
+    // (0, y'), para cualquieras y, y' \in [0, rows)
+    RAY_SIDES = 1,
 
     // Dejar este siempre al final
     RAY_GEN_COUNT
