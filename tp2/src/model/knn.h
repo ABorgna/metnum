@@ -16,12 +16,6 @@ bool dumbKnn(const entry::Entries<TrainVector>& entries,
  * For each word token we keep a vector with the entries which have a non-zero
  * value for it. When analyzing a new entry, we only compare it to other entries
  * that share at least one word with it.
- *
- * (TODO: Prove that this is valid)
- *
- * The idea was based on this youtube video (yay!)
- * https://www.youtube.com/watch?v=Mlp8hlKwETs
- * (TODO: Remove this comment before turning in the TP :) )
  */
 template <typename TrainVector, typename TestVector>
 class InvertedIndexKNN;
