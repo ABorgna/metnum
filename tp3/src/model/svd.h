@@ -10,7 +10,12 @@
 #include <chrono>
 
 #include "../linearAlg/linearAlg.h"
+using namespace std;
+typedef std::pair<Matriz, vector<double>> USVt; //tenemos la U, y la sigma guardando solo la diagonal
 
-typedef std::vector<Matriz> USVt;
+typedef vector<double> Diag;
 
-USVt SVD(Matriz &A); 
+USVt descomposicionSVD(Matriz &&A); 
+
+vector<double> cuadradosMinimosConSVD(const SpMatriz &A, vector<double> b);
+Diag inversaDiagonalNoNula(Diag& D);

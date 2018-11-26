@@ -8,6 +8,7 @@
 #include "arguments.h"
 #include "debug.h"
 #include "files.h"
+#include "model/svd.h"
 #include "model/potencia.h"
 #include "timer.h"
 
@@ -99,6 +100,7 @@ int main(int argc, char* argv[]) {
     timeKeeper.start("lsq");
 
     Vector x;
+    x = cuadradosMinimosConSVD(measurements, results);
     // TODO: run LSQ for `measurements * x = results`
 
     timeKeeper.stop();

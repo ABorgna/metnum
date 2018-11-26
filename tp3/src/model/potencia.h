@@ -32,7 +32,7 @@ private:
 	Vector lastvk;
 };
 
-
+Vector randomVector(int n);
 EigenValue potencia (const Matriz& B, Vector x0, StopPolicy stop);
 
 std::vector<EigenValue> eigenvalues(Matriz&& B, int alpha, TrivialStopper stop = TrivialStopper());
