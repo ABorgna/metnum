@@ -98,7 +98,7 @@ int main(int argc, char* argv[]) {
     timeKeeper.stop();
 
     timeKeeper.start("lsq");
-
+    cout << "hasta aca si" << endl;
     Vector x;
     x = cuadradosMinimosConSVD(measurements, results);
     // TODO: run LSQ for `measurements * x = results`

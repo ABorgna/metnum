@@ -15,7 +15,7 @@ Diag inversaDiagonalNoNula(Diag& D) {
 }
 
 Matriz transpose(Matriz &A) {
-    Matriz& At = A;
+    Matriz At = A;
     for (unsigned int i = 0; i < A.size(); i++) {
         for (unsigned int j = 0; j < A[i].size(); j++) {
             At[j][i] = A[i][j];
@@ -29,12 +29,15 @@ std::vector<EigenValue> eigenvaluesHastaCero(Matriz& B, TrivialStopper stop){
     EigenValue ev;
 	do {
 		stop.reset();
-		ans.push_back(potencia(B, randomVector(B[0].size()), stop));
-		ev = ans.back();
-		// Deflacion
-		for (size_t f = 0; f < B.size(); f++) for (size_t c = 0; c < B[f].size(); c++){
-			B[f][c] -= ev.first*ev.second[f]*ev.second[c];
-		}
+        ev = potencia(B, randomVector(B[0].size()), stop);
+        if (ev.first > eps) {
+            ans.push_back(ev);
+            ev = ans.back();
+            // Deflacion
+            for (size_t f = 0; f < B.size(); f++) for (size_t c = 0; c < B[f].size(); c++){
+                B[f][c] -= ev.first*ev.second[f]*ev.second[c];
+            }
+        }
 
 	} while (ev.first > eps);
 	DEBUG("");
@@ -45,13 +48,16 @@ USVt descomposicionSVD(Matriz &&A) { //solo para matrices simetricas!!
     Matriz& B = A;//*transpose(A);
     TrivialStopper stop;
     vector<EigenValue> autovaloresYAutovectores = eigenvaluesHastaCero(B, stop);
-    vector<double> S;
+    Vector S;
     Matriz U;
     for (EigenValue eig : autovaloresYAutovectores) { //quizas haya que eliminar el ultimo!!
         S.push_back(eig.first);
         U.push_back(eig.second);
     }
-    return make_pair(U, S);
+    cout << "el ultimo autovaloro es: " << S[S.size() - 1] << endl;
+    USVt res = make_pair(U, S);
+    cout << "aaa" << endl;
+    return res;
 }
 
 Matriz convertirDiag(Diag D) {
@@ -71,10 +77,16 @@ vector<double> cuadradosMinimosConSVD(const SpMatriz &A, vector<double> b) {
     //SVD de At*A
     USVt svd = descomposicionSVD(move(M));
     Matriz Ut = transpose(svd.first);
+
     Matriz U = svd.first;
+
    // Matriz A = SpMult(A, Id);
-    vector<double> vec = A*b; //A^t*b
+    const SpMatriz J = transpose(A);
+    vector<double> vec = transpose(A)*b; //A^t*b
+
+   cout << A[0].size() << " VS " << b.size() << endl;
     Matriz S = convertirDiag(inversaDiagonalNoNula(svd.second));
+    cout << "hasta aca llegue seguro" << endl;
     vec = U*S* Ut * (transpose(A) *vec);
     return vec;
 }

@@ -127,10 +127,11 @@ Matriz SpMult(const SpMatriz& M, const SpMatriz& Nt){
 }
 
 SpMatriz transpose(const SpMatriz& M){
+ 
     std::vector<std::map<size_t, double>> tr(M[0].size());
     for (size_t i = 0; i < M.size(); i++){
         for (auto& elem : M[i]){
-            tr[elem.first][i] = elem.second;
+            tr[elem.second].insert(std::make_pair(i, elem.first));
         }
     }
     SpMatriz res;
