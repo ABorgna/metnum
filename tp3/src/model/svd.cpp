@@ -15,10 +15,10 @@ Diag inversaDiagonalNoNula(Diag& D) {
 }
 
 Matriz transpose(Matriz &A) {
-    Matriz At = A;
+    Matriz At(A[0].size());
     for (unsigned int i = 0; i < A.size(); i++) {
         for (unsigned int j = 0; j < A[i].size(); j++) {
-            At[j][i] = A[i][j];
+            At[j].push_back(A[i][j]);
         }
     }
     return At;
@@ -72,29 +72,19 @@ Matriz convertirDiag(Diag D) {
 }
 
 vector<double> cuadradosMinimosConSVD(const SpMatriz &A, vector<double> b) {
-    Matriz &&M = SpMult(A, A); //no se si es A o trnaspose(a)
+    const SpMatriz J = transpose(A);
+    Matriz &&M = SpMult(J, J); 
     //SVD de At*A
     USVt svd = descomposicionSVD(move(M));
-    cout << "termine SVD" << endl;
     Matriz Ut = transpose(svd.first);
-
-    cout << "termine trasnpuesta" << endl;
     Matriz U = svd.first;
-
-    cout << "la U no es" << endl;
    // Matriz A = SpMult(A, Id);
-    const SpMatriz J = transpose(A);
-    cout << "la transpuesta no es" << endl;
     vector<double> vec = J*b; //A^t*b
-
-    cout << "no es esto: " << endl;
-
-    cout << A[0].size() << " VS " << b.size() << endl;
     Diag diag = inversaDiagonalNoNula(svd.second);
-    cout << "hasta aca llegue seguro diagonal" << endl;
     Matriz S = convertirDiag(diag);
-    cout << "hasta aca llegue seguro" << endl;
-    vec = U * S * Ut * (transpose(A) *vec);
+    Ut = Ut*S;
+    U = Ut * U;
+    vec = U *vec;
     return vec;
 }
 
