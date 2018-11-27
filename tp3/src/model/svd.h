@@ -15,7 +15,7 @@ typedef std::pair<Matriz, vector<double>> USVt; //tenemos la U, y la sigma guard
 
 typedef vector<double> Diag;
 
-USVt descomposicionSVD(Matriz &&A); 
+USVt descomposicionSVD(const Matriz &&A); 
 
 Vector cuadradosMinimosConSVD(const SpMatriz &A, vector<double> b);
 Diag inversaDiagonalNoNula(Diag& D);

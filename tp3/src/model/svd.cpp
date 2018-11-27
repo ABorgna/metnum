@@ -1,8 +1,9 @@
 
 #include "svd.h"
 #include "potencia.h"
+#include "math.h"
 
-#define eps 1e-7
+#define eps 1e-14
 using namespace std;
 
 
@@ -30,7 +31,6 @@ std::vector<EigenValue> eigenvaluesHastaCero(Matriz&& B, TrivialStopper stop){
 	do {
 		stop.reset();
         ev = potencia(B, randomVector(B[0].size()), stop);
-        cout << ev.first << endl;
         if (ev.first > eps) {
             ans.push_back(ev);
             ev = ans.back();
@@ -46,22 +46,20 @@ std::vector<EigenValue> eigenvaluesHastaCero(Matriz&& B, TrivialStopper stop){
 	return ans;
 }
 
-USVt descomposicionSVD(Matriz &&A) { //solo para matrices simetricas!!
-    Matriz B = (transpose(A))*A;
+USVt descomposicionSVD(const Matriz &&A) { //solo para matrices simetricas!!
+    Matriz B = A; //TODO: a proposito, cambiar por recibir la rala(transpose(A))*A;
     TrivialStopper stop;
     vector<EigenValue> autovaloresYAutovectores = eigenvaluesHastaCero(move(B), stop);
     Vector S;
-    Matriz U;
-    vector<EigenValue> vals = eigenvalues(move(B), 5);
-    cout << vals << endl;
+    Matriz V;
     int cont = 0;
     for (EigenValue eig : autovaloresYAutovectores) { 
-        S.push_back(eig.first);
+        S.push_back(pow(eig.first, 0.5));
         cont++;
-        U.push_back(eig.second);
+        V.push_back(eig.second);
     }
     cout << S.size() << endl;
-    USVt res = make_pair(U, S);
+    USVt res = make_pair(V, S);
     return res;
 }
 
@@ -70,7 +68,7 @@ Matriz convertirDiag(Diag D) {
     for (unsigned int i = 0; i < D.size(); i++) {
         for (unsigned int j = 0; j < i; j++) 
             A[i].push_back(0);
-        A[i].push_back(D[i]);
+        A[i].push_back(D[i]*D[i]);
         for (unsigned int j = i+1; j < D.size(); j++)
             A[i].push_back(0);
     }
@@ -80,22 +78,20 @@ Matriz convertirDiag(Diag D) {
 
 
 Vector cuadradosMinimosConSVD(const SpMatriz &A, vector<double> b) {
-    cout << A << endl;
     const SpMatriz J = transpose(A);
     Matriz &&M = SpMult(J,J); 
-    cout << M << endl;
+    //cout << M << endl;
     //SVD de At*A
-    //USVt svdA = descomposicionSVD(move(A));
-
     USVt svd = descomposicionSVD(move(M));
-    Matriz Ut = transpose(svd.first);
-    Matriz U = svd.first;
+
+    //USVt svd = descomposicionSVD(move(M));
+    Matriz V = transpose(svd.first);
+    Matriz Vt = svd.first;
    // Matriz A = SpMult(A, Id);
     vector<double> vec = J*b; //A^t*b
     Diag diag = inversaDiagonalNoNula(svd.second);
-    Matriz S = convertirDiag(diag);
-    vec = Ut*S*U *vec;
-    cout << vec[0] << endl;
+    Matriz S = convertirDiag(diag); //TODO: aca multiplico al cuadrado, esto hay q refactorizarlo
+    vec = V*S*Vt *vec;
     return vec;
 }
 
