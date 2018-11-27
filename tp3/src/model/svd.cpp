@@ -2,7 +2,7 @@
 #include "svd.h"
 #include "potencia.h"
 
-#define eps 0.0001
+#define eps 1e-7
 using namespace std;
 
 
@@ -24,12 +24,13 @@ Matriz transpose(Matriz &A) {
     return At;
 }
 
-std::vector<EigenValue> eigenvaluesHastaCero(Matriz& B, TrivialStopper stop){
+std::vector<EigenValue> eigenvaluesHastaCero(Matriz&& B, TrivialStopper stop){
 	std::vector<EigenValue> ans;
     EigenValue ev;
 	do {
 		stop.reset();
         ev = potencia(B, randomVector(B[0].size()), stop);
+        cout << ev.first << endl;
         if (ev.first > eps) {
             ans.push_back(ev);
             ev = ans.back();
@@ -37,24 +38,29 @@ std::vector<EigenValue> eigenvaluesHastaCero(Matriz& B, TrivialStopper stop){
             for (size_t f = 0; f < B.size(); f++) for (size_t c = 0; c < B[f].size(); c++){
                 B[f][c] -= ev.first*ev.second[f]*ev.second[c];
             }
+        } else {
+            cout << "menor a eps" <<  ev.first << endl;
         }
-
-	} while (ev.first > eps);
+	} while (ev.first > eps*eps);
 	DEBUG("");
 	return ans;
 }
 
 USVt descomposicionSVD(Matriz &&A) { //solo para matrices simetricas!!
-    Matriz& B = A;//*transpose(A);
+    Matriz B = (transpose(A))*A;
     TrivialStopper stop;
-    vector<EigenValue> autovaloresYAutovectores = eigenvaluesHastaCero(B, stop);
+    vector<EigenValue> autovaloresYAutovectores = eigenvaluesHastaCero(move(B), stop);
     Vector S;
     Matriz U;
-    for (EigenValue eig : autovaloresYAutovectores) { //quizas haya que eliminar el ultimo!!
+    vector<EigenValue> vals = eigenvalues(move(B), 5);
+    cout << vals << endl;
+    int cont = 0;
+    for (EigenValue eig : autovaloresYAutovectores) { 
         S.push_back(eig.first);
+        cont++;
         U.push_back(eig.second);
     }
-    cout << "el ultimo autovaloro es: " << S[S.size() - 1] << endl;
+    cout << S.size() << endl;
     USVt res = make_pair(U, S);
     return res;
 }
@@ -71,10 +77,16 @@ Matriz convertirDiag(Diag D) {
     return A;
 }
 
+
+
 Vector cuadradosMinimosConSVD(const SpMatriz &A, vector<double> b) {
+    cout << A << endl;
     const SpMatriz J = transpose(A);
-    Matriz &&M = SpMult(J, J); 
+    Matriz &&M = SpMult(J,J); 
+    cout << M << endl;
     //SVD de At*A
+    //USVt svdA = descomposicionSVD(move(A));
+
     USVt svd = descomposicionSVD(move(M));
     Matriz Ut = transpose(svd.first);
     Matriz U = svd.first;
@@ -82,9 +94,8 @@ Vector cuadradosMinimosConSVD(const SpMatriz &A, vector<double> b) {
     vector<double> vec = J*b; //A^t*b
     Diag diag = inversaDiagonalNoNula(svd.second);
     Matriz S = convertirDiag(diag);
-    Ut = Ut*S;
-    U = Ut * U;
-    vec = U *vec;
+    vec = Ut*S*U *vec;
+    cout << vec[0] << endl;
     return vec;
 }
 

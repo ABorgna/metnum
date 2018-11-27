@@ -15,13 +15,12 @@ Vector randomVector(int n){
 }
 
 EigenValue potencia (const Matriz& B, Vector x0, StopPolicy stop){
-	while(!stop(x0)){
+	while(!stop(x0) ){
 		x0 = B*x0;
 		x0 = (1.0 / norma(x0)) * x0;
 	}
-
 	auto autov = x0*(B*x0);
-	// autov /= x0*x0; // Lo dejo por si las moscas, pero ||x0|| = 1
+	//autov /= x0*x0; // Lo dejo por si las moscas, pero ||x0|| = 1
 	#ifdef TEST
 	{
 		DEBUG_IDENT("TESTING", 2);
