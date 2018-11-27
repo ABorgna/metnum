@@ -17,5 +17,5 @@ typedef vector<double> Diag;
 
 USVt descomposicionSVD(Matriz &&A); 
 
-vector<double> cuadradosMinimosConSVD(const SpMatriz &A, vector<double> b);
+Vector cuadradosMinimosConSVD(const SpMatriz &A, vector<double> b);
 Diag inversaDiagonalNoNula(Diag& D);

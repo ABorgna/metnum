@@ -71,7 +71,7 @@ Matriz convertirDiag(Diag D) {
     return A;
 }
 
-vector<double> cuadradosMinimosConSVD(const SpMatriz &A, vector<double> b) {
+Vector cuadradosMinimosConSVD(const SpMatriz &A, vector<double> b) {
     const SpMatriz J = transpose(A);
     Matriz &&M = SpMult(J, J); 
     //SVD de At*A

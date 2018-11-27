@@ -98,7 +98,6 @@ int main(int argc, char* argv[]) {
     timeKeeper.stop();
 
     timeKeeper.start("lsq");
-    cout << "hasta aca si" << endl;
     Vector x;
     x = cuadradosMinimosConSVD(measurements, results);
     // TODO: run LSQ for `measurements * x = results`
@@ -109,8 +108,8 @@ int main(int argc, char* argv[]) {
 
     timeKeeper.start("writeImg");
     // TODO: Uncomment this.
-    //Image res(move(x), opt.cellsPerRow, opt.cellsPerRow);
-    Image res = img;
+    Image res(move(x), opt.cellsPerRow, opt.cellsPerRow);
+    //Image res = img;
     if (opt.inputFilename == "-") {
         // We need to write binary data to stdout
         freopen(NULL, "wb", stdout);
