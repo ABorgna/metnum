@@ -56,7 +56,6 @@ USVt descomposicionSVD(Matriz &&A) { //solo para matrices simetricas!!
     }
     cout << "el ultimo autovaloro es: " << S[S.size() - 1] << endl;
     USVt res = make_pair(U, S);
-    cout << "aaa" << endl;
     return res;
 }
 
@@ -64,10 +63,10 @@ Matriz convertirDiag(Diag D) {
     Matriz A(D.size());
     for (unsigned int i = 0; i < D.size(); i++) {
         for (unsigned int j = 0; j < i; j++) 
-            A[i][j] = 0;
-        A[i][i] = D[i];
+            A[i].push_back(0);
+        A[i].push_back(D[i]);
         for (unsigned int j = i+1; j < D.size(); j++)
-            A[i][j] = 0;
+            A[i].push_back(0);
     }
     return A;
 }
@@ -76,20 +75,26 @@ vector<double> cuadradosMinimosConSVD(const SpMatriz &A, vector<double> b) {
     Matriz &&M = SpMult(A, A); //no se si es A o trnaspose(a)
     //SVD de At*A
     USVt svd = descomposicionSVD(move(M));
+    cout << "termine SVD" << endl;
     Matriz Ut = transpose(svd.first);
 
+    cout << "termine trasnpuesta" << endl;
     Matriz U = svd.first;
 
+    cout << "la U no es" << endl;
    // Matriz A = SpMult(A, Id);
     const SpMatriz J = transpose(A);
+    cout << "la transpuesta no es" << endl;
     vector<double> vec = J*b; //A^t*b
 
     cout << "no es esto: " << endl;
 
-   cout << A[0].size() << " VS " << b.size() << endl;
-    Matriz S = convertirDiag(inversaDiagonalNoNula(svd.second));
+    cout << A[0].size() << " VS " << b.size() << endl;
+    Diag diag = inversaDiagonalNoNula(svd.second);
+    cout << "hasta aca llegue seguro diagonal" << endl;
+    Matriz S = convertirDiag(diag);
     cout << "hasta aca llegue seguro" << endl;
-    vec = U*S* Ut * (transpose(A) *vec);
+    vec = U * S * Ut * (transpose(A) *vec);
     return vec;
 }
 
