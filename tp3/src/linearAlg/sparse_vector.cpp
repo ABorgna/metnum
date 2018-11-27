@@ -157,14 +157,15 @@ Vector& operator-=(Vector& v1, const SparseVector& v2) {
     }
     return v1;
 }
-
 double operator*(const Vector& v1, const SparseVector& v2) {
     double res = 0;
     for (auto it = v2.begin(); it != v2.end(); it++) {
         const size_t pos = it->first;
         const double value = it->second;
         if (pos >= v1.size())
+        {
             break;
+        }
         res += v1[pos] * value;
     }
     return res;

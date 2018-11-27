@@ -5,6 +5,8 @@
 #include <cassert>
 #include <map>
 
+
+using namespace std;
 std::string showNorm(Norm norm) {
     switch (norm) {
         case (NORM_RANDOM):
@@ -135,6 +137,7 @@ SpMatriz transpose(const SpMatriz& M){
         }
     }
     SpMatriz res;
+    int count = 0;
     for (auto& m : tr){
         res.emplace_back(m, M.size());
     }

@@ -82,7 +82,9 @@ vector<double> cuadradosMinimosConSVD(const SpMatriz &A, vector<double> b) {
 
    // Matriz A = SpMult(A, Id);
     const SpMatriz J = transpose(A);
-    vector<double> vec = transpose(A)*b; //A^t*b
+    vector<double> vec = J*b; //A^t*b
+
+    cout << "no es esto: " << endl;
 
    cout << A[0].size() << " VS " << b.size() << endl;
     Matriz S = convertirDiag(inversaDiagonalNoNula(svd.second));
