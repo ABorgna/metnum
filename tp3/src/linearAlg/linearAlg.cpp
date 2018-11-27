@@ -133,7 +133,7 @@ SpMatriz transpose(const SpMatriz& M){
     std::vector<std::map<size_t, double>> tr(M[0].size());
     for (size_t i = 0; i < M.size(); i++){
         for (auto& elem : M[i]){
-            tr[elem.second].insert(std::make_pair(i, elem.first));
+            tr[elem.first].insert(std::make_pair(i, elem.second));
         }
     }
     SpMatriz res;
@@ -141,6 +141,8 @@ SpMatriz transpose(const SpMatriz& M){
     for (auto& m : tr){
         res.emplace_back(m, M.size());
     }
+    assert(res.size() == M[0].size());
+    assert(res[0].size() == M.size());
     return res;
 }
 
