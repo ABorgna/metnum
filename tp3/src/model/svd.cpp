@@ -48,7 +48,7 @@ std::vector<EigenValue> eigenvaluesHastaCero(Matriz&& B, TrivialStopper stop){
 
 USVt descomposicionSVD(const Matriz &&A) { //solo para matrices simetricas!!
     Matriz B = A; //TODO: a proposito, cambiar por recibir la rala(transpose(A))*A;
-    TrivialStopper stop;
+    TrivialStopper stop(-1, -1);
     vector<EigenValue> autovaloresYAutovectores = eigenvaluesHastaCero(move(B), stop);
     Vector S;
     Matriz V;
@@ -78,14 +78,19 @@ Matriz convertirDiag(Diag D) {
 
 
 Vector cuadradosMinimosConSVD(const SpMatriz &A, vector<double> b) {
+   // cout << "A: " << A << endl;
     const SpMatriz J = transpose(A);
+   // cout << "J: " << J << endl;
     Matriz &&M = SpMult(J,J); 
+   // cout << "M = At*A: " << M << endl;
     //cout << M << endl;
     //SVD de At*A
     USVt svd = descomposicionSVD(move(M));
 
     //USVt svd = descomposicionSVD(move(M));
     Matriz V = transpose(svd.first);
+   // cout << "V : " << V << endl;
+   // cout << "S : " << svd.second << endl;
     Matriz Vt = svd.first;
    // Matriz A = SpMult(A, Id);
     vector<double> vec = J*b; //A^t*b

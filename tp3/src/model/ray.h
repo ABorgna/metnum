@@ -20,6 +20,7 @@ enum RayGenerator {
     // Rayos horizontales, entre un punto (0, y) y un punt
     // (0, y'), para cualquieras y, y' \in [0, rows)
     RAY_SIDES = 1,
+    RAY_RANDOM = 2,
 
     // Dejar este siempre al final
     RAY_GEN_COUNT

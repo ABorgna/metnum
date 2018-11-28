@@ -72,6 +72,34 @@ std::vector<Ray> sideRays(int rows, int columns, int count) {
 
     return res;
 }
+Ray generarRayoRandom(int rows, int columns) {
+    return sideRays(rows, columns, 1);
+}
+std::vector<Ray> randomRays(int rows, int columns, int count) {
+
+    // # of possible spots
+    const int spots = rows*rows;
+    const int loops = count / spots;
+    int remaining = count % spots;
+
+    std::vector<Ray> res;
+    res.reserve(count);
+    for (int i = 0; i < count; i++) {
+        Ray rayo = generarRayoRandom(rows, columns);
+    }
+    for (int y = 0; y < rows; y++) {
+        for (int y2 = 0; y2 < rows; y2++){
+            int cnt = loops;
+            if (remaining > 0) {
+                cnt++;
+                remaining--;
+            }
+            res.insert(res.end(), cnt, {{0, y}, {columns + 1, y2}});
+        }
+    }
+
+    return res;
+}
 
 std::vector<Ray> makeRays(RayGenerator rg, int rows, int columns, int count) {
     switch (rg) {
@@ -79,6 +107,8 @@ std::vector<Ray> makeRays(RayGenerator rg, int rows, int columns, int count) {
             return axialRays(rows, columns, count);
         case RAY_SIDES:
             return sideRays(rows, columns, count);
+        case RAY_RANDOM:
+            return randomRays(rows, columns, count);
         default:
             throw std::invalid_argument("Invalid ray type.");
     }
