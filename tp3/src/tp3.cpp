@@ -99,7 +99,7 @@ int main(int argc, char* argv[]) {
 
     timeKeeper.start("lsq");
     Vector x;
-    x = cuadradosMinimosConSVD(measurements, results);
+    x = cuadradosMinimosConSVD(descomposicionSVD(measurements), results);
     // TODO: run LSQ for `measurements * x = results`
 
     timeKeeper.stop();

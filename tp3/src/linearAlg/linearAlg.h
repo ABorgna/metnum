@@ -43,8 +43,10 @@ Vector operator*(const SpMatriz& M, const Vector& V);
 Matriz SpMult(const SpMatriz& M, const SpMatriz& Nt);
 
 SpMatriz transpose(const SpMatriz& M);
+Matriz transpose(const Matriz &A);
 
 Matriz operator*(const Matriz& M1, const Matriz& M2);
+Matriz operator*(const SpMatriz& M1, const Matriz& M2);
 
 Matriz Id(int n);
 

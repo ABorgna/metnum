@@ -146,6 +146,16 @@ SpMatriz transpose(const SpMatriz& M){
     return res;
 }
 
+Matriz transpose(const Matriz &A) {
+    Matriz At(A[0].size());
+    for (unsigned int i = 0; i < A.size(); i++) {
+        for (unsigned int j = 0; j < A[i].size(); j++) {
+            At[j].push_back(A[i][j]);
+        }
+    }
+    return At;
+}
+
 Matriz operator*(const Matriz& M1, const Matriz& M2) {
     assert(M1[0].size() == M2.size());
     Matriz ans(M1.size(), Vector(M2[0].size()));
@@ -158,6 +168,21 @@ Matriz operator*(const Matriz& M1, const Matriz& M2) {
         }
     }
     return ans;
+}
+
+Matriz operator*(const SpMatriz& M1, const Matriz& M2) {
+    assert(M1[0].size() == M2.size());
+    Matriz res(M1.size(), Vector(M2[0].size()));
+
+
+    for (size_t i = 0; i < M1.size(); i++)
+        for (size_t j = 0; j < M2[0].size(); j++){
+            res[i][j] = 0;
+            for (auto e : M1[i]){
+                res[i][j] += e.second*M2[e.first][j];
+            }
+        }
+    return res;
 }
 
 Matriz Id(int n) {

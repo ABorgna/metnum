@@ -11,11 +11,11 @@
 
 #include "../linearAlg/linearAlg.h"
 using namespace std;
-typedef std::pair<Matriz, vector<double>> USVt; //tenemos la U, y la sigma guardando solo la diagonal
+typedef std::tuple<Matriz, vector<double>, Matriz> USVt; //tenemos la V, y la sigma guardando solo la diagonal
 
 typedef vector<double> Diag;
 
-USVt descomposicionSVD(const Matriz &&A); 
+USVt descomposicionSVD(const SpMatriz &A); 
 
-Vector cuadradosMinimosConSVD(const SpMatriz &A, vector<double> b);
+Vector cuadradosMinimosConSVD(const USVt &A, Vector b);
 Diag inversaDiagonalNoNula(Diag& D);
