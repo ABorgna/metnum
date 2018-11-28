@@ -24,22 +24,18 @@ C = 1;
 
 % Definicion de Funciones
 
- F = @(x,a,b,y,C) A(a,b,y) + 23 % **COMPLETAR**
- derivada_F = @(x,a,b,y,C) % **COMPLETAR**
+ F = @(t,a,b,y,C)(A(t,a,b,y) - C);
+ derivada_F = @(t,a,b,y,C) derA(t,a,b,y);
 
  F_de_t = @(t) F(t,a,b,y,C);
  derivada_F_de_t = @(t) derivada_F(t,a,b,y,C);
-
-% Grafico de la funcion de aturdimiento
-
-graficador(y,a,b)
 
 
 %% NEWTON
 
 disp('NEWTON-RAPHSON')
 
-x0 = ; % ** COMPLETAR ** 
+x0 = 0.51;
 tol = 0.00000001; 
 maxnumit = 40;
 
@@ -49,10 +45,15 @@ maxnumit = 40;
 
 disp('BISECCION')
 
-x0 = ; % ** COMPLETAR **
-x1 = ; % ** COMPLETAR **
+x0 = 0;
+x1 = 1;
 tol = 0.00000001; 
 maxnumit = 40;
 
 [xfinal,seq_x_Bisec] = Biseccion(F_de_t, tol, maxnumit, x0, x1);
+
+% Grafico de la funcion de aturdimiento
+
+est = @(f,a) (Estimacion_derivada(f,a))
+graficador(y,a,b, F_de_t, derivada_F_de_t, est, seq_x_NR, seq_x_Bisec)
 

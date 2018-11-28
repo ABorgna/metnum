@@ -17,7 +17,8 @@ fprintf(1,'x(%d):%f f(x):%f\n', indit, x0, F(x0) );
 
 while abs(F(x_ant)) > tol && indit < CantIt,
     
-    % ** COMPLETAR CON ITERACION DE NEWTON **
+    % Paso de newton
+    x = x_ant - F(x_ant) / derivadaF(x_ant);
     
     seq_x = [seq_x, x];
     
