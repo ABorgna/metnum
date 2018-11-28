@@ -73,7 +73,7 @@ std::vector<Ray> sideRays(int rows, int columns, int count) {
     return res;
 }
 Ray generarRayoRandom(int rows, int columns) {
-    return sideRays(rows, columns, 1);
+    return sideRays(rows, columns, 1)[0];
 }
 std::vector<Ray> randomRays(int rows, int columns, int count) {
 
