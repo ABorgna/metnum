@@ -72,8 +72,7 @@ int main(int argc, char* argv[]) {
     DEBUG("---------------- Creating rays and preprocessing LSQ ------------");
 
     timeKeeper.start("createRays");
-    auto rays = makeRays(opt.rayGenerator, opt.cellsPerRow, opt.cellsPerRow,
-                         opt.rayCount);
+    auto rays = makeRays(opt.rayGenerator, opt.rayCount);
     SpMatriz measurements = rayCells(rays, opt.cellsPerRow, opt.cellsPerRow);
     Vector pureResults = rayResults(img, measurements);
     timeKeeper.stop();

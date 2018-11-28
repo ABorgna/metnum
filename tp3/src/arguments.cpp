@@ -31,6 +31,7 @@ void printHelp(const string& cmd, const Options& defaults) {
          << "                   Type of emulated rays:" << endl
          << "                     0: Axial rays (default)." << endl
          << "                     1: Side rays." << endl
+         << "                     2: Random rays." << endl
          << "    -R, --ray-count #" << endl
          << "                   Number of rays "
          << " (Default:" << defaults.rayCount << ")" << endl

@@ -8,6 +8,13 @@
 #include <vector>
 #include "img.h"
 
+// Punto en la imagen, en el intervalo [0,1]
+// (0,0) es la esquina superior izquierda.
+struct ImgPoint {
+    double x;
+    double y;
+};
+
 struct Ray {
     ImgPoint start;
     ImgPoint end;
@@ -28,7 +35,7 @@ enum RayGenerator {
 
 std::string showRayGenerator(RayGenerator);
 
-std::vector<Ray> makeRays(RayGenerator, int rows, int columns, int count);
+std::vector<Ray> makeRays(RayGenerator, int count);
 
 // Generar una matriz (rala) de dimensiones `#rayos x #celdas`
 // marcando por qué celdas pasa cada rayo y con qué largo.
