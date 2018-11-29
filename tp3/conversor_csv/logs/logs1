@@ -1,0 +1,182 @@
+Ejecutando exp...
+
+-----------CLEAN AND CREATE FOLDERS----------------
+Re-creada:./imgs_output/
+
+------------------FETCH INPUT----------------------
+Leyendo imagenes en carpeta ./imgs_input/
+Imagenes encontradas: tomo2-32.csv, phantom-32.csv, tomo3-32.csv, tomo-32.csv
+
+------------------ EXECUTION-----------------------
+OUTPUT_FILE: resultados/psnr-tiempos-variando-rayos-data.csv
+
+>> nombre_imagen,cant_rayos,psnr,tiempo_ms
+(1/4) Ejecutando imagen tomo2-32.csv
+../tp3 ./imgs_input/tomo2-32.csv ./imgs_output/tomo2-32.csv-output-0 --ray-count 10 --ray-type 0 -n 32
+>> tomo2-32.csv,10,6.045137618685209,373
+../tp3 ./imgs_input/tomo2-32.csv ./imgs_output/tomo2-32.csv-output-1 --ray-count 1588 --ray-type 0 -n 32
+>> tomo2-32.csv,1588,6.04517641787477,390
+../tp3 ./imgs_input/tomo2-32.csv ./imgs_output/tomo2-32.csv-output-2 --ray-count 3166 --ray-type 0 -n 32
+>> tomo2-32.csv,3166,6.045176386102732,58
+../tp3 ./imgs_input/tomo2-32.csv ./imgs_output/tomo2-32.csv-output-3 --ray-count 4745 --ray-type 0 -n 32
+>> tomo2-32.csv,4745,6.0451764048584975,424
+../tp3 ./imgs_input/tomo2-32.csv ./imgs_output/tomo2-32.csv-output-4 --ray-count 6323 --ray-type 0 -n 32
+>> tomo2-32.csv,6323,6.045176413246925,94
+../tp3 ./imgs_input/tomo2-32.csv ./imgs_output/tomo2-32.csv-output-5 --ray-count 7902 --ray-type 0 -n 32
+>> tomo2-32.csv,7902,6.045176401289184,462
+../tp3 ./imgs_input/tomo2-32.csv ./imgs_output/tomo2-32.csv-output-6 --ray-count 9480 --ray-type 0 -n 32
+>> tomo2-32.csv,9480,6.045176408917158,481
+../tp3 ./imgs_input/tomo2-32.csv ./imgs_output/tomo2-32.csv-output-7 --ray-count 11058 --ray-type 0 -n 32
+>> tomo2-32.csv,11058,6.045176412729601,502
+../tp3 ./imgs_input/tomo2-32.csv ./imgs_output/tomo2-32.csv-output-8 --ray-count 12637 --ray-type 0 -n 32
+>> tomo2-32.csv,12637,6.0451764022974,171
+../tp3 ./imgs_input/tomo2-32.csv ./imgs_output/tomo2-32.csv-output-9 --ray-count 14215 --ray-type 0 -n 32
+>> tomo2-32.csv,14215,6.04517641025163,539
+../tp3 ./imgs_input/tomo2-32.csv ./imgs_output/tomo2-32.csv-output-10 --ray-count 15794 --ray-type 0 -n 32
+>> tomo2-32.csv,15794,6.045176412375634,560
+../tp3 ./imgs_input/tomo2-32.csv ./imgs_output/tomo2-32.csv-output-11 --ray-count 17372 --ray-type 0 -n 32
+>> tomo2-32.csv,17372,6.045176403632499,579
+../tp3 ./imgs_input/tomo2-32.csv ./imgs_output/tomo2-32.csv-output-12 --ray-count 18951 --ray-type 0 -n 32
+>> tomo2-32.csv,18951,6.04517641057842,596
+../tp3 ./imgs_input/tomo2-32.csv ./imgs_output/tomo2-32.csv-output-13 --ray-count 20529 --ray-type 0 -n 32
+>> tomo2-32.csv,20529,6.045176412266718,620
+../tp3 ./imgs_input/tomo2-32.csv ./imgs_output/tomo2-32.csv-output-14 --ray-count 22107 --ray-type 0 -n 32
+>> tomo2-32.csv,22107,6.045176404531574,642
+../tp3 ./imgs_input/tomo2-32.csv ./imgs_output/tomo2-32.csv-output-15 --ray-count 23686 --ray-type 0 -n 32
+>> tomo2-32.csv,23686,6.045176411014128,663
+../tp3 ./imgs_input/tomo2-32.csv ./imgs_output/tomo2-32.csv-output-16 --ray-count 25264 --ray-type 0 -n 32
+>> tomo2-32.csv,25264,6.045176412185031,683
+../tp3 ./imgs_input/tomo2-32.csv ./imgs_output/tomo2-32.csv-output-17 --ray-count 26843 --ray-type 0 -n 32
+>> tomo2-32.csv,26843,6.045176405757497,702
+../tp3 ./imgs_input/tomo2-32.csv ./imgs_output/tomo2-32.csv-output-18 --ray-count 28421 --ray-type 0 -n 32
+>> tomo2-32.csv,28421,6.045176411286441,720
+../tp3 ./imgs_input/tomo2-32.csv ./imgs_output/tomo2-32.csv-output-19 --ray-count 30000 --ray-type 0 -n 32
+>> tomo2-32.csv,30000,6.045176412103341,740
+
+(2/4) Ejecutando imagen phantom-32.csv
+../tp3 ./imgs_input/phantom-32.csv ./imgs_output/phantom-32.csv-output-20 --ray-count 10 --ray-type 0 -n 32
+>> phantom-32.csv,10,13.60336692178382,375
+../tp3 ./imgs_input/phantom-32.csv ./imgs_output/phantom-32.csv-output-21 --ray-count 1588 --ray-type 0 -n 32
+>> phantom-32.csv,1588,13.603428538922275,41
+../tp3 ./imgs_input/phantom-32.csv ./imgs_output/phantom-32.csv-output-22 --ray-count 3166 --ray-type 0 -n 32
+>> phantom-32.csv,3166,13.603428520944153,58
+../tp3 ./imgs_input/phantom-32.csv ./imgs_output/phantom-32.csv-output-23 --ray-count 4745 --ray-type 0 -n 32
+>> phantom-32.csv,4745,13.603428528415284,423
+../tp3 ./imgs_input/phantom-32.csv ./imgs_output/phantom-32.csv-output-24 --ray-count 6323 --ray-type 0 -n 32
+>> phantom-32.csv,6323,13.603428536098532,94
+../tp3 ./imgs_input/phantom-32.csv ./imgs_output/phantom-32.csv-output-25 --ray-count 7902 --ray-type 0 -n 32
+>> phantom-32.csv,7902,13.603428529298878,461
+../tp3 ./imgs_input/phantom-32.csv ./imgs_output/phantom-32.csv-output-26 --ray-count 9480 --ray-type 0 -n 32
+>> phantom-32.csv,9480,13.603428532522974,483
+../tp3 ./imgs_input/phantom-32.csv ./imgs_output/phantom-32.csv-output-27 --ray-count 11058 --ray-type 0 -n 32
+>> phantom-32.csv,11058,13.60342853596614,503
+../tp3 ./imgs_input/phantom-32.csv ./imgs_output/phantom-32.csv-output-28 --ray-count 12637 --ray-type 0 -n 32
+>> phantom-32.csv,12637,13.603428530756542,169
+../tp3 ./imgs_input/phantom-32.csv ./imgs_output/phantom-32.csv-output-29 --ray-count 14215 --ray-type 0 -n 32
+>> phantom-32.csv,14215,13.603428533891629,540
+../tp3 ./imgs_input/phantom-32.csv ./imgs_output/phantom-32.csv-output-30 --ray-count 15794 --ray-type 0 -n 32
+>> phantom-32.csv,15794,13.603428535657212,563
+../tp3 ./imgs_input/phantom-32.csv ./imgs_output/phantom-32.csv-output-31 --ray-count 17372 --ray-type 0 -n 32
+>> phantom-32.csv,17372,13.603428531330685,578
+../tp3 ./imgs_input/phantom-32.csv ./imgs_output/phantom-32.csv-output-32 --ray-count 18951 --ray-type 0 -n 32
+>> phantom-32.csv,18951,13.603428534200642,598
+../tp3 ./imgs_input/phantom-32.csv ./imgs_output/phantom-32.csv-output-33 --ray-count 20529 --ray-type 0 -n 32
+>> phantom-32.csv,20529,13.603428535613078,621
+../tp3 ./imgs_input/phantom-32.csv ./imgs_output/phantom-32.csv-output-34 --ray-count 22107 --ray-type 0 -n 32
+>> phantom-32.csv,22107,13.603428531816459,640
+../tp3 ./imgs_input/phantom-32.csv ./imgs_output/phantom-32.csv-output-35 --ray-count 23686 --ray-type 0 -n 32
+>> phantom-32.csv,23686,13.603428534597919,661
+../tp3 ./imgs_input/phantom-32.csv ./imgs_output/phantom-32.csv-output-36 --ray-count 25264 --ray-type 0 -n 32
+>> phantom-32.csv,25264,13.60342853552481,678
+../tp3 ./imgs_input/phantom-32.csv ./imgs_output/phantom-32.csv-output-37 --ray-count 26843 --ray-type 0 -n 32
+>> phantom-32.csv,26843,13.60342853239051,700
+../tp3 ./imgs_input/phantom-32.csv ./imgs_output/phantom-32.csv-output-38 --ray-count 28421 --ray-type 0 -n 32
+>> phantom-32.csv,28421,13.60342853481862,724
+../tp3 ./imgs_input/phantom-32.csv ./imgs_output/phantom-32.csv-output-39 --ray-count 30000 --ray-type 0 -n 32
+>> phantom-32.csv,30000,13.603428535480674,745
+
+(3/4) Ejecutando imagen tomo3-32.csv
+../tp3 ./imgs_input/tomo3-32.csv ./imgs_output/tomo3-32.csv-output-40 --ray-count 10 --ray-type 0 -n 32
+>> tomo3-32.csv,10,11.076635630398268,373
+../tp3 ./imgs_input/tomo3-32.csv ./imgs_output/tomo3-32.csv-output-41 --ray-count 1588 --ray-type 0 -n 32
+>> tomo3-32.csv,1588,11.076643423671193,388
+../tp3 ./imgs_input/tomo3-32.csv ./imgs_output/tomo3-32.csv-output-42 --ray-count 3166 --ray-type 0 -n 32
+>> tomo3-32.csv,3166,11.076643390941182,57
+../tp3 ./imgs_input/tomo3-32.csv ./imgs_output/tomo3-32.csv-output-43 --ray-count 4745 --ray-type 0 -n 32
+>> tomo3-32.csv,4745,11.076643416720273,425
+../tp3 ./imgs_input/tomo3-32.csv ./imgs_output/tomo3-32.csv-output-44 --ray-count 6323 --ray-type 0 -n 32
+>> tomo3-32.csv,6323,11.076643420006729,93
+../tp3 ./imgs_input/tomo3-32.csv ./imgs_output/tomo3-32.csv-output-45 --ray-count 7902 --ray-type 0 -n 32
+>> tomo3-32.csv,7902,11.076643407445301,460
+../tp3 ./imgs_input/tomo3-32.csv ./imgs_output/tomo3-32.csv-output-46 --ray-count 9480 --ray-type 0 -n 32
+>> tomo3-32.csv,9480,11.076643417815873,482
+../tp3 ./imgs_input/tomo3-32.csv ./imgs_output/tomo3-32.csv-output-47 --ray-count 11058 --ray-type 0 -n 32
+>> tomo3-32.csv,11058,11.076643419711834,501
+../tp3 ./imgs_input/tomo3-32.csv ./imgs_output/tomo3-32.csv-output-48 --ray-count 12637 --ray-type 0 -n 32
+>> tomo3-32.csv,12637,11.076643408837064,171
+../tp3 ./imgs_input/tomo3-32.csv ./imgs_output/tomo3-32.csv-output-49 --ray-count 14215 --ray-type 0 -n 32
+>> tomo3-32.csv,14215,11.076643418321495,537
+../tp3 ./imgs_input/tomo3-32.csv ./imgs_output/tomo3-32.csv-output-50 --ray-count 15794 --ray-type 0 -n 32
+>> tomo3-32.csv,15794,11.076643419374799,562
+../tp3 ./imgs_input/tomo3-32.csv ./imgs_output/tomo3-32.csv-output-51 --ray-count 17372 --ray-type 0 -n 32
+>> tomo3-32.csv,17372,11.076643410186477,578
+../tp3 ./imgs_input/tomo3-32.csv ./imgs_output/tomo3-32.csv-output-52 --ray-count 18951 --ray-type 0 -n 32
+>> tomo3-32.csv,18951,11.076643418405766,596
+../tp3 ./imgs_input/tomo3-32.csv ./imgs_output/tomo3-32.csv-output-53 --ray-count 20529 --ray-type 0 -n 32
+>> tomo3-32.csv,20529,11.076643419332669,622
+../tp3 ./imgs_input/tomo3-32.csv ./imgs_output/tomo3-32.csv-output-54 --ray-count 22107 --ray-type 0 -n 32
+>> tomo3-32.csv,22107,11.076643411409234,640
+../tp3 ./imgs_input/tomo3-32.csv ./imgs_output/tomo3-32.csv-output-55 --ray-count 23686 --ray-type 0 -n 32
+>> tomo3-32.csv,23686,11.076643418616431,662
+../tp3 ./imgs_input/tomo3-32.csv ./imgs_output/tomo3-32.csv-output-56 --ray-count 25264 --ray-type 0 -n 32
+>> tomo3-32.csv,25264,11.076643419248406,682
+../tp3 ./imgs_input/tomo3-32.csv ./imgs_output/tomo3-32.csv-output-57 --ray-count 26843 --ray-type 0 -n 32
+>> tomo3-32.csv,26843,11.076643412674008,704
+../tp3 ./imgs_input/tomo3-32.csv ./imgs_output/tomo3-32.csv-output-58 --ray-count 28421 --ray-type 0 -n 32
+>> tomo3-32.csv,28421,11.076643418658563,722
+../tp3 ./imgs_input/tomo3-32.csv ./imgs_output/tomo3-32.csv-output-59 --ray-count 30000 --ray-type 0 -n 32
+>> tomo3-32.csv,30000,11.076643419164146,742
+
+(4/4) Ejecutando imagen tomo-32.csv
+../tp3 ./imgs_input/tomo-32.csv ./imgs_output/tomo-32.csv-output-60 --ray-count 10 --ray-type 0 -n 32
+>> tomo-32.csv,10,6.049127200167171,374
+../tp3 ./imgs_input/tomo-32.csv ./imgs_output/tomo-32.csv-output-61 --ray-count 1588 --ray-type 0 -n 32
+>> tomo-32.csv,1588,6.049166888350951,389
+../tp3 ./imgs_input/tomo-32.csv ./imgs_output/tomo-32.csv-output-62 --ray-count 3166 --ray-type 0 -n 32
+>> tomo-32.csv,3166,6.0491668563504355,58
+../tp3 ./imgs_input/tomo-32.csv ./imgs_output/tomo-32.csv-output-63 --ray-count 4745 --ray-type 0 -n 32
+>> tomo-32.csv,4745,6.049166875205474,423
+../tp3 ./imgs_input/tomo-32.csv ./imgs_output/tomo-32.csv-output-64 --ray-count 6323 --ray-type 0 -n 32
+>> tomo-32.csv,6323,6.049166883725576,94
+../tp3 ./imgs_input/tomo-32.csv ./imgs_output/tomo-32.csv-output-65 --ray-count 7902 --ray-type 0 -n 32
+>> tomo-32.csv,7902,6.049166871638026,461
+../tp3 ./imgs_input/tomo-32.csv ./imgs_output/tomo-32.csv-output-66 --ray-count 9480 --ray-type 0 -n 32
+>> tomo-32.csv,9480,6.049166879343676,480
+../tp3 ./imgs_input/tomo-32.csv ./imgs_output/tomo-32.csv-output-67 --ray-count 11058 --ray-type 0 -n 32
+>> tomo-32.csv,11058,6.049166883208528,499
+../tp3 ./imgs_input/tomo-32.csv ./imgs_output/tomo-32.csv-output-68 --ray-count 12637 --ray-type 0 -n 32
+>> tomo-32.csv,12637,6.04916687267295,171
+../tp3 ./imgs_input/tomo-32.csv ./imgs_output/tomo-32.csv-output-69 --ray-count 14215 --ray-type 0 -n 32
+>> tomo-32.csv,14215,6.04916688067744,543
+../tp3 ./imgs_input/tomo-32.csv ./imgs_output/tomo-32.csv-output-70 --ray-count 15794 --ray-type 0 -n 32
+>> tomo-32.csv,15794,6.0491668828275325,556
+../tp3 ./imgs_input/tomo-32.csv ./imgs_output/tomo-32.csv-output-71 --ray-count 17372 --ray-type 0 -n 32
+>> tomo-32.csv,17372,6.049166874007348,578
+../tp3 ./imgs_input/tomo-32.csv ./imgs_output/tomo-32.csv-output-72 --ray-count 18951 --ray-type 0 -n 32
+>> tomo-32.csv,18951,6.049166881004059,600
+../tp3 ./imgs_input/tomo-32.csv ./imgs_output/tomo-32.csv-output-73 --ray-count 20529 --ray-type 0 -n 32
+>> tomo-32.csv,20529,6.049166882718676,618
+../tp3 ./imgs_input/tomo-32.csv ./imgs_output/tomo-32.csv-output-74 --ray-count 22107 --ray-type 0 -n 32
+>> tomo-32.csv,22107,6.049166874905953,637
+../tp3 ./imgs_input/tomo-32.csv ./imgs_output/tomo-32.csv-output-75 --ray-count 23686 --ray-type 0 -n 32
+>> tomo-32.csv,23686,6.049166881466753,659
+../tp3 ./imgs_input/tomo-32.csv ./imgs_output/tomo-32.csv-output-76 --ray-count 25264 --ray-type 0 -n 32
+>> tomo-32.csv,25264,6.049166882637032,681
+../tp3 ./imgs_input/tomo-32.csv ./imgs_output/tomo-32.csv-output-77 --ray-count 26843 --ray-type 0 -n 32
+>> tomo-32.csv,26843,6.049166876158457,704
+../tp3 ./imgs_input/tomo-32.csv ./imgs_output/tomo-32.csv-output-78 --ray-count 28421 --ray-type 0 -n 32
+>> tomo-32.csv,28421,6.04916688173892,724
+../tp3 ./imgs_input/tomo-32.csv ./imgs_output/tomo-32.csv-output-79 --ray-count 30000 --ray-type 0 -n 32
+>> tomo-32.csv,30000,6.049166882555388,745
+
+Listo!

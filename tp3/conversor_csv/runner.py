@@ -1,17 +1,6 @@
 import csv_converter
-import subprocess
 import sys
-
-def parsear_output(output):
-    delim = "---------------- Results -----------------"
-    output = output[output.find(delim)+len(delim):].strip()
-    output = output.split("\n")
-    pairs = [elem.strip().split(": ") for elem in output]
-    return dict(pairs)
-
-def ejecutar(cmd):
-    return subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True).decode("utf-8")
-
+from utils import *
 
 if len(sys.argv) < 4:
     print("Correr python3 runner.py <archivo> <archivo output> <tamano>.")

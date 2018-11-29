@@ -45,7 +45,7 @@ def convertImg(infile, input_folder, output_folder, extension, extension_salida 
     value = np.asarray(img_grey.getdata(), dtype=np.int).reshape((img_grey.size[1], img_grey.size[0]))
 
     if extension_salida == '.csv':
-        name = output_folder + infile.replace(extension, "").replace(input_folder, "") + (str(tam) if tam is not None else "") + ".csv"
+        name = output_folder + infile.replace(extension, "").replace(input_folder, "") + ("-" + str(tam) if tam is not None else "") + ".csv"
         with open(name, 'w') as f:
             writer = csv.writer(f)
             for v in value:
