@@ -1,0 +1,11 @@
+{
+    "nombre": "expPrueba",
+    "imgs": ["tomo2"],
+    "n_cells" : [32],
+    "rays_types": [1],
+    "rays_cnt" : {"from" : 20, "to" : 20, "step" : 1000},
+    "lsq" : [0],
+    "error_type" : [0],
+    "error_std" : [1],
+    "reps" : 3
+}
