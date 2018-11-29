@@ -105,7 +105,7 @@ std::vector<Ray> randomRays(int count, size_t seed) {
 
     srand(seed);
     for (int i = 0; i < count; i++) {
-        Ray rayo = generarRayoRandom();
+        res.push_back(generarRayoRandom());
     }
 
     return res;
