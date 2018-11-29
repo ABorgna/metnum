@@ -195,7 +195,8 @@ size_t trainingCacheKey(const Options& o) {
            std::hash<size_t>{}((size_t)o.errorGenerator) ^
            std::hash<double>{}(o.errorSigma) ^
            std::hash<size_t>{}((size_t)o.lsqMethod) ^
-           std::hash<size_t>{}(o.seed);
+           std::hash<size_t>{}(o.seed) ^
+           std::hash<double>{}(o.alpha);
 }
 
 std::string cacheFilename(const Options& o) {
