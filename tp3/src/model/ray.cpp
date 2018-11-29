@@ -1,5 +1,6 @@
 #include "ray.h"
 #include <cmath>
+#include <random>
 
 std::string showRayGenerator(RayGenerator rg) {
     switch (rg) {
@@ -7,6 +8,8 @@ std::string showRayGenerator(RayGenerator rg) {
             return "Axial rays";
         case RAY_SIDES:
             return "Side rays";
+        case RAY_RANDOM:
+            return "Random rays";
         default:
             return "Unknown ray type";
     }
@@ -14,101 +17,108 @@ std::string showRayGenerator(RayGenerator rg) {
 
 /********************* Ray generators ************************************/
 
-std::vector<Ray> axialRays(int rows, int columns, int count) {
+std::vector<Ray> axialRays(int count) {
     // # of possible spots
-    const int spots = rows + columns;
-    const int loops = count / spots;
-    int remaining = count % spots;
+    const int vertical = count / 2;
+    const int horizontal = count - vertical;
 
     std::vector<Ray> res;
     res.reserve(count);
 
-    for (int y = 0; y < rows; y++) {
-        int cnt = loops;
-        if (remaining > 0) {
-            cnt++;
-            remaining--;
-        }
-        for (int i = 0; i < cnt; i++) {
-            Ray ray = {{0, y}, {columns + 1, y}};
-            res.push_back(ray);
-        }
+    const double deltaY = 1.0 / horizontal;
+    double y = deltaY / 2;
+    for (int r = 0; r < horizontal; r++) {
+        Ray ray = {{0, y}, {1, y}};
+        res.push_back(ray);
+        y += deltaY;
     }
 
-    for (int x = 0; x < columns; x++) {
-        int cnt = loops;
-        if (remaining > 0) {
-            cnt++;
-            remaining--;
-        }
-        for (int i = 0; i < cnt; i++) {
-            Ray ray = {{x, 0}, {x, rows + 1}};
-            res.push_back(ray);
-        }
+    const double deltaX = 1.0 / vertical;
+    double x = deltaX / 2;
+    for (int c = 0; c < vertical; c++) {
+        Ray ray = {{x, 0}, {x, 1}};
+        res.push_back(ray);
+        x += deltaX;
     }
 
     return res;
 }
 
-std::vector<Ray> sideRays(int rows, int columns, int count) {
-    // # of possible spots
-    const int spots = rows*rows;
-    const int loops = count / spots;
-    int remaining = count % spots;
+std::vector<Ray> sideRays(int count) {
+    const int ends = std::ceil(std::sqrt(count));
+    const int starts = ends;
 
     std::vector<Ray> res;
     res.reserve(count);
 
-    for (int y = 0; y < rows; y++) {
-        for (int y2 = 0; y2 < rows; y2++){
-            int cnt = loops;
-            if (remaining > 0) {
-                cnt++;
-                remaining--;
-            }
-            res.insert(res.end(), cnt, {{0, y}, {columns + 1, y2}});
+    int current = 0;
+
+    const double deltaSt = 1.0 / starts;
+    double st = deltaSt / 2;
+    for (int a = 0; a < starts; a++) {
+        const double deltaEnd = 1.0 / ends;
+        double end = deltaEnd / 2;
+        for (int b = 0; b < ends; b++) {
+            current++;
+            if (current > count)
+                break;
+
+            Ray ray = {{0, st}, {1, end}};
+            res.push_back(ray);
+
+            end += deltaEnd;
         }
+
+        st += deltaSt;
     }
 
     return res;
 }
-Ray generarRayoRandom(int rows, int columns) {
-    return sideRays(rows, columns, 1)[0];
+
+ImgPoint randomPointInSide(int side) {
+    double r = rand() / (RAND_MAX + 1.);
+
+    switch (side) {
+        case 0:
+            return {0, r};
+        case 1:
+            return {r, 0};
+        case 2:
+            return {1, r};
+        case 3:
+            return {r, 1};
+        default:
+            throw "Invalid side";
+    }
 }
-std::vector<Ray> randomRays(int rows, int columns, int count) {
 
-    // # of possible spots
-    const int spots = rows*rows;
-    const int loops = count / spots;
-    int remaining = count % spots;
+Ray generarRayoRandom() {
+    int inicial = std::rand() % 4;
+    int fin = (inicial + std::rand() % 3 + 1) % 4;
 
+    return {randomPointInSide(inicial), randomPointInSide(fin)};
+}
+
+std::vector<Ray> randomRays(int count, size_t seed) {
     std::vector<Ray> res;
     res.reserve(count);
+
+    srand(seed);
     for (int i = 0; i < count; i++) {
-        Ray rayo = generarRayoRandom(rows, columns);
-    }
-    for (int y = 0; y < rows; y++) {
-        for (int y2 = 0; y2 < rows; y2++){
-            int cnt = loops;
-            if (remaining > 0) {
-                cnt++;
-                remaining--;
-            }
-            res.insert(res.end(), cnt, {{0, y}, {columns + 1, y2}});
-        }
+        res.push_back(generarRayoRandom());
     }
 
     return res;
 }
 
-std::vector<Ray> makeRays(RayGenerator rg, int rows, int columns, int count) {
+std::vector<Ray> makeRays(RayGenerator rg, int count, size_t seed) {
     switch (rg) {
         case RAY_AXIAL:
-            return axialRays(rows, columns, count);
+            return axialRays(count);
         case RAY_SIDES:
-            return sideRays(rows, columns, count);
+            return sideRays(count);
         case RAY_RANDOM:
-            return randomRays(rows, columns, count);
+            return randomRays(count, seed);
         default:
             throw std::invalid_argument("Invalid ray type.");
     }
@@ -116,13 +126,33 @@ std::vector<Ray> makeRays(RayGenerator rg, int rows, int columns, int count) {
 
 /********************* Ray processing ************************************/
 
+// Punto con coordenadas en Z
+struct IntCoords {
+    int x;
+    int y;
+};
+
+IntCoords fromImgPoint(ImgPoint p, int rows, int columns) {
+    assert(rows > 0 and columns > 0);
+    IntCoords res = {
+        (int)std::floor(p.x * columns),
+        (int)std::floor(p.y * rows),
+    };
+    if (res.x == columns)
+        res.x--;
+    if (res.y == rows)
+        res.y--;
+    return res;
+}
+
 // Calculate the cells crossed by the ray,
 // with the exact distance traversed on each cell.
 //
 // Uses Xiaolin Wu's line algorithm for line antialiasing.
 SparseVector crossedCellsExact(const Ray& r, int rows, int columns) {
-    ImgPoint a = r.start;
-    ImgPoint b = r.end;
+    // TODO: Use doubles in the calculations
+    IntCoords a = fromImgPoint(r.start, rows, columns);
+    IntCoords b = fromImgPoint(r.end, rows, columns);
     std::map<size_t, double> res;
 
     bool steep = abs(b.y - a.y) > abs(b.x - a.x);
@@ -176,14 +206,14 @@ SparseVector crossedCellsExact(const Ray& r, int rows, int columns) {
 //
 // Uses Bresenham's line algorithm to plot a line in a grid.
 SparseVector crossedCellsBinary(const Ray& r, int rows, int columns) {
-    ImgPoint a = r.start;
-    ImgPoint b = r.end;
+    IntCoords a = fromImgPoint(r.start, rows, columns);
+    IntCoords b = fromImgPoint(r.end, rows, columns);
 
-    ImgPoint d = {b.x - a.x, b.y - a.y};
+    IntCoords d = {b.x - a.x, b.y - a.y};
     d.x = abs(d.x);
     d.y = abs(d.y);
 
-    ImgPoint s = {a.x < b.x ? 1 : -1, a.y < b.y ? 1 : -1};
+    IntCoords s = {a.x < b.x ? 1 : -1, a.y < b.y ? 1 : -1};
     int err = d.x - d.y;
 
     std::map<size_t, double> res;

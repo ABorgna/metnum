@@ -6,23 +6,23 @@
 #include <thread>
 
 #include "arguments.h"
+#include "cache.h"
 #include "debug.h"
 #include "files.h"
-#include "model/svd.h"
 #include "model/potencia.h"
+#include "model/svd.h"
 #include "timer.h"
 
 using namespace std;
 
-const size_t SEED = 42;
 // Used to invalidate the models cache
-const size_t VERSION = 1;
+const size_t VERSION = 2;
 
 const Options defaultOptions = {
     // Image input and output
     inputFilename : "",
     outputFilename : "",
-    cachePath : "",
+    cachePath : "cache",
 
     // Rays
     rayGenerator : RAY_AXIAL,
@@ -38,6 +38,7 @@ const Options defaultOptions = {
 
     debug : true,
     nThreads : -1,
+    seed : 42,
 };
 
 int main(int argc, char* argv[]) {
@@ -69,47 +70,62 @@ int main(int argc, char* argv[]) {
     timeKeeper.stop();
 
     /*****************************************************************/
+
+    SpMatriz measurements;
+    USVt descomposicion;
+    bool validCache = false;
+    if (opt.cachePath != "") {
+        DEBUG("---------------- Reading cache ------------");
+        DEBUG("Loading from " << cacheFilename(opt));
+
+        timeKeeper.start("loadCache");
+        validCache = fromCache(opt, VERSION, measurements, descomposicion);
+        timeKeeper.stop();
+    }
+
+    /*****************************************************************/
     DEBUG("---------------- Creating rays and preprocessing LSQ ------------");
 
-    timeKeeper.start("createRays");
-    auto rays = makeRays(opt.rayGenerator, opt.cellsPerRow, opt.cellsPerRow,
-                         opt.rayCount);
-    SpMatriz measurements = rayCells(rays, opt.cellsPerRow, opt.cellsPerRow);
+    if (not validCache) {
+        timeKeeper.start("createRays");
+        auto rays = makeRays(opt.rayGenerator, opt.rayCount, opt.seed);
+        measurements = rayCells(rays, opt.cellsPerRow, opt.cellsPerRow);
+        timeKeeper.stop();
+
+        timeKeeper.start("lsqPreprocessing");
+        descomposicion = descomposicionSVD(measurements);
+        timeKeeper.stop();
+    }
+
+    timeKeeper.start("rayResults");
     Vector pureResults = rayResults(img, measurements);
     timeKeeper.stop();
 
-    timeKeeper.start("lsqPreprocessing");
-    // TODO
-    timeKeeper.stop();
+    if (opt.cachePath != "") {
+        /*****************************************************************/
+        DEBUG("---------------- Storing cache ------------");
 
-    /*****************************************************************/
-    DEBUG("---------------- Storing LSQ cache ------------");
-
-    timeKeeper.start("writeCache");
-    // TODO
-    timeKeeper.stop();
+        timeKeeper.start("writeCache");
+        saveCache(opt, VERSION, fullCmd, measurements, descomposicion);
+        timeKeeper.stop();
+    }
 
     /*****************************************************************/
     DEBUG("---------------- Runing LSQ ------------");
 
     timeKeeper.start("addingNoise");
     Vector results =
-        addNoise(opt.errorGenerator, opt.errorSigma, SEED, pureResults);
+        addNoise(opt.errorGenerator, opt.errorSigma, opt.seed, pureResults);
     timeKeeper.stop();
 
     timeKeeper.start("lsq");
-    Vector x;
-    x = cuadradosMinimosConSVD(descomposicionSVD(measurements), results);
-    // TODO: run LSQ for `measurements * x = results`
-
+    Vector x = cuadradosMinimosConSVD(descomposicion, results);
     timeKeeper.stop();
 
     DEBUG("---------------- Writing image ------------");
 
     timeKeeper.start("writeImg");
-    // TODO: Uncomment this.
     Image res(move(x), opt.cellsPerRow, opt.cellsPerRow);
-    //Image res = img;
     if (opt.inputFilename == "-") {
         // We need to write binary data to stdout
         freopen(NULL, "wb", stdout);

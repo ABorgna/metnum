@@ -27,8 +27,3 @@ class Image {
     size_t rows() const;
     size_t columns() const;
 };
-
-struct ImgPoint {
-    int x;
-    int y;
-};
