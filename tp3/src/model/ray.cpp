@@ -99,9 +99,11 @@ Ray generarRayoRandom() {
     return {randomPointInSide(inicial), randomPointInSide(fin)};
 }
 
-std::vector<Ray> randomRays(int count) {
+std::vector<Ray> randomRays(int count, size_t seed) {
     std::vector<Ray> res;
     res.reserve(count);
+
+    srand(seed);
     for (int i = 0; i < count; i++) {
         Ray rayo = generarRayoRandom();
     }
@@ -109,14 +111,14 @@ std::vector<Ray> randomRays(int count) {
     return res;
 }
 
-std::vector<Ray> makeRays(RayGenerator rg, int count) {
+std::vector<Ray> makeRays(RayGenerator rg, int count, size_t seed) {
     switch (rg) {
         case RAY_AXIAL:
             return axialRays(count);
         case RAY_SIDES:
             return sideRays(count);
         case RAY_RANDOM:
-            return randomRays(count);
+            return randomRays(count, seed);
         default:
             throw std::invalid_argument("Invalid ray type.");
     }

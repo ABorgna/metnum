@@ -35,7 +35,7 @@ enum RayGenerator {
 
 std::string showRayGenerator(RayGenerator);
 
-std::vector<Ray> makeRays(RayGenerator, int count);
+std::vector<Ray> makeRays(RayGenerator, int count, size_t seed);
 
 // Generar una matriz (rala) de dimensiones `#rayos x #celdas`
 // marcando por qué celdas pasa cada rayo y con qué largo.

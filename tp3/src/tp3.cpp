@@ -16,7 +16,7 @@ using namespace std;
 
 const size_t SEED = 42;
 // Used to invalidate the models cache
-const size_t VERSION = 1;
+const size_t VERSION = 2;
 
 const Options defaultOptions = {
     // Image input and output
@@ -72,7 +72,7 @@ int main(int argc, char* argv[]) {
     DEBUG("---------------- Creating rays and preprocessing LSQ ------------");
 
     timeKeeper.start("createRays");
-    auto rays = makeRays(opt.rayGenerator, opt.rayCount);
+    auto rays = makeRays(opt.rayGenerator, opt.rayCount, SEED);
     SpMatriz measurements = rayCells(rays, opt.cellsPerRow, opt.cellsPerRow);
     Vector pureResults = rayResults(img, measurements);
     timeKeeper.stop();
