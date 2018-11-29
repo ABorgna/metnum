@@ -13,8 +13,7 @@ void printHelp(const string& cmd, const Options& defaults) {
          << "    inputImage     Input image file. Use '-' for stdin." << endl
          << "    resImage       Generated image file. Use '-' for stdout."
          << endl
-         << "                   csv only!!"
-         << endl
+         << "                   csv only!!" << endl
 
          << endl
          << "Options:" << endl
@@ -54,6 +53,8 @@ void printHelp(const string& cmd, const Options& defaults) {
          << "    -l, --lsq-method #" << endl
          << "                   Least squares method:" << endl
          << "                     0: SDV (default)." << endl
+         << "    -a, --alpha #  SVD compression parameter (Default: "
+         << defaults.alpha << ")." << endl
 
          << endl
          << "  CACHE" << endl
@@ -71,7 +72,7 @@ bool parseArguments(int argc, char* argv[], const Options& defaults,
     const string cmd = argv[0];
     opt = defaults;
 
-    const char* const short_opts = "hvj:r:R:n:e:E:l:c:";
+    const char* const short_opts = "hvj:r:R:n:e:E:l:c:s:a:";
     const option long_opts[] = {
         /* These options set a flag. */
         {"verbose", no_argument, &opt.debug, 1},
@@ -87,6 +88,7 @@ bool parseArguments(int argc, char* argv[], const Options& defaults,
         {"error", required_argument, nullptr, 'E'},
 
         {"lsq-method", required_argument, nullptr, 'l'},
+        {"alpha", required_argument, nullptr, 'a'},
 
         {"cache", required_argument, nullptr, 'c'},
         {"no-cache", no_argument, nullptr, 1},
@@ -143,6 +145,11 @@ bool parseArguments(int argc, char* argv[], const Options& defaults,
                 LSQMethod lg = (LSQMethod)stoi(optarg);
                 if (lg < LSQ_METHOD_COUNT)
                     opt.lsqMethod = lg;
+            } break;
+            case 'a': {
+                double tmp = stod(optarg);
+                if (tmp >= 0)
+                    opt.alpha = tmp;
             } break;
             case 'c': {
                 opt.cachePath = optarg;

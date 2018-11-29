@@ -22,6 +22,7 @@ struct Options {
 
     // LSQ solver
     LSQMethod lsqMethod;
+    double alpha; // Variable de compresión del SVD
 
     int debug;
     int nThreads;

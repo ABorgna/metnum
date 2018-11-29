@@ -35,6 +35,7 @@ const Options defaultOptions = {
 
     // LSQ solver
     lsqMethod : SVD,
+    alpha : 10,
 
     debug : true,
     nThreads : -1,
