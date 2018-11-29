@@ -23,7 +23,7 @@ void printHelp(const string& cmd, const Options& defaults) {
          << "        --quiet    Do not print debug info." << endl
          << "    -j <threads>   Number of threads to utilize. (Default: # of "
             "cores)"
-         << endl
+         << "    -s, --seed #   Random seed." << endl
 
          << endl
          << "  RAYS" << endl
@@ -90,6 +90,8 @@ bool parseArguments(int argc, char* argv[], const Options& defaults,
 
         {"cache", required_argument, nullptr, 'c'},
         {"no-cache", no_argument, nullptr, 1},
+
+        {"seed", required_argument, nullptr, 's'},
         {0, 0, 0, 0}};
 
     while (true) {
@@ -110,6 +112,10 @@ bool parseArguments(int argc, char* argv[], const Options& defaults,
             case 'j': {
                 int tmp = stoi(optarg);
                 opt.nThreads = tmp;
+            } break;
+            case 's': {
+                size_t tmp = stoi(optarg);
+                opt.seed = tmp;
             } break;
 
             case 'r': {
@@ -176,8 +182,13 @@ bool parseArguments(int argc, char* argv[], const Options& defaults,
 }
 
 size_t trainingCacheKey(const Options& o) {
-    return std::hash<size_t>{}((size_t)o.errorGenerator) ^
-           std::hash<double>{}(o.errorSigma);
+    return std::hash<size_t>{}((size_t)o.rayGenerator) ^
+           std::hash<size_t>{}((size_t)o.rayCount) ^
+           std::hash<size_t>{}((size_t)o.cellsPerRow) ^
+           std::hash<size_t>{}((size_t)o.errorGenerator) ^
+           std::hash<double>{}(o.errorSigma) ^
+           std::hash<size_t>{}((size_t)o.lsqMethod) ^
+           std::hash<size_t>{}(o.seed);
 }
 
 std::string cacheFilename(const Options& o) {
