@@ -137,7 +137,6 @@ SpMatriz transpose(const SpMatriz& M){
         }
     }
     SpMatriz res;
-    int count = 0;
     for (auto& m : tr){
         res.emplace_back(m, M.size());
     }
