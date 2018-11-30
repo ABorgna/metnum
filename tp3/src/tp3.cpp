@@ -117,7 +117,7 @@ int main(int argc, char* argv[]) {
     if (opt.raysOutFilename != "") {
         DEBUG("---------------- Storing rays file ------------");
 
-        timeKeeper.start("writeCache");
+        timeKeeper.start("writeRays");
         auto raysFile = Output(opt.raysOutFilename);
         if (raysFile.fail()) {
             DEBUG("Could not open the rays file: " << opt.raysOutFilename);
