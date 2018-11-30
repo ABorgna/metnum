@@ -51,8 +51,10 @@ def ejecutar_y_escribir_resultado(exp_args):
                                             else:
                                                 program_args['--cache'] = '../../cache'
 
-                                            output = ejecutar_tp(input_img, output_img, program_args)
-                                            print(output)
+                                            output = ""
+                                            for line in ejecutar_tp(input_img, output_img, program_args):
+                                                output += line
+                                                print(line, end="")
                                             parsed_output = parsear_output(output)
 
                                             convertImg(output_img, './', './', '.csv', extension_salida = '.png', tam = None)
