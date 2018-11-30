@@ -266,16 +266,20 @@ Vector rayResults(const Image& img, const SpMatriz& mtx) {
     return mtx * img.cells();
 };
 
-void matrixToCsv(std::ostream& stream, const SpMatriz& mtx, size_t rowLength) {
-    for (auto& v : mtx) {
+void writeRays(std::ostream& stream, const SpMatriz& mtx,
+               const std::vector<Ray>& rays, int rows, int columns) {
+    assert(mtx.size() == rays.size());
+    const size_t rowLength = rows * columns;
+    for (size_t row = 0; row < mtx.size(); row++) {
+        Ray ray = rays[row];
+        const auto& v = mtx[row];
+        // Ray info
+        stream << "(" << ray.start.x << "," << ray.start.y << ")" << ",";
+        stream << "(" << ray.end.x << "," << ray.end.y << ")" << ",";
+        // Img data
         for (size_t i = 0; i < rowLength; i++) {
             stream << v[i];
             stream << (i == rowLength - 1 ? '\n' : ',');
         }
     }
-}
-
-void writeRays(std::ostream& stream, const SpMatriz& rays, int rows,
-               int columns) {
-    matrixToCsv(stream, rays, rows * columns);
 }

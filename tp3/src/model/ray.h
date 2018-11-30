@@ -44,5 +44,5 @@ SpMatriz rayCells(const std::vector<Ray>&, int rows, int columns);
 // Generar el vector de salida de los rayos sin ruido.
 Vector rayResults(const Image&, const SpMatriz& rays);
 
-void writeRays(std::ostream& stream, const SpMatriz& rays, int rows,
-               int columns);
+void writeRays(std::ostream& stream, const SpMatriz& rays,
+               const std::vector<Ray>&, int rows, int columns);

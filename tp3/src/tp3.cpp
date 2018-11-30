@@ -118,11 +118,12 @@ int main(int argc, char* argv[]) {
         DEBUG("---------------- Storing rays file ------------");
 
         timeKeeper.start("writeRays");
+        auto rays = makeRays(opt.rayGenerator, opt.rayCount, opt.seed);
         auto raysFile = Output(opt.raysOutFilename);
         if (raysFile.fail()) {
             DEBUG("Could not open the rays file: " << opt.raysOutFilename);
         } else {
-            writeRays(raysFile.stream(), measurements, opt.cellsPerRow,
+            writeRays(raysFile.stream(), measurements, rays, opt.cellsPerRow,
                       opt.cellsPerRow);
             raysFile.close();
         }
