@@ -12,13 +12,6 @@ import json
 
 
 
-def listar_archivos_en_carpeta(path):
-    filenames = []
-    for root, dirs, files in os.walk(path):
-        for filename in files:
-            filenames = filenames + [filename]
-    return filenames
-
 def ejecutar_y_escribir_resultado(exp_args):
     print("\n-----------CREATE IMAGES----------------")
 
@@ -37,26 +30,28 @@ def ejecutar_y_escribir_resultado(exp_args):
                     for lsq in exp_args['lsq']:
                         for error_type in exp_args['error_type']:
                             for error_std in exp_args['error_std']:
-                                for rep in range(exp_args['reps']):
-                                    output_img = '-'.join(map(str, 
-                                        [img, tam, ray_type, ray_cnt, lsq, error_type, error_std, rep]))
-                                    output_img += '.csv'
-                                    program_args = {'-n' : tam,
-                                                    '--ray-type': ray_type,
-                                                    '--ray-count': ray_cnt,
-                                                    '-l' : lsq,
-                                                    '-e' : error_type,
-                                                    '-E' : error_std,
-                                                    '--no-cache':''}
+                                for alpha in exp_args['alpha']:
+                                    for rep in range(exp_args['reps']):
+                                        output_img = '-'.join(map(str, 
+                                            [img, tam, ray_type, ray_cnt, lsq, error_type, error_std, rep]))
+                                        output_img += '.csv'
+                                        program_args = {'-n' : tam,
+                                                        '--ray-type': ray_type,
+                                                        '--ray-count': ray_cnt,
+                                                        '-l' : lsq,
+                                                        '-e' : error_type,
+                                                        '-E' : error_std,
+                                                        '--no-cache':'',
+                                                        '-a' : alpha}
 
-                                    output = ejecutar_tp(input_img, output_img, program_args)
-                                    print(output)
-                                    parsed_output = parsear_output(output)
+                                        output = ejecutar_tp(input_img, output_img, program_args)
+                                        print(output)
+                                        parsed_output = parsear_output(output)
 
-                                    value_psnr = psnr(output_img, input_img)
-                                    escribir_resultados_en_archivo(res,
-                                        exp_args['nombre'], img, tam, ray_type, ray_cnt, lsq,
-                                        error_type, error_std, parsed_output, value_psnr)
+                                        value_psnr = psnr(output_img, input_img)
+                                        escribir_resultados_en_archivo(res,
+                                            exp_args['nombre'], img, tam, ray_type, ray_cnt, lsq,
+                                            error_type, error_std, alpha, parsed_output, value_psnr)
 
 
 

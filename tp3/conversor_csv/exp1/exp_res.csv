@@ -1,7 +1,0 @@
-nombre_exp,nombre_img,n_cells,ray_type,ray_cnt,lsq,error,error_std,tiempo_lsq,cant_autovalores,psnr
-expPrueba,tomo2,32,1,20000,0,0,1,483418,0,-47.18774168029428
-expPrueba,tomo2,32,1,20000,0,0,1,1618768,0,15.561278233570075
-expPrueba,tomo2,32,1,20000,0,0,1,1616218,0,15.561650517264042
-expPrueba,tomo2,32,1,20,0,0,1,7211,0,-260.7178032175008
-expPrueba,tomo2,32,1,20,0,0,1,6953,0,6.233559993421281
-expPrueba,tomo2,32,1,20,0,0,1,8732,0,-271.85327026712093
