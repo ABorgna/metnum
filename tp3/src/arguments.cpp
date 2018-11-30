@@ -83,7 +83,7 @@ bool parseArguments(int argc, char* argv[], const Options& defaults,
         /* These options set a flag. */
         {"verbose", no_argument, &opt.debug, 1},
         {"quiet", no_argument, &opt.debug, 0},
-        {"no-lsq", no_argument, &opt.runLsq, 0},
+        {"no-lsq", no_argument, &opt.debug, 0},
         /* These options receive a parameter. */
         {"help", no_argument, nullptr, 'h'},
 
@@ -111,6 +111,11 @@ bool parseArguments(int argc, char* argv[], const Options& defaults,
         if (flag == -1)
             break;
         switch (flag) {
+            case 0:
+                // Long option
+                if (long_opts[option_index].flag != 0)
+                    break;
+                break;
             case 1:  // no-cache
                 opt.cachePath = "";
                 break;
@@ -182,6 +187,7 @@ bool parseArguments(int argc, char* argv[], const Options& defaults,
                 return false;
             }
             default:
+                cerr << "Unknown option `-" << (char)optopt << "'." << endl;
                 abort();
         }
     }
