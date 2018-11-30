@@ -155,8 +155,8 @@ SparseVector crossedCellsExact(const Ray& r, int rows, int columns) {
     ImgPoint b = {r.end.x * columns, r.end.y * rows};
     std::map<size_t, double> res;
 
-    const auto fpart = [](double x){return x - std::floor(x);};
-    const auto rfpart = [&fpart](double x){return 1.0 - fpart(x);};
+    const auto fpart = [](double x) { return x - std::floor(x); };
+    const auto rfpart = [&fpart](double x) { return 1.0 - fpart(x); };
 
     bool steep = abs(b.y - a.y) > abs(b.x - a.x);
     if (steep) {
@@ -180,12 +180,12 @@ SparseVector crossedCellsExact(const Ray& r, int rows, int columns) {
 
     if (steep) {
         res[xpxl1 * columns + ypxl1] = rfpart(yend) * xgap;
-        res[xpxl1 * columns + (ypxl1+1)] = fpart(yend) * xgap;
+        res[xpxl1 * columns + (ypxl1 + 1)] = fpart(yend) * xgap;
     } else {
         res[ypxl1 * columns + xpxl1] = rfpart(yend) * xgap;
-        res[(ypxl1+1) * columns + xpxl1] = fpart(yend) * xgap;
+        res[(ypxl1 + 1) * columns + xpxl1] = fpart(yend) * xgap;
     }
-    double intery = yend + gradient; // first y-intersection for the main loop
+    double intery = yend + gradient;  // first y-intersection for the main loop
 
     // handle second endpoint
     xend = std::round(b.x);
@@ -195,10 +195,10 @@ SparseVector crossedCellsExact(const Ray& r, int rows, int columns) {
     int ypxl2 = std::floor(yend);
     if (steep) {
         res[xpxl2 * columns + ypxl2] = rfpart(yend) * xgap;
-        res[xpxl2 * columns + (ypxl2+1)] = fpart(yend) * xgap;
+        res[xpxl2 * columns + (ypxl2 + 1)] = fpart(yend) * xgap;
     } else {
         res[ypxl2 * columns + xpxl2] = rfpart(yend) * xgap;
-        res[(ypxl2+1) * columns + xpxl2] = fpart(yend) * xgap;
+        res[(ypxl2 + 1) * columns + xpxl2] = fpart(yend) * xgap;
     }
 
     // main loop
@@ -265,3 +265,17 @@ SpMatriz rayCells(const std::vector<Ray>& rays, int rows, int columns) {
 Vector rayResults(const Image& img, const SpMatriz& mtx) {
     return mtx * img.cells();
 };
+
+void matrixToCsv(std::ostream& stream, const SpMatriz& mtx, size_t rowLength) {
+    for (auto& v : mtx) {
+        for (size_t i = 0; i < rowLength; i++) {
+            stream << v[i];
+            stream << (i == rowLength - 1 ? '\n' : ',');
+        }
+    }
+}
+
+void writeRays(std::ostream& stream, const SpMatriz& rays, int rows,
+               int columns) {
+    matrixToCsv(stream, rays, rows * columns);
+}

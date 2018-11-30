@@ -10,6 +10,7 @@ struct Options {
     std::string inputFilename;
     std::string outputFilename;
     std::string cachePath;
+    std::string raysOutFilename;
 
     // Rays
     RayGenerator rayGenerator;

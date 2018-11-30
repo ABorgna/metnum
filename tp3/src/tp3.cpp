@@ -23,6 +23,7 @@ const Options defaultOptions = {
     inputFilename : "",
     outputFilename : "",
     cachePath : "cache",
+    raysOutFilename : "",
 
     // Rays
     rayGenerator : RAY_AXIAL,
@@ -102,12 +103,28 @@ int main(int argc, char* argv[]) {
     Vector pureResults = rayResults(img, measurements);
     timeKeeper.stop();
 
+    /*****************************************************************/
     if (opt.cachePath != "" and not validCache) {
-        /*****************************************************************/
         DEBUG("---------------- Storing cache ------------");
 
         timeKeeper.start("writeCache");
         saveCache(opt, VERSION, fullCmd, measurements, descomposicion);
+        timeKeeper.stop();
+    }
+
+    /*****************************************************************/
+    if (opt.raysOutFilename != "") {
+        DEBUG("---------------- Storing rays file ------------");
+
+        timeKeeper.start("writeCache");
+        auto raysFile = Output(opt.raysOutFilename);
+        if (raysFile.fail()) {
+            DEBUG("Could not open the rays file: " << opt.raysOutFilename);
+        } else {
+            writeRays(raysFile.stream(), measurements, opt.cellsPerRow,
+                      opt.cellsPerRow);
+            raysFile.close();
+        }
         timeKeeper.stop();
     }
 

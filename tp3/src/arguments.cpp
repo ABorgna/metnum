@@ -21,7 +21,7 @@ void printHelp(const string& cmd, const Options& defaults) {
          << "    -v, --verbose  Print debug info to stderr." << endl
          << "        --quiet    Do not print debug info." << endl
          << "    -j <threads>   Number of threads to utilize. (Default: # of "
-            "cores)"
+            "cores)" << endl
          << "    -s, --seed #   Random seed." << endl
 
          << endl
@@ -37,6 +37,8 @@ void printHelp(const string& cmd, const Options& defaults) {
          << "    -n, --num-cells #" << endl
          << "                   Number of cells per row and per column."
          << " (Default:" << defaults.cellsPerRow << ")" << endl
+         << "        --ray-file file.csv" << endl
+         << "                   Store the generated rays in a csv file."
 
          << endl
          << "  MEASUREMENT ERROR" << endl
@@ -45,7 +47,7 @@ void printHelp(const string& cmd, const Options& defaults) {
          << "                     0: Gaussian (default)." << endl
          << "                     1: No added noise." << endl
          << "    -E, --error #" << endl
-         << "                   Standard deviation of the generated error "
+         << "                   Standard deviation of the generated error. "
          << " (Default:" << defaults.errorSigma << ")" << endl
 
          << endl
@@ -83,6 +85,7 @@ bool parseArguments(int argc, char* argv[], const Options& defaults,
         {"ray-type", required_argument, nullptr, 'r'},
         {"ray-count", required_argument, nullptr, 'R'},
         {"num-cells", required_argument, nullptr, 'n'},
+        {"ray-file", required_argument, nullptr, 2},
 
         {"error-method", required_argument, nullptr, 'e'},
         {"error", required_argument, nullptr, 'E'},
@@ -127,6 +130,9 @@ bool parseArguments(int argc, char* argv[], const Options& defaults,
             } break;
             case 'R': {
                 opt.rayCount = stoi(optarg);
+            } break;
+            case 2: {
+                opt.raysOutFilename = optarg;
             } break;
             case 'n': {
                 opt.cellsPerRow = stoi(optarg);
