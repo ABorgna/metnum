@@ -8,7 +8,7 @@ Vector randomVector(int n){
 	Vector ans;
 
 	while(n--){
-		ans.push_back(std::rand() % 10000);
+		ans.push_back(std::rand() % 1000);
 	}
 
 	return ans;

@@ -15,7 +15,7 @@ typedef std::tuple<Matriz, vector<double>, Matriz> USVt; //tenemos la V, y la si
 
 typedef vector<double> Diag;
 
-USVt descomposicionSVD(const SpMatriz &A); 
+USVt descomposicionSVD(const SpMatriz &A, double alpha); 
 
 Vector cuadradosMinimosConSVD(const USVt &A, Vector b);
 Diag inversaDiagonalNoNula(Diag& D);

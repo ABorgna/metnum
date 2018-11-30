@@ -4,7 +4,6 @@
 #include "math.h"
 #include <cmath>
 
-#define eps 1e-14
 using namespace std;
 
 
@@ -29,12 +28,16 @@ Matriz convertirDiag(Diag D) {
 }
 
 
-std::vector<EigenValue> eigenvaluesHastaCero(Matriz&& B, TrivialStopper stop){
+std::vector<EigenValue> eigenvaluesHastaCero(Matriz&& B, TrivialStopper stop, double alpha){
 	std::vector<EigenValue> ans;
     EigenValue ev;
+    double eps = 1.0 / alpha;
 	do {
-		stop.reset();
-        ev = potencia(B, randomVector(B[0].size()), stop);
+        do{
+    		stop.reset();
+            ev = potencia(B, randomVector(B[0].size()), stop);
+            DEBUG_VAR(distanciaN(B*ev.second, ev.first*ev.second, normP(2)));
+        } while (distanciaN(B*ev.second, ev.first*ev.second, normP(2)) > 1e-6);
         if (ev.first > eps) {
             DEBUG_VAR(ev.first);
             DEBUG_VAR(ans.size());
@@ -53,7 +56,7 @@ std::vector<EigenValue> eigenvaluesHastaCero(Matriz&& B, TrivialStopper stop){
 }
 
 // Dada una matriz A, retorna las matrices U, E, Vt, que son su descomposición SVD
-USVt descomposicionSVD(const SpMatriz &A) {
+USVt descomposicionSVD(const SpMatriz &A, double alpha) {
     // A e rayos x celdas (n x m)
     // A = UEVt
     // U e n x r, E e r x r, Vt e r x m
@@ -61,8 +64,8 @@ USVt descomposicionSVD(const SpMatriz &A) {
     // AVE-1 = UEVtVE-1 = U
     SpMatriz At = transpose(A);
     Matriz J = SpMult(At, At);
-    TrivialStopper stop(2000, -1, 1e-16);
-    vector<EigenValue> eigens = eigenvaluesHastaCero(move(J), stop);
+    TrivialStopper stop(3000, -1, 1e-16);
+    vector<EigenValue> eigens = eigenvaluesHastaCero(move(J), stop, alpha);
     Diag E;
     Matriz Vt;
     int cont = 0;
@@ -72,7 +75,7 @@ USVt descomposicionSVD(const SpMatriz &A) {
         Vt.push_back(eig.second);
     }
     Matriz V = transpose(Vt);
-    cout << E.size() << endl;
+    // cout << E.size() << endl;
     USVt res = make_tuple(A*V*convertirDiag(inversaDiagonalNoNula(E)), E, Vt);
     return res;
 }

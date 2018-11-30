@@ -94,7 +94,7 @@ int main(int argc, char* argv[]) {
         timeKeeper.stop();
 
         timeKeeper.start("lsqPreprocessing");
-        descomposicion = descomposicionSVD(measurements);
+        descomposicion = descomposicionSVD(measurements, opt.alpha);
         timeKeeper.stop();
     }
 
@@ -139,6 +139,7 @@ int main(int argc, char* argv[]) {
     /*****************************************************************/
     DEBUG("---------------- Results -----------------");
     showTimes(std::cerr, timeKeeper);
+    std::cerr << "sing-values: " << get<1>(descomposicion).size() << std::endl;
 
     return 0;
 }
