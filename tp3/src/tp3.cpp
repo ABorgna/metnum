@@ -95,17 +95,22 @@ int main(int argc, char* argv[]) {
         measurements = rayCells(rays, opt.cellsPerRow, opt.cellsPerRow);
         timeKeeper.stop();
 
-        timeKeeper.start("lsqPreprocessing");
-        descomposicion = descomposicionSVD(measurements, opt.alpha);
+        if (opt.runLsq) {
+            timeKeeper.start("lsqPreprocessing");
+            descomposicion = descomposicionSVD(measurements, opt.alpha);
+            timeKeeper.stop();
+        }
+    }
+
+    Vector pureResults;
+    if (opt.runLsq) {
+        timeKeeper.start("rayResults");
+        pureResults = rayResults(img, measurements);
         timeKeeper.stop();
     }
 
-    timeKeeper.start("rayResults");
-    Vector pureResults = rayResults(img, measurements);
-    timeKeeper.stop();
-
     /*****************************************************************/
-    if (opt.cachePath != "" and not validCache) {
+    if (opt.cachePath != "" and not validCache and opt.runLsq) {
         DEBUG("---------------- Storing cache ------------");
 
         timeKeeper.start("writeCache");

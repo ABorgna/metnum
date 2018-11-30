@@ -257,7 +257,7 @@ SparseVector crossedCellsBinary(const Ray& r, int rows, int columns) {
 SpMatriz rayCells(const std::vector<Ray>& rays, int rows, int columns) {
     SpMatriz mtx;
     for (const auto& ray : rays) {
-        mtx.push_back(crossedCellsExact(ray, rows, columns));
+        mtx.push_back(crossedCellsBinary(ray, rows, columns));
     }
     return mtx;
 };
