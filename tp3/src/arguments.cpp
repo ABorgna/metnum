@@ -83,7 +83,7 @@ bool parseArguments(int argc, char* argv[], const Options& defaults,
         /* These options set a flag. */
         {"verbose", no_argument, &opt.debug, 1},
         {"quiet", no_argument, &opt.debug, 0},
-        {"no-lsq", no_argument, &opt.debug, 0},
+        {"no-lsq", no_argument, &opt.runLsq, 0},
         /* These options receive a parameter. */
         {"help", no_argument, nullptr, 'h'},
 
