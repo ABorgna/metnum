@@ -31,27 +31,29 @@ def ejecutar_y_escribir_resultado(exp_args):
                         for error_type in exp_args['error_type']:
                             for error_std in exp_args['error_std']:
                                 for alpha in exp_args['alpha']:
-                                    for rep in range(exp_args['reps']):
-                                        output_img = '-'.join(map(str, 
-                                            [img, tam, ray_type, ray_cnt, lsq, error_type, error_std, alpha, rep]))
-                                        output_img += '.csv'
-                                        program_args = {'-n' : tam,
-                                                        '--ray-type': ray_type,
-                                                        '--ray-count': ray_cnt,
-                                                        '-l' : lsq,
-                                                        '-e' : error_type,
-                                                        '-E' : error_std,
-                                                        '--no-cache':'',
-                                                        '-a' : alpha}
+                                    for cache in exp_args['cache']:
+                                        for rep in range(exp_args['reps']):
+                                            output_img = '-'.join(map(str, 
+                                                [img, tam, ray_type, ray_cnt, lsq, error_type, error_std, alpha, cache, rep]))
+                                            output_img += '.csv'
+                                            program_args = {'-n' : tam,
+                                                            '--ray-type': ray_type,
+                                                            '--ray-count': ray_cnt,
+                                                            '-l' : lsq,
+                                                            '-e' : error_type,
+                                                            '-E' : error_std,
+                                                            '-a' : alpha}
+                                            if cache == 0:
+                                                program_args['--no-cache'] = ''
 
-                                        output = ejecutar_tp(input_img, output_img, program_args)
-                                        print(output)
-                                        parsed_output = parsear_output(output)
+                                            output = ejecutar_tp(input_img, output_img, program_args)
+                                            print(output)
+                                            parsed_output = parsear_output(output)
 
-                                        value_psnr = psnr(output_img, input_img)
-                                        escribir_resultados_en_archivo(res,
-                                            exp_args['nombre'], img, tam, ray_type, ray_cnt, lsq,
-                                            error_type, error_std, alpha, parsed_output, value_psnr)
+                                            value_psnr = psnr(output_img, input_img)
+                                            escribir_resultados_en_archivo(res,
+                                                exp_args['nombre'], img, tam, ray_type, ray_cnt, lsq,
+                                                error_type, error_std, alpha, cache, parsed_output, value_psnr)
 
 
 

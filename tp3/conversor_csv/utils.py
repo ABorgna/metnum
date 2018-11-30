@@ -59,14 +59,14 @@ def psnr(img1_rel_path, img2_rel_path):
 def init_resultados(nombre = 'exp_res.csv'):
     if not os.path.isfile(nombre):
         resultado = open("./" + nombre, "w")
-        header = 'nombre_exp,nombre_img,n_cells,ray_type,ray_cnt,lsq,error,error_std,alpha,tiempo_lsq_pre,tiempo_lsq,cant_autovalores,psnr'
+        header = 'nombre_exp,nombre_img,n_cells,ray_type,ray_cnt,lsq,error,error_std,alpha,cache,tiempo_lsq_pre,tiempo_lsq,cant_autovalores,psnr'
         resultado.write(header + "\n")
         resultado.flush()
     else:
         resultado = open(nombre, 'a')
     return resultado
 
-def escribir_resultados_en_archivo(resultado, nombre, img, n_cells, ray_type, ray_cnt, lsq, error, error_std, alpha, output, psnr):
+def escribir_resultados_en_archivo(resultado, nombre, img, n_cells, ray_type, ray_cnt, lsq, error, error_std, alpha, cache, output, psnr):
     tiempo_lsq = output["time-lsq"][:output["time-lsq"].find("ms")]
     tiempo_lsq_pre = output["time-lsqPreprocessing"][:output["time-lsqPreprocessing"].find("ms")]
     sing_val = output['sing-values']
@@ -89,6 +89,8 @@ def escribir_resultados_en_archivo(resultado, nombre, img, n_cells, ray_type, ra
     line += str(error_std)
     line += ','
     line += str(alpha)
+    line += ','
+    line += str(cache)
     line += ','
     line += str(tiempo_lsq_pre)
     line += ','

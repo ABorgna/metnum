@@ -8,5 +8,6 @@
     "error_type" : [0],
     "error_std" : [1],
     "alpha" : [1, 100, 1000, 10000],
+    "cache" : [1],
     "reps" : 2
 }
