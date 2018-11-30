@@ -61,6 +61,7 @@ def init_resultados(nombre = 'exp_res.csv'):
         resultado = open("./" + nombre, "w")
         header = 'nombre_exp,nombre_img,n_cells,ray_type,ray_cnt,lsq,error,error_std,alpha,tiempo_lsq_pre,tiempo_lsq,cant_autovalores,psnr'
         resultado.write(header + "\n")
+        resultado.flush()
     else:
         resultado = open(nombre, 'a')
     return resultado
@@ -99,6 +100,7 @@ def escribir_resultados_en_archivo(resultado, nombre, img, n_cells, ray_type, ra
     line += '\n'
 
     resultado.write(line)
+    resultado.flush()
     print(">> {}".format(line))
 
 # print("PSNR: " + str(psnr('../data/phantom3.csv', '../data/phantom3.csv')))

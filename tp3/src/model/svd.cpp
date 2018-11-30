@@ -31,14 +31,19 @@ Matriz convertirDiag(Diag D) {
 std::vector<EigenValue> eigenvaluesHastaCero(Matriz&& B, TrivialStopper stop, double alpha){
 	std::vector<EigenValue> ans;
     EigenValue ev;
-    double eps = 1.0 / alpha;
+    double eps = alpha;
+    int cnt;
 	do {
-        do{
-    		stop.reset();
-            ev = potencia(B, randomVector(B[0].size()), stop);
-            DEBUG_VAR(distanciaN(B*ev.second, ev.first*ev.second, normP(2)));
-        } while (distanciaN(B*ev.second, ev.first*ev.second, normP(2)) > 1e-6);
-        if (ev.first > eps) {
+        int stop_reason = 0;
+        cnt = 0;
+        while(stop_reason != 1 and cnt < 100){
+            cnt++;
+  		    stop.reset();
+            ev = potencia(B, randomVector(B[0].size()), stop, stop_reason);
+        DEBUG_VAR(stop_reason);
+        }
+
+        if (ans.empty() or (ev.first > eps and cnt < 100)) {
             DEBUG_VAR(ev.first);
             DEBUG_VAR(ans.size());
             ans.push_back(ev);
@@ -50,7 +55,7 @@ std::vector<EigenValue> eigenvaluesHastaCero(Matriz&& B, TrivialStopper stop, do
         } else {
             cout << "menor a eps" <<  ev.first << endl;
         }
-	} while (ev.first > eps);
+	} while (ev.first > eps and cnt < 100);
 	DEBUG("");
 	return ans;
 }
@@ -64,7 +69,7 @@ USVt descomposicionSVD(const SpMatriz &A, double alpha) {
     // AVE-1 = UEVtVE-1 = U
     SpMatriz At = transpose(A);
     Matriz J = SpMult(At, At);
-    TrivialStopper stop(3000, -1, 1e-16);
+    TrivialStopper stop(1000, -1, 1e-12);
     vector<EigenValue> eigens = eigenvaluesHastaCero(move(J), stop, alpha);
     Diag E;
     Matriz Vt;

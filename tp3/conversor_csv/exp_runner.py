@@ -33,7 +33,7 @@ def ejecutar_y_escribir_resultado(exp_args):
                                 for alpha in exp_args['alpha']:
                                     for rep in range(exp_args['reps']):
                                         output_img = '-'.join(map(str, 
-                                            [img, tam, ray_type, ray_cnt, lsq, error_type, error_std, rep]))
+                                            [img, tam, ray_type, ray_cnt, lsq, error_type, error_std, alpha, rep]))
                                         output_img += '.csv'
                                         program_args = {'-n' : tam,
                                                         '--ray-type': ray_type,

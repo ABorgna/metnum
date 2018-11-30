@@ -14,8 +14,9 @@ Vector randomVector(int n){
 	return ans;
 }
 
-EigenValue potencia (const Matriz& B, Vector x0, StopPolicy stop){
-	while(!stop(x0) ){
+EigenValue potencia (const Matriz& B, Vector x0, StopPolicy stop, int& stop_reason){
+	stop_reason = 0;
+	while(!(stop_reason = stop(x0))){
 		x0 = B*x0;
 		x0 = (1.0 / norma(x0)) * x0;
 	}
@@ -34,11 +35,12 @@ EigenValue potencia (const Matriz& B, Vector x0, StopPolicy stop){
 
 std::vector<EigenValue> eigenvalues(Matriz&& B, int alpha, TrivialStopper stop){
 	std::vector<EigenValue> ans;
+	int stop_reason;
 	// std::cerr << "    <<< Eigenvalues: "<< alpha << ">>>";
 	DEBUG_IDENT_PROG("<<< Eigenvalues: " << alpha << ">>>", 1);
 	while(alpha--){
 		stop.reset();
-		ans.push_back(potencia(B, randomVector(B[0].size()), stop));
+		ans.push_back(potencia(B, randomVector(B[0].size()), stop, stop_reason));
 		const EigenValue& ev = ans.back();
 		// Deflacion
 		for (size_t f = 0; f < B.size(); f++) for (size_t c = 0; c < B[f].size(); c++){
@@ -55,20 +57,18 @@ std::vector<EigenValue> eigenvalues(Matriz&& B, int alpha, TrivialStopper stop){
 TrivialStopper::TrivialStopper(int ms, int iter, double eps)
 :eps(eps), dur(ms), start(std::chrono::system_clock::now()), iter(iter), iter_cnt(0){}
 
-bool TrivialStopper::operator()(const Vector& vk){
+int TrivialStopper::operator()(const Vector& vk){
 	int stop = 0; // 0 don't stop, 1 eps, 2 iter, 3 time
 	double epsk = distanciaN(lastvk, vk, normP(2));
 	if (eps > 0 and iter_cnt and epsk < eps){
 		stop = 1;
+	}else if(iter > 0 and iter_cnt > iter ){
+		stop = 2;
+	}else if (dur > std::chrono::milliseconds(0) and std::chrono::system_clock::now()-start > dur){
+		stop = 3;
 	}
 	lastvk = vk;
 	iter_cnt++;
-	if(iter > 0 and iter_cnt > iter )
-		stop = 2;
-
-	if (dur > std::chrono::milliseconds(0) and std::chrono::system_clock::now()-start > dur)
-		stop = 3;
-
 	return stop;
 }
 

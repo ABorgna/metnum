@@ -20,7 +20,7 @@ class TrivialStopper{
 public:
 	TrivialStopper(int ms=350, int iter=5000, double eps=1e-15);
 
-	virtual bool operator()(const Vector& vk);
+	virtual int operator()(const Vector& vk);
 
 	virtual void reset();
 
@@ -33,6 +33,6 @@ private:
 };
 
 Vector randomVector(int n);
-EigenValue potencia (const Matriz& B, Vector x0, StopPolicy stop);
+EigenValue potencia (const Matriz& B, Vector x0, StopPolicy stop, int& stop_reason);
 
 std::vector<EigenValue> eigenvalues(Matriz&& B, int alpha, TrivialStopper stop = TrivialStopper());
