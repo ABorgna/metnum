@@ -22,6 +22,10 @@ def convertImg(infile, input_folder, output_folder, extension, extension_salida 
     print(infile)
     if extension == '.dcm':
         img_file = Image.fromarray(pydicom.read_file(infile).pixel_array)
+    elif extension == '.csv':
+        img_file = Image.fromarray(np.genfromtxt(infile, delimiter=','))
+        img_file = img_file.convert('RGB')
+        tam = None # si lo uso para ir de CSV a png, no darle bola a esto
     else:
         img_file = Image.open(infile)
 
@@ -54,8 +58,8 @@ def convertImg(infile, input_folder, output_folder, extension, extension_salida 
 
     else: # any other supported image file format
         name = output_folder + infile.replace(extension, "").replace(input_folder, "") + extension_salida
-        with open(name, 'w') as f:
-            img_grey.save(f)
+        # with open(name, 'w') as f:
+        img_grey.save(name)
         return name
 
 

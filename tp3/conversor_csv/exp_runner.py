@@ -1,5 +1,5 @@
 from utils import *
-from csv_converter import convertImgs
+from csv_converter import convertImgs, convertImg
 import numpy
 import shutil
 import json
@@ -49,6 +49,8 @@ def ejecutar_y_escribir_resultado(exp_args):
                                             output = ejecutar_tp(input_img, output_img, program_args)
                                             print(output)
                                             parsed_output = parsear_output(output)
+
+                                            convertImg(output_img, './', './', '.csv', extension_salida = '.png', tam = None)
 
                                             value_psnr = psnr(output_img, input_img)
                                             escribir_resultados_en_archivo(res,
