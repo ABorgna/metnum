@@ -1,13 +1,13 @@
 {
     "nombre": "expPrueba",
-    "imgs": ["tomo2", "phantom"],
-    "n_cells" : [32, 16],
+    "imgs": ["tomo2", "phantom", "tomo3", "tomo"],
+    "n_cells" : [32],
     "rays_types": [1, 2],
-    "rays_cnt" : {"from" : 20000, "to" : 30000, "step" : 2000},
+    "rays_cnt" : {"from" : 20000, "to" : 20000, "step" : 2000},
     "lsq" : [0],
     "error_type" : [0],
     "error_std" : [1],
-    "alpha" : [1, 100, 1000, 10000],
+    "alpha" : [0.0001],
     "cache" : [1],
     "reps" : 2
 }

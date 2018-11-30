@@ -67,9 +67,9 @@ def init_resultados(nombre = 'exp_res.csv'):
     return resultado
 
 def escribir_resultados_en_archivo(resultado, nombre, img, n_cells, ray_type, ray_cnt, lsq, error, error_std, alpha, cache, output, psnr):
-    tiempo_lsq = output["time-lsq"][:output["time-lsq"].find("ms")]
-    tiempo_lsq_pre = output["time-lsqPreprocessing"][:output["time-lsqPreprocessing"].find("ms")]
-    sing_val = output['sing-values']
+    tiempo_lsq = output["time-lsq"][:output["time-lsq"].find("ms")] if 'time-lsq' in output else 0
+    tiempo_lsq_pre = output["time-lsqPreprocessing"][:output["time-lsqPreprocessing"].find("ms")]if 'time-lsqPreprocessing' in output else 0
+    sing_val = output['sing-values'] if 'sing-values' in output else 0
     print(sing_val)
     line = ''
     line += str(nombre)
