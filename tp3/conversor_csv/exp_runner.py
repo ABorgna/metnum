@@ -3,6 +3,7 @@ from csv_converter import convertImgs, convertImg
 import numpy
 import shutil
 import json
+import sys
 
 # LEEEEMEEEEEEEEE (para correr)
 # 1. borrar imgs en imgs_input
@@ -45,6 +46,10 @@ def ejecutar_y_escribir_resultado(exp_args):
                                                             '-a' : alpha}
                                             if cache == 0:
                                                 program_args['--no-cache'] = ''
+                                            elif 'cache_dir' in exp_args:
+                                                program_args['--cache'] = exp_args['cache_dir']
+                                            else:
+                                                program_args['--cache'] = '../../cache'
 
                                             output = ejecutar_tp(input_img, output_img, program_args)
                                             print(output)
@@ -64,8 +69,13 @@ def ejecutar_y_escribir_resultado(exp_args):
 
 
 
-with open("exp.json", "r") as read_file:
-    exp_args = json.load(read_file)
+try:
+    with open("exp.json", "r") as read_file:
+        exp_args = json.load(read_file)
+except FileNotFoundError:
+    print("Ejecutar desde la carpeta con el exp.json")
+    sys.exit(1)
+
 exp_args['rays_cnt'] = list(range(exp_args['rays_cnt']['from'], exp_args['rays_cnt']['to'] + 1, exp_args['rays_cnt']['step']))
 print(exp_args)
 

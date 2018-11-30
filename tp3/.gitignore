@@ -41,3 +41,7 @@ tp3
 
 # Makefile misc
 .depend
+
+# Experimentos
+*.csv
+*.png
