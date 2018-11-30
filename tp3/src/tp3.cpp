@@ -16,7 +16,7 @@
 using namespace std;
 
 // Used to invalidate the models cache
-const size_t VERSION = 3;
+const size_t VERSION = 4;
 
 const Options defaultOptions = {
     // Image input and output
