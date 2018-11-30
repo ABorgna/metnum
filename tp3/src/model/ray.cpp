@@ -150,13 +150,20 @@ IntCoords fromImgPoint(ImgPoint p, int rows, int columns) {
 //
 // Uses Xiaolin Wu's line algorithm for line antialiasing.
 SparseVector crossedCellsExact(const Ray& r, int rows, int columns) {
-    // TODO: Use doubles in the calculations
     ImgPoint a = {r.start.x * columns, r.start.y * rows};
     ImgPoint b = {r.end.x * columns, r.end.y * rows};
+
     std::map<size_t, double> res;
 
     const auto fpart = [](double x) { return x - std::floor(x); };
     const auto rfpart = [&fpart](double x) { return 1.0 - fpart(x); };
+    const auto inRange = [&](int x, int y) {
+        return x >= 0 and x < columns and y >= 0 and y < rows;
+    };
+    const auto plot = [&](int x, int y, double val) {
+        if (inRange(x, y))
+            res[y * columns + x] = val;
+    };
 
     bool steep = abs(b.y - a.y) > abs(b.x - a.x);
     if (steep) {
@@ -169,7 +176,7 @@ SparseVector crossedCellsExact(const Ray& r, int rows, int columns) {
 
     double dx = b.x - a.x;
     double dy = b.y - a.y;
-    double gradient = fabs(dx) < 1e-4 ? dy / dx : 1;
+    double gradient = fabs(dx) < 1e-4 ? 1 : dy / dx;
 
     // handle first endpoint
     int xend = std::round(a.x);
@@ -179,11 +186,11 @@ SparseVector crossedCellsExact(const Ray& r, int rows, int columns) {
     int ypxl1 = std::floor(yend);
 
     if (steep) {
-        res[xpxl1 * columns + ypxl1] = rfpart(yend) * xgap;
-        res[xpxl1 * columns + (ypxl1 + 1)] = fpart(yend) * xgap;
+        plot(ypxl1, xpxl1, rfpart(yend) * xgap);
+        plot(ypxl1 + 1, xpxl1, fpart(yend) * xgap);
     } else {
-        res[ypxl1 * columns + xpxl1] = rfpart(yend) * xgap;
-        res[(ypxl1 + 1) * columns + xpxl1] = fpart(yend) * xgap;
+        plot(xpxl1, ypxl1, rfpart(yend) * xgap);
+        plot(xpxl1, ypxl1 + 1, fpart(yend) * xgap);
     }
     double intery = yend + gradient;  // first y-intersection for the main loop
 
@@ -194,22 +201,22 @@ SparseVector crossedCellsExact(const Ray& r, int rows, int columns) {
     int xpxl2 = xend;
     int ypxl2 = std::floor(yend);
     if (steep) {
-        res[xpxl2 * columns + ypxl2] = rfpart(yend) * xgap;
-        res[xpxl2 * columns + (ypxl2 + 1)] = fpart(yend) * xgap;
+        plot(ypxl2, xpxl2, rfpart(yend) * xgap);
+        plot(ypxl2 + 1, xpxl2, fpart(yend) * xgap);
     } else {
-        res[ypxl2 * columns + xpxl2] = rfpart(yend) * xgap;
-        res[(ypxl2 + 1) * columns + xpxl2] = fpart(yend) * xgap;
+        plot(xpxl2, ypxl2, rfpart(yend) * xgap);
+        plot(xpxl2, ypxl2 + 1, fpart(yend) * xgap);
     }
 
     // main loop
     for (int x = xpxl1 + 1; x < xpxl2; x++) {
         int y = std::floor(intery);
         if (steep) {
-            res[x * columns + y] = rfpart(intery);
-            res[x * columns + (y + 1)] = fpart(intery);
+            plot(y, x, rfpart(intery));
+            plot(y + 1, x, fpart(intery));
         } else {
-            res[y * columns + x] = rfpart(intery);
-            res[(y + 1) * columns + x] = fpart(intery);
+            plot(x, y, rfpart(intery));
+            plot(x, y + 1, fpart(intery));
         }
         intery = intery + gradient;
     }
@@ -257,7 +264,7 @@ SparseVector crossedCellsBinary(const Ray& r, int rows, int columns) {
 SpMatriz rayCells(const std::vector<Ray>& rays, int rows, int columns) {
     SpMatriz mtx;
     for (const auto& ray : rays) {
-        mtx.push_back(crossedCellsBinary(ray, rows, columns));
+        mtx.push_back(crossedCellsExact(ray, rows, columns));
     }
     return mtx;
 };
@@ -274,8 +281,10 @@ void writeRays(std::ostream& stream, const SpMatriz& mtx,
         Ray ray = rays[row];
         const auto& v = mtx[row];
         // Ray info
-        stream << "(" << ray.start.x << "," << ray.start.y << ")" << ",";
-        stream << "(" << ray.end.x << "," << ray.end.y << ")" << ",";
+        stream << "(" << ray.start.x << "," << ray.start.y << ")"
+               << ",";
+        stream << "(" << ray.end.x << "," << ray.end.y << ")"
+               << ",";
         // Img data
         for (size_t i = 0; i < rowLength; i++) {
             stream << v[i];
