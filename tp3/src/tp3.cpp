@@ -102,7 +102,7 @@ int main(int argc, char* argv[]) {
     Vector pureResults = rayResults(img, measurements);
     timeKeeper.stop();
 
-    if (opt.cachePath != "") {
+    if (opt.cachePath != "" and not validCache) {
         /*****************************************************************/
         DEBUG("---------------- Storing cache ------------");
 
