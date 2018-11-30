@@ -28,6 +28,7 @@ struct Options {
     int debug;
     int nThreads;
     size_t seed;
+    int runLsq;
 };
 
 void printHelp(const std::string& cmd, const Options& defaultOptions);

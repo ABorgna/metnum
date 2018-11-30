@@ -21,8 +21,12 @@ void printHelp(const string& cmd, const Options& defaults) {
          << "    -v, --verbose  Print debug info to stderr." << endl
          << "        --quiet    Do not print debug info." << endl
          << "    -j <threads>   Number of threads to utilize. (Default: # of "
-            "cores)" << endl
+            "cores)"
+         << endl
          << "    -s, --seed #   Random seed." << endl
+         << "        --no-lsq   Don't run the LSQ phase (and don't output an "
+            "image)."
+         << endl
 
          << endl
          << "  RAYS" << endl
@@ -79,6 +83,7 @@ bool parseArguments(int argc, char* argv[], const Options& defaults,
         /* These options set a flag. */
         {"verbose", no_argument, &opt.debug, 1},
         {"quiet", no_argument, &opt.debug, 0},
+        {"no-lsq", no_argument, &opt.runLsq, 0},
         /* These options receive a parameter. */
         {"help", no_argument, nullptr, 'h'},
 
@@ -201,8 +206,7 @@ size_t trainingCacheKey(const Options& o) {
            std::hash<size_t>{}((size_t)o.errorGenerator) ^
            std::hash<double>{}(o.errorSigma) ^
            std::hash<size_t>{}((size_t)o.lsqMethod) ^
-           std::hash<size_t>{}(o.seed) ^
-           std::hash<double>{}(o.alpha);
+           std::hash<size_t>{}(o.seed) ^ std::hash<double>{}(o.alpha);
 }
 
 std::string cacheFilename(const Options& o) {

@@ -41,6 +41,7 @@ const Options defaultOptions = {
     debug : true,
     nThreads : -1,
     seed : 42,
+    runLsq : true,
 };
 
 int main(int argc, char* argv[]) {
@@ -129,29 +130,31 @@ int main(int argc, char* argv[]) {
     }
 
     /*****************************************************************/
-    DEBUG("---------------- Runing LSQ ------------");
+    if (opt.runLsq) {
+        DEBUG("---------------- Runing LSQ ------------");
 
-    timeKeeper.start("addingNoise");
-    Vector results =
-        addNoise(opt.errorGenerator, opt.errorSigma, opt.seed, pureResults);
-    timeKeeper.stop();
+        timeKeeper.start("addingNoise");
+        Vector results =
+            addNoise(opt.errorGenerator, opt.errorSigma, opt.seed, pureResults);
+        timeKeeper.stop();
 
-    timeKeeper.start("lsq");
-    Vector x = cuadradosMinimosConSVD(descomposicion, results);
-    timeKeeper.stop();
+        timeKeeper.start("lsq");
+        Vector x = cuadradosMinimosConSVD(descomposicion, results);
+        timeKeeper.stop();
 
-    DEBUG("---------------- Writing image ------------");
+        DEBUG("---------------- Writing image ------------");
 
-    timeKeeper.start("writeImg");
-    Image res(move(x), opt.cellsPerRow, opt.cellsPerRow);
-    if (opt.inputFilename == "-") {
-        // We need to write binary data to stdout
-        freopen(NULL, "wb", stdout);
-        res.write(std::cout);
-    } else {
-        res.write(opt.outputFilename);
+        timeKeeper.start("writeImg");
+        Image res(move(x), opt.cellsPerRow, opt.cellsPerRow);
+        if (opt.inputFilename == "-") {
+            // We need to write binary data to stdout
+            freopen(NULL, "wb", stdout);
+            res.write(std::cout);
+        } else {
+            res.write(opt.outputFilename);
+        }
+        timeKeeper.stop();
     }
-    timeKeeper.stop();
 
     /*****************************************************************/
     DEBUG("---------------- Results -----------------");
