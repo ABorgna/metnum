@@ -16,13 +16,14 @@
 using namespace std;
 
 // Used to invalidate the models cache
-const size_t VERSION = 3;
+const size_t VERSION = 4;
 
 const Options defaultOptions = {
     // Image input and output
     inputFilename : "",
     outputFilename : "",
     cachePath : "cache",
+    raysOutFilename : "",
 
     // Rays
     rayGenerator : RAY_AXIAL,
@@ -40,6 +41,7 @@ const Options defaultOptions = {
     debug : true,
     nThreads : -1,
     seed : 42,
+    runLsq : true,
 };
 
 int main(int argc, char* argv[]) {
@@ -93,17 +95,22 @@ int main(int argc, char* argv[]) {
         measurements = rayCells(rays, opt.cellsPerRow, opt.cellsPerRow);
         timeKeeper.stop();
 
-        timeKeeper.start("lsqPreprocessing");
-        descomposicion = descomposicionSVD(measurements, opt.alpha);
+        if (opt.runLsq) {
+            timeKeeper.start("lsqPreprocessing");
+            descomposicion = descomposicionSVD(measurements, opt.alpha);
+            timeKeeper.stop();
+        }
+    }
+
+    Vector pureResults;
+    if (opt.runLsq) {
+        timeKeeper.start("rayResults");
+        pureResults = rayResults(img, measurements);
         timeKeeper.stop();
     }
 
-    timeKeeper.start("rayResults");
-    Vector pureResults = rayResults(img, measurements);
-    timeKeeper.stop();
-
-    if (opt.cachePath != "") {
-        /*****************************************************************/
+    /*****************************************************************/
+    if (opt.cachePath != "" and not validCache and opt.runLsq) {
         DEBUG("---------------- Storing cache ------------");
 
         timeKeeper.start("writeCache");
@@ -112,29 +119,48 @@ int main(int argc, char* argv[]) {
     }
 
     /*****************************************************************/
-    DEBUG("---------------- Runing LSQ ------------");
+    if (opt.raysOutFilename != "") {
+        DEBUG("---------------- Storing rays file ------------");
 
-    timeKeeper.start("addingNoise");
-    Vector results =
-        addNoise(opt.errorGenerator, opt.errorSigma, opt.seed, pureResults);
-    timeKeeper.stop();
-
-    timeKeeper.start("lsq");
-    Vector x = cuadradosMinimosConSVD(descomposicion, results);
-    timeKeeper.stop();
-
-    DEBUG("---------------- Writing image ------------");
-
-    timeKeeper.start("writeImg");
-    Image res(move(x), opt.cellsPerRow, opt.cellsPerRow);
-    if (opt.inputFilename == "-") {
-        // We need to write binary data to stdout
-        freopen(NULL, "wb", stdout);
-        res.write(std::cout);
-    } else {
-        res.write(opt.outputFilename);
+        timeKeeper.start("writeRays");
+        auto rays = makeRays(opt.rayGenerator, opt.rayCount, opt.seed);
+        auto raysFile = Output(opt.raysOutFilename);
+        if (raysFile.fail()) {
+            DEBUG("Could not open the rays file: " << opt.raysOutFilename);
+        } else {
+            writeRays(raysFile.stream(), measurements, rays, opt.cellsPerRow,
+                      opt.cellsPerRow);
+            raysFile.close();
+        }
+        timeKeeper.stop();
     }
-    timeKeeper.stop();
+
+    /*****************************************************************/
+    if (opt.runLsq) {
+        DEBUG("---------------- Runing LSQ ------------");
+
+        timeKeeper.start("addingNoise");
+        Vector results =
+            addNoise(opt.errorGenerator, opt.errorSigma, opt.seed, pureResults);
+        timeKeeper.stop();
+
+        timeKeeper.start("lsq");
+        Vector x = cuadradosMinimosConSVD(descomposicion, results);
+        timeKeeper.stop();
+
+        DEBUG("---------------- Writing image ------------");
+
+        timeKeeper.start("writeImg");
+        Image res(move(x), opt.cellsPerRow, opt.cellsPerRow);
+        if (opt.inputFilename == "-") {
+            // We need to write binary data to stdout
+            freopen(NULL, "wb", stdout);
+            res.write(std::cout);
+        } else {
+            res.write(opt.outputFilename);
+        }
+        timeKeeper.stop();
+    }
 
     /*****************************************************************/
     DEBUG("---------------- Results -----------------");

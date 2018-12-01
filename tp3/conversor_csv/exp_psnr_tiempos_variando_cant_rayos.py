@@ -71,7 +71,10 @@ def ejecutar_y_escribir_resultado(exp_args):
                             # "--cache": exp_args["CACHE_FOLDER"],
                             "-n": dimension}
 
-            output = ejecutar_tp(program_args)
+            output = ""
+            for line in ejecutar_tp(input_img, output_img, program_args):
+                output += line
+                print(line, end="")
             parsed_output = parsear_output(output)
 
             value_psnr = psnr(output_img, exp_args["IMGS_DIR_INPUT"] + img)
@@ -80,8 +83,6 @@ def ejecutar_y_escribir_resultado(exp_args):
             id +=1
         print()
     resultado.close()
-
-
 
 exp_args = {"IMGS_DIR_INPUT": "./imgs_input/",
             "IMGS_DIR_OUTPUT": "./imgs_output/",

@@ -1,36 +1,35 @@
 #include "img.h"
-#include "../linearAlg/linearAlg.h"
-#include <sstream>
 #include <fstream>
+#include <sstream>
+#include "../linearAlg/linearAlg.h"
 
-Vector csvToVector(std::istream& stream){
+Vector csvToVector(std::istream& stream) {
     std::string line;
     Vector res;
-    while(getline(stream, line)){
+    while (getline(stream, line)) {
         std::istringstream tokenStream(line);
         std::string token;
-        while (std::getline(tokenStream, token, ',')){
+        while (std::getline(tokenStream, token, ',')) {
             res.push_back(std::stoi(token));
         }
     }
     return res;
 }
 
-void vectorToCsv(std::ostream& stream, const Vector& v, size_t rows, size_t columns){
-    for (size_t i = 0; i < rows; i++){
-        for (size_t j = 0; j < columns-1; j++){
-            stream << ' ' << v[i*columns + j] << ',';
+void vectorToCsv(std::ostream& stream, const Vector& v, size_t rows,
+                 size_t columns) {
+    for (size_t i = 0; i < rows; i++) {
+        for (size_t j = 0; j < columns - 1; j++) {
+            stream << ' ' << v[i * columns + j] << ',';
         }
-        stream << ' ' << v[i*(columns + 1) - 1] << std::endl;
+        stream << ' ' << v[i * (columns + 1) - 1] << std::endl;
     }
-
 }
-
 
 Image::Image(std::string& file, size_t rows, size_t columns)
     : _rows(rows), _columns(columns) {
     std::fstream fs;
-    fs.open (file, std::fstream::in);
+    fs.open(file, std::fstream::in);
 
     this->_cells = csvToVector(fs);
     fs.close();

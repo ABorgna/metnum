@@ -150,10 +150,20 @@ IntCoords fromImgPoint(ImgPoint p, int rows, int columns) {
 //
 // Uses Xiaolin Wu's line algorithm for line antialiasing.
 SparseVector crossedCellsExact(const Ray& r, int rows, int columns) {
-    // TODO: Use doubles in the calculations
-    IntCoords a = fromImgPoint(r.start, rows, columns);
-    IntCoords b = fromImgPoint(r.end, rows, columns);
+    ImgPoint a = {r.start.x * columns, r.start.y * rows};
+    ImgPoint b = {r.end.x * columns, r.end.y * rows};
+
     std::map<size_t, double> res;
+
+    const auto fpart = [](double x) { return x - std::floor(x); };
+    const auto rfpart = [&fpart](double x) { return 1.0 - fpart(x); };
+    const auto inRange = [&](int x, int y) {
+        return x >= 0 and x < columns and y >= 0 and y < rows;
+    };
+    const auto plot = [&](int x, int y, double val) {
+        if (inRange(x, y))
+            res[y * columns + x] = val;
+    };
 
     bool steep = abs(b.y - a.y) > abs(b.x - a.x);
     if (steep) {
@@ -164,36 +174,49 @@ SparseVector crossedCellsExact(const Ray& r, int rows, int columns) {
         std::swap(a, b);
     }
 
-    int dx = b.x - a.x;
-    int dy = b.y - a.y;
-    double gradient = dx != 0 ? (double)dy / dx : 1;
+    double dx = b.x - a.x;
+    double dy = b.y - a.y;
+    double gradient = fabs(dx) < 1e-4 ? 1 : dy / dx;
 
     // handle first endpoint
+    int xend = std::round(a.x);
+    double yend = a.y + gradient * (xend - a.x);
+    double xgap = rfpart(a.x + 0.5);
+    int xpxl1 = xend;
+    int ypxl1 = std::floor(yend);
+
     if (steep) {
-        res[a.x * columns + a.y] = 1;
+        plot(ypxl1, xpxl1, rfpart(yend) * xgap);
+        plot(ypxl1 + 1, xpxl1, fpart(yend) * xgap);
     } else {
-        res[a.y * columns + a.x] = 1;
+        plot(xpxl1, ypxl1, rfpart(yend) * xgap);
+        plot(xpxl1, ypxl1 + 1, fpart(yend) * xgap);
     }
+    double intery = yend + gradient;  // first y-intersection for the main loop
 
     // handle second endpoint
+    xend = std::round(b.x);
+    yend = b.y + gradient * (xend - b.x);
+    xgap = rfpart(b.x + 0.5);
+    int xpxl2 = xend;
+    int ypxl2 = std::floor(yend);
     if (steep) {
-        res[b.x * columns + b.y] = 1;
+        plot(ypxl2, xpxl2, rfpart(yend) * xgap);
+        plot(ypxl2 + 1, xpxl2, fpart(yend) * xgap);
     } else {
-        res[b.y * columns + b.x] = 1;
+        plot(xpxl2, ypxl2, rfpart(yend) * xgap);
+        plot(xpxl2, ypxl2 + 1, fpart(yend) * xgap);
     }
 
-    double intery = a.y + gradient;  // first y-intersection for the main loop
-
     // main loop
-    for (int x = a.x + 1; x < b.x; x++) {
-        int intPart = std::floor(intery);
-        int fPart = intery - intPart;
+    for (int x = xpxl1 + 1; x < xpxl2; x++) {
+        int y = std::floor(intery);
         if (steep) {
-            res[x * columns + intPart] = 1.0 - fPart;
-            res[x * columns + (intPart + 1)] = fPart;
+            plot(y, x, rfpart(intery));
+            plot(y + 1, x, fpart(intery));
         } else {
-            res[intPart * columns + x] = 1.0 - fPart;
-            res[(intPart + 1) * columns + x] = fPart;
+            plot(x, y, rfpart(intery));
+            plot(x, y + 1, fpart(intery));
         }
         intery = intery + gradient;
     }
@@ -249,3 +272,23 @@ SpMatriz rayCells(const std::vector<Ray>& rays, int rows, int columns) {
 Vector rayResults(const Image& img, const SpMatriz& mtx) {
     return mtx * img.cells();
 };
+
+void writeRays(std::ostream& stream, const SpMatriz& mtx,
+               const std::vector<Ray>& rays, int rows, int columns) {
+    assert(mtx.size() == rays.size());
+    const size_t rowLength = rows * columns;
+    for (size_t row = 0; row < mtx.size(); row++) {
+        Ray ray = rays[row];
+        const auto& v = mtx[row];
+        // Ray info
+        stream << "(" << ray.start.x << "," << ray.start.y << ")"
+               << ",";
+        stream << "(" << ray.end.x << "," << ray.end.y << ")"
+               << ",";
+        // Img data
+        for (size_t i = 0; i < rowLength; i++) {
+            stream << v[i];
+            stream << (i == rowLength - 1 ? '\n' : ',');
+        }
+    }
+}

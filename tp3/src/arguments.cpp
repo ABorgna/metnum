@@ -22,7 +22,11 @@ void printHelp(const string& cmd, const Options& defaults) {
          << "        --quiet    Do not print debug info." << endl
          << "    -j <threads>   Number of threads to utilize. (Default: # of "
             "cores)"
+         << endl
          << "    -s, --seed #   Random seed." << endl
+         << "        --no-lsq   Don't run the LSQ phase (and don't output an "
+            "image)."
+         << endl
 
          << endl
          << "  RAYS" << endl
@@ -37,6 +41,8 @@ void printHelp(const string& cmd, const Options& defaults) {
          << "    -n, --num-cells #" << endl
          << "                   Number of cells per row and per column."
          << " (Default:" << defaults.cellsPerRow << ")" << endl
+         << "        --ray-file file.csv" << endl
+         << "                   Store the generated rays in a csv file."
 
          << endl
          << "  MEASUREMENT ERROR" << endl
@@ -45,7 +51,7 @@ void printHelp(const string& cmd, const Options& defaults) {
          << "                     0: Gaussian (default)." << endl
          << "                     1: No added noise." << endl
          << "    -E, --error #" << endl
-         << "                   Standard deviation of the generated error "
+         << "                   Standard deviation of the generated error. "
          << " (Default:" << defaults.errorSigma << ")" << endl
 
          << endl
@@ -77,12 +83,14 @@ bool parseArguments(int argc, char* argv[], const Options& defaults,
         /* These options set a flag. */
         {"verbose", no_argument, &opt.debug, 1},
         {"quiet", no_argument, &opt.debug, 0},
+        {"no-lsq", no_argument, &opt.runLsq, 0},
         /* These options receive a parameter. */
         {"help", no_argument, nullptr, 'h'},
 
         {"ray-type", required_argument, nullptr, 'r'},
         {"ray-count", required_argument, nullptr, 'R'},
         {"num-cells", required_argument, nullptr, 'n'},
+        {"ray-file", required_argument, nullptr, 2},
 
         {"error-method", required_argument, nullptr, 'e'},
         {"error", required_argument, nullptr, 'E'},
@@ -103,6 +111,11 @@ bool parseArguments(int argc, char* argv[], const Options& defaults,
         if (flag == -1)
             break;
         switch (flag) {
+            case 0:
+                // Long option
+                if (long_opts[option_index].flag != 0)
+                    break;
+                break;
             case 1:  // no-cache
                 opt.cachePath = "";
                 break;
@@ -127,6 +140,9 @@ bool parseArguments(int argc, char* argv[], const Options& defaults,
             } break;
             case 'R': {
                 opt.rayCount = stoi(optarg);
+            } break;
+            case 2: {
+                opt.raysOutFilename = optarg;
             } break;
             case 'n': {
                 opt.cellsPerRow = stoi(optarg);
@@ -171,6 +187,7 @@ bool parseArguments(int argc, char* argv[], const Options& defaults,
                 return false;
             }
             default:
+                cerr << "Unknown option `-" << (char)optopt << "'." << endl;
                 abort();
         }
     }
@@ -195,8 +212,7 @@ size_t trainingCacheKey(const Options& o) {
            std::hash<size_t>{}((size_t)o.errorGenerator) ^
            std::hash<double>{}(o.errorSigma) ^
            std::hash<size_t>{}((size_t)o.lsqMethod) ^
-           std::hash<size_t>{}(o.seed) ^
-           std::hash<double>{}(o.alpha);
+           std::hash<size_t>{}(o.seed) ^ std::hash<double>{}(o.alpha);
 }
 
 std::string cacheFilename(const Options& o) {

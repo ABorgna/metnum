@@ -8,7 +8,8 @@ def parsear_output(output):
     delim = "---------------- Results -----------------"
     output = output[output.find(delim)+len(delim):].strip()
     output = output.split("\n")
-    pairs = [elem.strip().split(": ") for elem in output]
+    pairs = (elem.strip().split(": ") for elem in output)
+    pairs = (p for p in pairs if len(p) == 2)
     return dict(pairs)
 
 def ejecutar(cmd):
@@ -17,11 +18,19 @@ def ejecutar(cmd):
 
 def ejecutar_tp(input, output, dict_args):
 
-    cmd = "../../tp3 " +" {} {} ".format(input, output) + " ".join("{} {}".format(key, val) for (key, val) in dict_args.items())
-    print(cmd)
+    cmd = ["../../tp3", input, output]
+    cmd += list(map(str,sum(dict_args.items(), ())))
+    print(" ".join(cmd))
 
-    return subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True).decode("utf-8")
-
+    popen = subprocess.Popen(cmd, stderr=subprocess.PIPE, stdout=subprocess.PIPE, universal_newlines=True)
+    for stderr_line in iter(popen.stderr.readline, ""):
+        yield stderr_line
+    for stdout_line in iter(popen.stdout.readline, ""):
+        yield stdout_line
+    popen.stdout.close()
+    return_code = popen.wait()
+    if return_code:
+        raise subprocess.CalledProcessError(return_code, cmd)
 
 def mse(img1, img2):
     # Para imprimir matriz entera en pandas:
