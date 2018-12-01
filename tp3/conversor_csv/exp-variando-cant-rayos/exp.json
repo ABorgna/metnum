@@ -1,0 +1,13 @@
+{
+    "nombre": "expVariandoCantRayos",
+    "imgs": ["tomo2", "tree", "tomo-torso"],
+    "n_cells" : [32],
+    "rays_types": [0, 1, 2],
+    "rays_cnt" : {"from" : 100, "to" : 20000, "step" : 1000},
+    "lsq" : [0],
+    "error_type" : [0],
+    "error_std" : [1],
+    "alpha" : [0.0001],
+    "cache" : [1],
+    "reps" : 2
+}

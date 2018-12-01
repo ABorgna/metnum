@@ -19,6 +19,8 @@ def ejecutar_y_escribir_resultado(exp_args):
         os.mkdir('../imgs_input')
     for t in exp_args['n_cells']:
         convertImgs('../../data', '../imgs_input', '.png', tam = t)
+    if not os.path.exists('./cache'):
+            os.mkdir('./cache')
 
 
     res = init_resultados()
