@@ -58,7 +58,7 @@ if __name__ == "__main__":
     parser.add_argument("-c", "--cells", type=int, default=32,
                     help="Cantidad de celdas en la imagen.")
 
-    parser.add_argument("--checkboard", action="store_true",
+    parser.add_argument("--no-checkboard", dest="checkboard", action="store_false",
                     help="Dibujar un ajedrez de fondo.")
 
     parser.add_argument("-r", "--resolution", type=int, default=256,
