@@ -281,9 +281,9 @@ void writeRays(std::ostream& stream, const SpMatriz& mtx,
         Ray ray = rays[row];
         const auto& v = mtx[row];
         // Ray info
-        stream << "(" << ray.start.x << "," << ray.start.y << ")"
+        stream << "\"(" << ray.start.x << "," << ray.start.y << ")\""
                << ",";
-        stream << "(" << ray.end.x << "," << ray.end.y << ")"
+        stream << "\"(" << ray.end.x << "," << ray.end.y << ")\""
                << ",";
         // Img data
         for (size_t i = 0; i < rowLength; i++) {

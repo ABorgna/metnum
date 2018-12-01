@@ -58,19 +58,21 @@ int main(int argc, char* argv[]) {
     debugging_enabled = (bool)opt.debug;
 
     /*****************************************************************/
-    DEBUG("---------------- Processing image ------------");
-
-    timeKeeper.start("readImage");
     Image img;
-    if (opt.inputFilename == "-") {
-        // We need to read binary data from stdin
-        freopen(NULL, "rb", stdin);
-        img = Image(std::cin, opt.cellsPerRow, opt.cellsPerRow);
-        freopen(NULL, "r", stdin);
-    } else {
-        img = Image(opt.inputFilename, opt.cellsPerRow, opt.cellsPerRow);
+    if (opt.runLsq) {
+        DEBUG("---------------- Processing image ------------");
+
+        timeKeeper.start("readImage");
+        if (opt.inputFilename == "-") {
+            // We need to read binary data from stdin
+            freopen(NULL, "rb", stdin);
+            img = Image(std::cin, opt.cellsPerRow, opt.cellsPerRow);
+            freopen(NULL, "r", stdin);
+        } else {
+            img = Image(opt.inputFilename, opt.cellsPerRow, opt.cellsPerRow);
+        }
+        timeKeeper.stop();
     }
-    timeKeeper.stop();
 
     /*****************************************************************/
 
