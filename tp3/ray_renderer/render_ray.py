@@ -1,3 +1,4 @@
+#!/bin/env python3
 import argparse
 import csv
 from PIL import Image, ImageDraw
