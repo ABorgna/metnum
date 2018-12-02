@@ -1,6 +1,7 @@
 #!/bin/env python3
 import argparse
 import csv
+from math import sqrt
 from PIL import Image, ImageDraw
 import sys
 
@@ -8,7 +9,10 @@ class Ray:
     def __init__(self, start, end, values):
         self.start = start
         self.end = end
-        self.values = values
+
+        width = int(sqrt(len(values)))
+        assert(width * width == len(values))
+        self.values = [values[i*width:(i+1)*width] for i in range(width)]
 
 def parse_coords(string):
     [x,y] = string.strip('()"').split(',')
@@ -22,6 +26,7 @@ def read_rays(filename, maxEntries):
             start = parse_coords(row[0])
             end = parse_coords(row[1])
             values = row[2:]
+            values = list(map(float, values))
             rays.append(Ray(start,end,values))
 
             if(maxEntries > 0 and len(rays) >= maxEntries):
@@ -38,6 +43,34 @@ def draw_checkboard(draw, ncells, color='#eee'):
             a = (x,y)
             b = (x+width,y+width)
             draw.rectangle([a,b], fill=color)
+
+def draw_heatmap(draw, rays):
+    ncells = len(rays[0].values)
+    sz = draw.im.size
+    width = sz[0] // ncells
+
+    cells = [[0. for x in range(ncells)] for y in range(ncells)]
+
+    for ray in rays:
+        sumVals = sum(map(sum, ray.values))
+        for y in range(ncells):
+            for x in range(ncells):
+                cells[y][x] += ray.values[y][x] / sumVals
+
+    maxCell = 0
+    for y in range(ncells):
+        for x in range(ncells):
+            maxCell = max(maxCell, cells[y][x])
+
+    for y in range(ncells):
+        py = y * width
+        for x in range(ncells):
+            px = x * width
+
+            a = (px,py)
+            b = (px+width,py+width)
+            color = int(round(255 * cells[y][x] / maxCell))
+            draw.rectangle([a,b], fill=(color,color,color))
 
 def draw_ray(draw, ray, color='red', width=0):
     sz = draw.im.size[0]
@@ -58,8 +91,14 @@ if __name__ == "__main__":
     parser.add_argument("-c", "--cells", type=int, default=32,
                     help="Cantidad de celdas en la imagen.")
 
+
     parser.add_argument("--no-checkboard", dest="checkboard", action="store_false",
                     help="Dibujar un ajedrez de fondo.")
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument("-b", "--background-img",
+                    help="Imprimir una imagen de fondo")
+    group.add_argument("--heatmap", action="store_true",
+                    help="Dibujar un heatmap de incidencia.")
 
     parser.add_argument("-r", "--resolution", type=int, default=256,
                     help="Resolución de la imagen (cuadrada).")
@@ -76,11 +115,25 @@ if __name__ == "__main__":
     rays = read_rays(args.filename, args.nrays)
 
     # Crear una imagen vacia
-    img = Image.new('RGB', (args.resolution, args.resolution), color='white')
+    if args.background_img is not None:
+        try:
+            img = Image.open(args.background_img)
+        except IOError:
+            print("Could not open the image \"" + str(args.background_img) + "\".")
+            sys.exit(1)
+
+        img = img.resize((args.cells, args.cells), resample = Image.LANCZOS)
+        img = img.resize((args.resolution, args.resolution), resample = Image.NEAREST)
+    else:
+        img = Image.new('RGB', (args.resolution, args.resolution), color='white')
     draw = ImageDraw.Draw(img)
 
+    # Dibujar el heatmap
+    if args.heatmap:
+        draw_heatmap(draw, rays)
+
     # Dibujar el tablero de ajedrez
-    if args.checkboard:
+    if args.checkboard and args.background_img is None and not args.heatmap:
         draw_checkboard(draw, args.cells)
 
     # Dibujar los rayos
