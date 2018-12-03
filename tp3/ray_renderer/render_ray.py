@@ -44,7 +44,7 @@ def draw_checkboard(draw, ncells, color='#eee'):
             b = (x+width,y+width)
             draw.rectangle([a,b], fill=color)
 
-def draw_heatmap(draw, rays):
+def draw_heatmap(draw, rays, invert):
     ncells = len(rays[0].values)
     sz = draw.im.size
     width = sz[0] // ncells
@@ -70,6 +70,8 @@ def draw_heatmap(draw, rays):
             a = (px,py)
             b = (px+width,py+width)
             color = int(round(255 * cells[y][x] / maxCell))
+            if invert:
+                color = 255 - color
             draw.rectangle([a,b], fill=(color,color,color))
 
 def draw_ray(draw, ray, color='red', width=0):
@@ -91,7 +93,6 @@ if __name__ == "__main__":
     parser.add_argument("-c", "--cells", type=int, default=32,
                     help="Cantidad de celdas en la imagen.")
 
-
     parser.add_argument("--no-checkboard", dest="checkboard", action="store_false",
                     help="Dibujar un ajedrez de fondo.")
     group = parser.add_mutually_exclusive_group()
@@ -99,6 +100,8 @@ if __name__ == "__main__":
                     help="Imprimir una imagen de fondo")
     group.add_argument("--heatmap", action="store_true",
                     help="Dibujar un heatmap de incidencia.")
+    parser.add_argument("--invert-heatmap", action="store_true",
+                    help="Negro es mas alto en el heatmap.")
 
     parser.add_argument("-r", "--resolution", type=int, default=256,
                     help="Resolución de la imagen (cuadrada).")
@@ -130,7 +133,7 @@ if __name__ == "__main__":
 
     # Dibujar el heatmap
     if args.heatmap:
-        draw_heatmap(draw, rays)
+        draw_heatmap(draw, rays, args.invert_heatmap)
 
     # Dibujar el tablero de ajedrez
     if args.checkboard and args.background_img is None and not args.heatmap:
