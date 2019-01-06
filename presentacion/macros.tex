@@ -1,0 +1,184 @@
+%%%%% NUMEROS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\e}{\mathrm{e}}
+\newcommand{\ii}{\mathrm{i}}
+\renewcommand{\r}{\mathbf{r}}
+\renewcommand{\d}{\mathrm{d}}
+\newcommand{\al}{&\,}
+
+\renewcommand{\bf}[1]{{\boldsymbol{#1}}}
+
+%%%%% CONJUNTOS NUMERICOS %%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\C}{\ensuremath{\mathbb{C}}}
+\newcommand{\N}{\ensuremath{\mathbb{N}}}
+\newcommand{\Q}{\ensuremath{\mathbb{Q}}}
+\newcommand{\R}{\ensuremath{\mathbb{R}}}
+\newcommand{\T}{\ensuremath{\mathbb{\zeta}}}
+\newcommand{\Z}{\ensuremath{\mathbb{Z}}}
+
+%%%%% FUNCIONES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\renewcommand{\Re}[1]{\ensuremath{\mathrm{Re}\pa{ #1 }}}
+\renewcommand{\Im}[1]{\ensuremath{\mathrm{Im}\pa{ #1 }}}
+\renewcommand{\ker}[1]{\ensuremath{\mathrm{Ker}\pa{ #1 }}}
+\newcommand{\ran}[1]{\ensuremath{\mathrm{Ran}\pa{ #1 }}}
+\newcommand{\inc}{\ensuremath{\iota}}
+\newcommand{\sig}[1]{\ensuremath{\mathrm{sgn}\pa{ #1 }}}
+\newcommand{\sop}[1]{\ensuremath{\mathrm{sop}\pa{ #1 }}}
+\newcommand{\tr}[1]{\ensuremath{\mathrm{tr}\pa{ #1 }}}
+\newcommand*{\bigtimes}{\mathop{\raisebox{-.5ex}{\hbox{\huge{$\times$}}}}}
+
+%%%%% LLAVES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\abs}[1]{\ensuremath{\left| #1 \right|}}
+\newcommand{\norm}[1]{\ensuremath{\left\| #1 \right\|}}
+\newcommand{\pa}[1]{\ensuremath{\left( #1 \right)}}
+\newcommand{\pro}[2]{\ensuremath{\pa{ #1,#2 }}}
+\newcommand{\set}[1]{\ensuremath{\left\{ #1 \right\}}}
+
+%%%%% ESPACIOS VECTORIALES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\Rn}[1][n]{\ensuremath{\R^{#1}}}
+\newcommand{\Cn}[1][n]{\ensuremath{\C^{#1}}}
+
+%%%%% ESPACIOS FUNCIONALES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\sch}[1][n]{\ensuremath{\mathcal{S}\pa{\Rn[#1]}}}
+\newcommand{\lp}[2]{\ensuremath{L^{#1}\pa{\Rn[#2]}}}
+\newcommand{\lpw}[2]{\ensuremath{L^{#1,w}\pa{\Rn[#2]}}}
+\newcommand{\sob}[2]{\ensuremath{H^{#1}\pa{\Rn[#2]}}}
+\newcommand{\hil}{\ensuremath{\mathrm{H}}}
+
+%%%%% Variables %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\renewcommand{\b}{\mathnormal{b}}
+\newcommand{\f}{\mathnormal{f}}
+\newcommand{\n}{\mathnormal{n}}
+\newcommand{\p}{\mathnormal{p}}
+\newcommand{\x}{\mathnormal{x}}
+\newcommand{\y}{\mathnormal{y}}
+
+\newcommand{\new}{\mathnormal{new}}
+\newcommand{\meas}{\mathnormal{meas}}
+
+% ------ Macros varios -------------
+\newcommand{\lSV}{ \ensuremath{\lambda_{q}} }
+\newcommand{\lR}{ \ensuremath{\lambda_{\rho}} }
+\newcommand{\lRp}{ \ensuremath{\lambda_{\rho}^{pure}} }
+\newcommand{\lRcv}{ \ensuremath{\lambda_{\rho}^{cbv}} }
+\newcommand{\lRo}{ \ensuremath{\lambda_{\rho}^o} }
+
+\newcommand{\tSV}{\ensuremath{ T_{q} } }
+\newcommand{\tR}{\ensuremath{ T_{\rho} } }
+\newcommand{\tRp}{\ensuremath{ T_{\rho}^\# } }
+\newcommand{\tRo}{\ensuremath{ T_{\rho}^o } }
+
+\newcommand{\vSV}{\ensuremath{ V_{q} } }
+\newcommand{\vR}{\ensuremath{ V_{\rho} } }
+\newcommand{\vRo}{\ensuremath{ V_{\rho}^o } }
+
+\newcommand{\treeR}[1]{ tree_\rho(#1) }
+\newcommand{\treeSV}[1]{ tree_q(#1) }
+\newcommand{\collectR}[1]{ collect^{=}(#1) }
+\newcommand{\collectSV}[1]{ collect^\stateEq(#1) }
+
+\newcommand{\rp}[1]{ \llparenthesis #1 \rrparenthesis }
+\newcommand{\chooseP}[1]{ choose(#1) }
+\newcommand{\pureP}[1]{ pure\_terms(#1) }
+
+\renewcommand{\rq}{*}
+\newcommand{\rqt}{*}
+\newcommand{\qr}{\vartriangle}
+\newcommand{\qrt}{\vartriangle}
+
+\newcommand{\tocbv}[1]{\llbracket #1 \rrbracket}
+\newcommand{\ifte}[3]{\ensuremath{\; \text{if} \; #1 \; \text{then} \; #2 \;
+                                     \text{else} \; #3 \;}}
+\newcommand{\letin}[3]{\ensuremath{\; \text{let} \; #1 \; = \; #2 \;
+                                     \text{in} \; #3 \;}}
+\newcommand{\letcase}[3]{\ensuremath{\; \text{letcase} \; #1 \; = \; #2 \;
+                                     \text{in} \; #3 \;}}
+\newcommand{\letcaseo}[3]{\ensuremath{\; \text{letcase}^o \; #1 \; = \; #2 \;
+                                     \text{in} \; #3 \;}}
+\newcommand{\letcaseq}[2]{\ensuremath{\; \text{case} \; #1 \;
+                                     \text{of} \; #2 \;}}
+\newcommand{\decompose}[1]{\ensuremath{\; \text{decompose}(#1)}}
+\newcommand{\state}[1]{\ensuremath{\; \text{fst}(#1)}}
+\newcommand{\linker}[1]{\ensuremath{\; \text{snd}(#1)}}
+\newcommand{\term}[1]{\ensuremath{\; \text{trd}(#1)}}
+\newcommand{\stateEq}{\approx}
+\newcommand{\probEq}{\approx_{prob}}
+
+\newcommand{\oarrow}{ \rightsquigarrow }
+
+\newcommand{\ketZero}{
+    \begin{pmatrix}
+        1 \\
+        0
+    \end{pmatrix}
+}
+
+\newcommand{\ketOne}{
+    \begin{pmatrix}
+        0 \\
+        1
+    \end{pmatrix}
+}
+
+\newcommand{\densityZero}{
+    \begin{pmatrix}
+        1 & 0 \\
+        0 & 0
+    \end{pmatrix}
+}
+
+\newcommand{\densityOne}{
+    \begin{pmatrix}
+        0 & 0 \\
+        0 & 1
+    \end{pmatrix}
+}
+
+\newcommand{\densityPlus}{
+    \begin{pmatrix}
+        \frac{1}{2} & \frac{1}{2} \\
+        \frac{1}{2} & \frac{1}{2}
+    \end{pmatrix}
+}
+
+\newcommand{\densityMinus}{
+    \begin{pmatrix}
+        \frac{1}{2} & -\frac{1}{2} \\
+        -\frac{1}{2} & \frac{1}{2}
+    \end{pmatrix}
+}
+
+\newcommand{\densityMixZO}{
+    \begin{pmatrix}
+        \frac{1}{2} & 0 \\
+        0 & \frac{1}{2}
+    \end{pmatrix}
+}
+
+\newcommand{\questeq}{\stackrel{?}{=}}
+
+\newcommand{\braket}[2]{\langle#1|#2\rangle}
+\newcommand{\ketbra}[2]{|{#1}{\times}{#2}|}
+\newcommand{\bra}[1]{\langle#1|}
+\newcommand{\ket}[1]{|#1\rangle}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\alComment}[1]{
+  \text{\phantom{(#1)}} \tag*{#1}
+}
+
+
+%%%%%%%%%%%%%%%%%%%%% Cosas de BMC
+
+\newcommand{\SAT}[1]{\llbracket#1\rrbracket_{k}}
+
+\newcommand{\loopSAT}[1]{\prescript{}{l}{\SAT{#1}}}
+
+\newcommand{\tSAT}{\SAT{M,f}}

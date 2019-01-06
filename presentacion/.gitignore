@@ -1,0 +1,10 @@
+# pdf things
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.nav
+*.out
+*.nsm
+*.synctex.gz
+*.toc

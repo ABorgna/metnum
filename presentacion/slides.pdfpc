@@ -1,0 +1,32 @@
+[duration]
+15
+[end_user_slide]
+14
+[font_size]
+22
+[notes]
+### 2
+1. Atravesando el objeto con rayos y midiendo la intensidad y el tiempo con el que llegan
+### 4
+- Usamos Bresenham y Xiaolin Wu (backup).
+### 6
+- en tomo2.png de 32x32
+- 20k rayos
+- error gaussiano con desvío estandar de 0.1
+- alpha=0.0001
+### 7
+- en tomo2.png de 32x32
+- variando cant. rayos de 100 a 2000 (saltos de a 1000)
+- error gaussiano con desvío estandar de 0.1
+- alpha=0.0001
+### 12
+1. Se entendio la motivacion inicial. Un sistema más complejo podría ser muy útil para distintos investigadores.
+2. Comparar con el tp anterior y bla.
+### 13
+1. no rectas, algun algoritmo que los mejore (busques local)
+2. QR
+### 14
+1. Sirvio para tener valores ESPERADOS de PSNR
+ 2. El algoritmo loco
+3. cosas de numero de condicion
+4. SVD reducida

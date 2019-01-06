@@ -1,0 +1,366 @@
+\documentclass[12pt]{beamer}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb,esint}
+\usepackage{appendixnumberbeamer}
+\usepackage{color}
+\usepackage{verbatim} % comentarios
+%\usepackage{beamerthemesplit}
+%\usepackage{pb-diagram}
+%\usepackage{ulem}
+%\usepackage{overpic}
+%\usepackage{tikz-cd}
+\usepackage{graphicx}
+\usepackage{subfigure}
+\usepackage{pdfpages}
+\usepackage{multicol}
+\usepackage{forest}
+\usepackage{stmaryrd}
+\usepackage{tikz}
+\usepackage{tikz-cd}
+\usepackage{mathtools}
+%\usepackage{caption}
+%\usepackage{subcaption}
+\usepackage[english,spanish]{babel}
+\usepackage[duration=15,enduserslide=14]{pdfpcnotes}
+\usepackage{movie15}
+\mode<presentation>
+
+\graphicspath{{./img/}}
+
+%%%%%%%%%%%%%%%% Tikz %%%%%%%%%%%%%%
+
+\usetikzlibrary{arrows, matrix}
+
+%%%%%%%%%%%%%%%% Open with `pdfpc` %%%%%%%%%%%%%%
+
+\setbeamertemplate{navigation symbols}{}
+
+\usetheme{Warsaw}
+
+\setbeamercovered{transparent}
+
+%\setbeameroption{show notes on second screen=right}
+
+\setbeamercolor{mycolor}{fg=white,bg=black}
+
+\defbeamertemplate*{footline}{shadow theme}{%
+\leavevmode%
+\hbox{\begin{beamercolorbox}[wd=.5\paperwidth,ht=2.5ex,dp=1.125ex,leftskip=.3cm plus1fil,rightskip=.3cm]{author in head/foot}%
+    \usebeamerfont{author in head/foot}\hfill\insertshortauthor
+\end{beamercolorbox}%
+\begin{beamercolorbox}[wd=.43\paperwidth,ht=2.5ex,dp=1.125ex,leftskip=.3cm,rightskip=.3cm plus1fil]{title in head/foot}%
+    \usebeamerfont{title in head/foot}\hfill%
+\end{beamercolorbox}%
+\begin{beamercolorbox}[wd=.07\paperwidth,ht=2.5ex,dp=1.125ex,leftskip=.1cm,rightskip=.1cm plus1fil]{mycolor}%
+\hfill\insertframenumber\,/\,\inserttotalframenumber
+\end{beamercolorbox}}%
+\vskip0pt%
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\input{macros}
+
+\title[Título]{Título}
+
+\author[Borgna, Freund, Scherman, Singer]{Agustín Borgna, Teodoro Freund, Jonathan Scherman, Jessica Singer}
+
+\institute[UBA]{Universidad de Buenos Aires}
+
+\date{December 21,  2018}
+
+\AtBeginSection[]{\frame[noframenumbering]{\tableofcontents[current]}}
+
+\begin{document}
+
+\maketitle
+
+\begin{frame}[noframenumbering]
+\tableofcontents
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduccion y Motivacion}
+
+\frame{
+\frametitle{Introduccion y Motivacion}
+
+\begin{itemize}
+    \item La tomografía computada es una tecnologia que permite conseguir una imagen de un corte (o seccion) del cuerpo.
+    
+    \item Distinta disposicion de los rayos dan distintos resultados y si uno quisiese encontrar la mejor topologia, deberia conducir estudios de rayos x (caros) en seres humanos (peligrosos), de aqui sale la motivacion de poder simular este proceso.
+\end{itemize}
+
+\pnote{1. Atravesando el objeto con rayos y midiendo la intensidad y el tiempo con el que llegan}
+
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Simulación}
+
+\subsection{Generando los rayos}
+
+\frame{
+\frametitle{Tipos de rayos}
+
+\begin{figure}[H]
+\centering
+  \begin{tabular}{@{}ccc@{}}
+      Axiales & Laterales & Random\\
+    \includegraphics[width=.3\textwidth]{exp-anal/raysAxial100-checkboard.png} &
+    \includegraphics[width=.3\textwidth]{img/exp-anal/raysSides100-checkboard.png} &
+    \includegraphics[width=.3\textwidth]{exp-anal/raysRandom100-checkboard.png} & \\
+  \end{tabular}
+\end{figure}
+
+\vspace*{4em}
+
+    % \pnote{- Así se pueden agregar notas para la presentación}
+}
+
+\subsection{Vectores de incidencia}
+
+\frame{
+\frametitle{Calculando vectores de incidencia}
+
+
+    \vspace*{4em}
+
+  \begin{tabular}{@{}cc@{}}
+      Bresenham & Xiaolin Wu \\
+      
+    \includegraphics[width=.5\textwidth]{img/line-aliasing/rayDiagBres.png} &
+    \includegraphics[width=.5\textwidth]{img/line-aliasing/rayDiag.png} & \\
+
+  \end{tabular}
+  
+    \vspace*{4em}
+    \hyperlink{frame:rayos-heatmap}{\beamergotobutton{Heatmaps}}
+    
+    % \includemovie{1cm}{1cm}{img/LineXiaolinWu.gif}
+
+    \pnote{- Usamos Bresenham y Xiaolin Wu (backup).}
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Experimentación}
+
+\frame{
+\frametitle{Scripts para mediciones}
+
+\begin{itemize}
+    \item Generamos un script que redimensiona la imagen y la inyecta en el programa
+    \item Cacheamos datos para acelerar la experimentación
+    \item Medimos para cada ejecución su PSNR y tiempos.
+\end{itemize}
+}
+
+\subsection{Variando cant. y tipo de rayos}
+
+\frame{
+\frametitle{Outputs usando tomo2.png}
+
+
+\begin{figure}[H]
+\centering
+  \begin{tabular}{@{}cccc@{}}
+      original & axial rays & side rays & random rays \\
+      
+    \includegraphics[width=.2\textwidth]{img/exp-variando-rayos/tomo2-32-original.png} &
+    \includegraphics[width=.2\textwidth]{exp-variando-rayos/tomo2-32-0-19100-0-0-1-00001-1-1.png} &
+    \includegraphics[width=.2\textwidth]{exp-variando-rayos/tomo2-32-1-19100-0-0-1-00001-1-1.png} &
+    \includegraphics[width=.2\textwidth]{exp-variando-rayos/tomo2-32-2-19100-0-0-1-00001-1-1.png} & \\
+
+  \end{tabular}
+  
+  
+    \pnote{- en tomo2.png de 32x32}
+    \pnote{- 20k rayos}
+    \pnote{- error gaussiano con desvío estandar de 0.1}
+    \pnote{- alpha=0.0001}
+\end{figure}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\frame{
+\frametitle{Tiempos y PSNR}
+
+    \pnote{- en tomo2.png de 32x32}
+    \pnote{- variando cant. rayos de 100 a 2000 (saltos de a 1000)}
+    \pnote{- error gaussiano con desvío estandar de 0.1}
+    \pnote{- alpha=0.0001}
+
+\begin{figure}[H]
+\centering
+  \begin{tabular}{@{}cc@{}}
+    \includegraphics[width=.4\textwidth]{exp-variando-rayos/tiempos-variando-rayos-tomo2.png} &
+    \includegraphics[width=.4\textwidth]{exp-variando-rayos/psnr-variando-rayos-tomo2.png} & 
+    Tiempos & PSNR
+  \end{tabular}
+\end{figure}
+
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Variando ruido}
+
+\frame{
+\frametitle{Análisis de ruido}
+
+\begin{figure}[H]
+\centering
+  \begin{tabular}{@{}cc@{}}
+    \raisebox{0.5in}{\includegraphics[width=.5\textwidth]{img/exp-error/exp-error.png}} &
+    \includegraphics[width=.5\textwidth]{img/exp-error/tab1-posta.png}& 
+  \end{tabular}
+\end{figure}
+
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Variando valores singulares}
+
+\frame{
+\frametitle{Resultados variando valores singulares}
+
+
+\begin{figure}[H]
+\centering
+  \begin{tabular}{@{}cc@{}}
+    \raisebox{0.5in}{\includegraphics[width=.5\textwidth]{img/exp-variando-alpha/exp-distintos-alpha.png}} &
+    \includegraphics[width=.4\textwidth]{img/exp-variando-alpha/tab2.png}& 
+  \end{tabular}
+\end{figure}
+
+}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Experimentando con nro. de condición}
+
+\frame{
+\frametitle{Nro. de condición}
+
+
+\begin{figure}[H]
+\centering
+  \begin{tabular}{@{}cc@{}}
+    {\includegraphics[width=.5\textwidth]{img/exp-nro-cond/exp-nro-cond-cond.png}} &
+    \includegraphics[width=.5\textwidth]{img/exp-nro-cond/exp-nro-cond.png}& 
+  \end{tabular}
+\end{figure}
+
+}
+
+\frame{
+\frametitle{Nro. de condición}
+
+
+
+\begin{figure}[H]%
+    \centering
+    \includegraphics[width=.4\textwidth]{img/exp-nro-cond/tab3.png}%
+
+\end{figure}
+
+}
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Conclusiones y Trabajo Futuro}
+
+\frame{
+
+\frametitle{Conclusiones}
+
+\begin{itemize}
+    \item Tener una forma de simular este proceso (caro) nos permitió experimentar exhaustivamente.
+    
+    \item Tomar más o menos valores singulares para la descomposición SVD nos permite analizar un trade off entre velocidad de procesamiento y calidad del resultado.
+\end{itemize}
+
+\pnote{1. Se entendio la motivacion inicial. Un sistema más complejo podría ser muy útil para distintos investigadores.}
+\pnote{2. Comparar con el tp anterior y bla.}
+
+
+}
+
+\frame{
+\frametitle{Trabajo Futuro}
+
+
+\begin{itemize}
+    \item Rayos más complejos;
+    \item otras formas de resolver CML;
+    \pause
+    \item rendir el final.
+\end{itemize}
+\pnote{1. no rectas, algun algoritmo que los mejore (busques local)}
+\pnote{2. QR}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Referencias}
+
+\frame{
+\bibitem{salomon}
+\small
+Salomon, David. (2007). Data Compression: \textit{The Complete Reference}. 281.
+
+\bibitem{xiaolinWu}
+Wu, Xiaolin (1991). "Fast Anti-Aliased Circle Generation". In James Arvo. Graphics Gems II. San Francisco: Morgan Kaufmann. pp. 446–450. ISBN 0-12-064480-0.
+
+\bibitem{Condicion}
+Belsley, David A.; Kuh, Edwin; Welsch, Roy E. (1980). "The Condition Number". Regression Diagnostics: Identifying Influential Data and Sources of Collinearity. New York: John Wiley & Sons.
+
+\bibitem{SVD}
+sepwww.stanford.edu/public/docs/sep73/ray1/paper\_html/node3.html
+
+\pnote{1. Sirvio para tener valores ESPERADOS de PSNR}
+\pnote{    2. El algoritmo loco}
+\pnote{3. cosas de numero de condicion}
+\pnote{4. SVD reducida}
+}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\appendix
+% start backup slides here
+
+% Estas frames quedan fuera de la numeración y del índice
+%\frame{
+%\frametitle{asd2}
+%}
+
+\frame{
+\label{frame:rayos-heatmap}
+\frametitle{Heatmap de rayos}
+
+\begin{figure}[H]
+\centering
+  \begin{tabular}{@{}ccc@{}}
+      Axiales & Laterales & Random\\
+    \includegraphics[width=.3\textwidth]{exp-anal/raysAxial100-heatmap.png} &
+    \includegraphics[width=.3\textwidth]{img/exp-anal/raysSides100-heatmap.png} &
+    \includegraphics[width=.3\textwidth]{exp-anal/raysRandom100-heatmap.png} & \\
+  \end{tabular}
+\end{figure}
+
+    % \pnote{- Así se pueden agregar notas para la presentación}
+}
+
+\end{document}
